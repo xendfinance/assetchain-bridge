@@ -1,0 +1,31 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "src/__tests__/**/*",
+    "src/__tests__/**/*.cy.ts"
+  ],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "resolveJsonModule": true,
+    "lib": ["esnext", "dom"],
+    "types": ["cypress"],
+    "strict": true,
+    "preserveValueImports": false,
+    "skipLibCheck": true,
+    "importsNotUsedAsValues": "preserve",
+    "isolatedModules": true
+  },
+
+  "references": [
+    {
+      "path": "./tsconfig.vite-config.json"
+    }
+  ]
+}

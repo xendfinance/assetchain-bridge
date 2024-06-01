@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  font-weight: normal;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: "Fira Sans", sans-serif;
+  min-height: 100vh;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #070E17;
+  color: white;
+}
+
+body:has(.menu-open) {
+  overflow-y: hidden;
+}
+
+ul,
+li,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  font-weight: 400;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1 {
+  /* font-family: "Neuropol";
+  letter-spacing: -0.5px; */
+}

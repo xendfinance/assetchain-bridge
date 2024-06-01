@@ -1,0 +1,26 @@
+stages:
+  - test
+  - build
+  - deploy
+
+# variables:
+#   SKIP_COMPONENTS_TEST: 'true'
+#   SKIP_BUILD_TEST: 'true'
+#   SKIP_TYPECHECK_TEST: 'true'
+
+include:
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/build/backend/.gitlab-ci.yml'
+
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'clients/build/backend/aws/.gitlab-ci.yml'
+
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/deploy/backend/.gitlab-ci.yml'
+
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/test/backend/.gitlab-ci.yml'

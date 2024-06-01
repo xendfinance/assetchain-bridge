@@ -1,0 +1,14 @@
+{
+  "semi": false,
+  "printWidth": 90,
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "*.sol",
+      "options": {
+        "printWidth": 90,
+        "tabWidth": 4
+      }
+    }
+  ]
+}

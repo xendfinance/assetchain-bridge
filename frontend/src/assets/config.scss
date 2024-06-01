@@ -1,0 +1,38 @@
+/*==Colors==*/
+$primary-card: #0B131E;
+$primary-btn: #2042B8;
+$primary-bg: #070E17;
+$primary-text: #FFFFFF;
+$primary-icon: #505050;
+$primary-popup: #121D2D;
+$label-text: #A3A8BB;
+$success: #219D2E;
+$error: #BC1409;
+$wrong-network: #EB5757;
+$gray-color: '';
+$gray-dark-color: '';
+
+/*==Font==*/
+
+
+/*==Adaptive==*/
+@mixin for-size($size) {
+    @if $size == sm {
+        @media (min-width: 640px) {
+            @content;
+        }
+    } @else if $size == md {
+        @media (min-width: 768px) {
+            @content;
+        }
+    } @else if $size == lg {
+        @media (min-width: 1024px) {
+            @content;
+        }
+    }
+}
+
+@mixin size-box($size) {
+    width: $size;
+    height: $size;
+}

@@ -1,0 +1,81 @@
+<template>
+  <footer class="w-full bg-primary-bg border-t-[1px] border-t-primary-border">
+    <div
+      class="w-full max-w-[1440px] flex items-center justify-center md:justify-between px-5 lg:px-20 mx-auto py-5 lg:py-8"
+    >
+      <a href="https://xend.finance" target="_blank" class="md:block w-[25%] hidden">
+        <div class="flex flex-col items-start w-[135px]">
+          <Logotip class="hidden md:block"/>
+          <p class="text-[14px] mt-[10px] text-label-text uppercase">
+            © {{ new Date().getFullYear() }} Gotbit Ltd
+          </p>
+        </div>
+      </a>
+      <Social :links="links" class=""/>
+    </div>
+    <div class="w-full flex justify-center items-center">
+      <p class="max-w-[1280px] w-full flex justify-center md:justify-end items-center border-t-[1px] border-t-primary-border py-4 md:py-5 md:pt-[12px]">
+        <span class="text text-[13px]">
+          <a href="https://gotbit.io/">develop by Gotbit</a>
+        </span>
+      </p>
+    </div>
+  </footer>
+</template>
+
+<script lang="ts" setup>
+import { ref } from 'vue'
+import Logotip from '@/components/nav/Logo.vue'
+import Social from '@/components/nav/Social.vue'
+
+const links = ref([
+  {
+    name: 'facebook',
+    link: 'http://web.facebook.com/XendFinance',
+    img: 'Facebook.svg',
+  },
+  {
+    name: 'telegram',
+    link: 'https://t.me/XendAnnouncements',
+    img: 'Telegram.svg',
+  },
+  {
+    name: 'youtube',
+    link: 'https://www.youtube.com/channel/UCcR2lTpYwCws-axra4AAO8Q/featured',
+    img: 'Youtube.svg',
+  },
+  // {
+  //   name: 'linkedin',
+  //   link: 'https://www.linkedin.com/company/chaingpt',
+  //   img: 'Linkedin.svg',
+  // },
+  {
+    name: 'reddit',
+    link: 'http://www.reddit.com/r/XendFinance/',
+    img: 'Reddit.svg',
+  },
+  { 
+    name: 'twitter', 
+    link: 'http://twitter.com/xendfinance', 
+    img: 'Twitter.svg' 
+  },
+  {
+    name: 'Github',
+    link: ' https://github.com/xendfinance',
+    img: 'Github.png',
+  },
+  { 
+    name: 'discord', 
+    link: 'https://discord.gg/QGHb7jp2GV', 
+    img: 'Discord.svg' 
+  },
+])
+
+</script>
+
+<style scoped lang="scss">
+.text {
+  color: rgba(239, 239, 229, 0.30)
+}
+
+</style>

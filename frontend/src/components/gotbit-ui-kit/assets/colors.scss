@@ -1,0 +1,148 @@
+/*==Functions colors== */
+/*
+    # HexToRGBa - Преобразование цвета из формата HEX в RGB/RGBA
+    # $hex - Цвет (#000000)
+    # $alph - Прозрачность (0.0 - 1.0, default: 1)
+*/
+@function HexToRGBa($hex, $alph: -1) {
+    @if ($alph >= 0) { @return 'rgba('red($hex)','green($hex)','blue($hex)','$alph')'; }
+    @else { @return 'rgb('red($hex)','green($hex)','blue($hex)')'; }
+}
+
+/*
+    # HexToHSL - Преобразование цвета из формата HEX в HSL 
+    # $hex - Цвет (#000000)
+*/
+@function HexToHSL( $hex ) {
+    $r: calc(red($hex) / 255);
+    $g: calc(green($hex) / 255);
+    $b: calc(blue($hex) / 255);
+
+    $max: max($r, $g, $b);
+    $min: min($r, $g, $b);
+
+    $minmax: calc($max - $min);
+    
+    @if ($minmax == 0) {
+        $hue: 0;
+        $s: 0;
+        $l: 0;
+
+        @return $hue+','$s+'%,'$l+'%';
+    }
+    @else {
+        $l: calc( (($max + $min) / 2) * 100 );
+        $s: calc($minmax / (1 - abs(2 * $l - 1)));
+    
+        @if($l < 0) { $l: calc($l * (-1)); }
+        @if($s < 0) { $s: calc($s * (-1)); }
+    
+        $s: calc(ceil($s) * 100);
+
+        @if($max == $r) {
+            $segment: calc(($g - $b) / $minmax);
+            $shift: calc(0 / 60);
+
+            @if ($segment < 0) {
+                $shift: calc(360 / 60);
+            }
+
+            $hue: calc(($segment + $shift) * 60);
+            @return $hue+','$s+'%,'$l+'%';
+        }
+        @else if($max == $g) {
+            $segment: calc(($b - $r) / $minmax);
+            $shift: calc(120 / 60);
+
+            $hue: calc(($segment + $shift) * 60);
+            @return $hue+','$s+'%,'$l+'%';
+        }
+        @else if($max == $b) {
+            $segment: calc(($r - $g) / $minmax);
+            $shift: calc(240 / 60);
+
+            $hue: calc(($segment + $shift) * 60);
+            @return $hue+','$s+'%,'$l+'%';
+        }
+    }
+}
+
+/*
+    # isHSL - Иницилизирует свойство hsla или hsl
+    # $hex  - Цвет (#000000)
+    # $alph - Прозрачность (0.0 - 1.0, default: 1)
+*/
+@function isHSL($hex: #000000, $alph: -1) {
+    $_color: HexToHSL( $hex );
+
+    @if ($alph >= 0) {
+        @return #{'hsla( '$_color',' $alph')'};
+    }
+    @else {
+        @return #{'hsl( '$_color')'};
+    }
+}
+
+/*
+    # ChageHexToHSL - Преобразование цвета из формата HEX в HSLA с выбором параметров 
+    # $hex - Цвет (#000000)
+    # $s   - Насыщенность (0 - 100%, default: 100%)
+    # $l   - Яркость (0 - 100%, default: 50%)
+    # alph - Прозрачность (0.0 - 1.0, default: 1)
+*/
+@function ChageHexToHSL( $hex, $s: 0, $l: 0, $alph: 1.0 ) {
+    $r: calc(red($hex) / 255);
+    $g: calc(green($hex) / 255);
+    $b: calc(blue($hex) / 255);
+
+    $max: max($r, $g, $b);
+    $min: min($r, $g, $b);
+
+    $minmax: calc($max - $min);
+    
+    @if ($minmax == 0) {
+        $hue: 0;
+
+        @return 'hsla('$hue+','$s+'%,'$l+'%,'$alph')';
+    }
+    @else {
+        @if($l == 0) {
+            $l: calc( (($max + $min) / 2) * 100 );
+
+            @if($l < 0) { $l: calc($l * (-1)); }
+        }
+        @if($s == 0) {
+            $s: calc($minmax / (1 - abs(2 * $l - 1)));
+
+            @if($s < 0) { $s: calc($s * (-1)); }
+
+            $s: calc(ceil($s) * 100);
+        }
+
+        @if($max == $r) {
+            $segment: calc(($g - $b) / $minmax);
+            $shift: calc(0 / 60);
+
+            @if ($segment < 0) {
+                $shift: calc(360 / 60);
+            }
+
+            $hue: calc(($segment + $shift) * 60);
+            @return 'hsla('$hue+','$s+'%,'$l+'%,'$alph')';
+        }
+        @else if($max == $g) {
+            $segment: calc(($b - $r) / $minmax);
+            $shift: calc(120 / 60);
+
+            $hue: calc(($segment + $shift) * 60);
+            @return 'hsla('$hue+','$s+'%,'$l+'%,'$alph')';
+        }
+        @else if($max == $b) {
+            $segment: calc(($r - $g) / $minmax);
+            $shift: calc(240 / 60);
+
+            $hue: calc(($segment + $shift) * 60);
+            @return 'hsla('$hue+','$s+'%,'$l+'%,'$alph')';
+        }
+    }
+}

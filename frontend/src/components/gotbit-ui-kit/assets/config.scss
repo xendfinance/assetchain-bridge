@@ -1,0 +1,92 @@
+@import "./colors.scss";
+
+/*==Font==*/
+$font: "Poppins", sans-serif;
+
+/*==Colors main==*/
+$primary-color: #007bff;
+$white-color: #ffffff;
+$black-color: #000000;
+$error-color: #ee5a51;
+$success-color: #26ce87;
+$warning-color: #ffb524;
+$btn-cancel-bcg: rgba(255, 255, 255, 0.03);
+$gradient-primary-from: #af53ff;
+$gradient-primary-to: #6eacfe;
+$gradient-error-from: #de2366;
+$gradient-error-to: rgba(251, 22, 104, 0.3);
+$gradient-disabled-from: #525252;
+$gradient-disabled-to: #C5C5C5;
+$main-background: #270b33;
+$main-card-text: #897493;
+$main-card: #1e0628;
+
+/*==Colors extra==*/
+$primary-light-color: #{ChageHexToHSL($primary-color, 0, 70)};
+$primary-dark-color: #{ChageHexToHSL($primary-color, 0, 30)};
+$primary-press-color: #{ChageHexToHSL($primary-color, 0, 20)};
+$primary-disabled-color: #{ChageHexToHSL($primary-color, 50)};
+
+$gray-color: #{ChageHexToHSL($black-color, 0, 50)};
+$gray-dark-color: #{ChageHexToHSL($black-color, 0, 50)};
+$gray-light-color: #{ChageHexToHSL($black-color, 0, 80)};
+$gray-extra-light-color: #{ChageHexToHSL($black-color, 0, 85)};
+
+
+$press-default-color: #{ChageHexToHSL($black-color, 0, 85, 0.2)};
+$press-active-color: #{ChageHexToHSL($primary-color, 0, 85, 0.2)};
+$range-bg-color: #{ChageHexToHSL($primary-color, 0, 85, 0.7)};
+
+/*==Colors test==*/
+// $test: #{HexToRGBa($primary-color)};
+// $test: #{isHSL($primary-color)};
+// $test: #{ChageHexToHSL($primary-color, 70, 70, 0.7)};
+
+/*==Adaptive==*/
+@mixin for-size($size) {
+    @if $size == sm {
+        @media (min-width: 640px) {
+            @content;
+        }
+    } @else if $size == md {
+        @media (min-width: 768px) {
+            @content;
+        }
+    } @else if $size == lg {
+        @media (min-width: 1024px) {
+            @content;
+        }
+    }
+}
+
+@mixin size-box($size) {
+    width: $size;
+    height: $size;
+}
+
+/*==Functions==*/
+@mixin size-box($size) {
+    width: $size;
+    height: $size;
+}
+@mixin max-width($width) {
+    max-width: $width;
+    width: 100%;
+}
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+@mixin py($size) {
+    padding: {
+        top: $size;
+        bottom: $size;
+    }
+}
+@mixin px($size) {
+    padding: {
+        left: $size;
+        right: $size;
+    }
+}

@@ -1,0 +1,77 @@
+{
+  "name": "kyc-app",
+  "scripts": {
+    "dev": "yarn build && concurrently 'tsc -w' 'DEBUG=true node-dev --respawn dist/app.js'",
+    "win": "rd /s /q dist && tsc -p .",
+    "build": "rm -rf dist && tsc -p .",
+    "serve": "node dist/app.js",
+    "\n# TESTING SCRIPTS:": "",
+    "type": "tsc -p . --noEmit",
+    "test": "TEST=true jest",
+    "coverage": "yarn test --coverage",
+    "test:gotbit-tools": "yarn test --dir src/gotbit-tools",
+    "test:build": "yarn build",
+    "test:full": "yarn type && yarn test && yarn test:build",
+    "\n# GOTBIT-TOOLS SCRIPTS:": "",
+    "update": "cd src && npx gotbit-tools@latest install node -d ./src",
+    "contracts": "yarn contracts:sync && yarn contracts:typings",
+    "contracts:sync": "SCRIPT=./src/gotbit-tools/scripts/shell/import-contracts.sh yarn script",
+    "contracts:typings": "node ./src/gotbit-tools/scripts/typings.js",
+    "\n# UTILS SCRIPTS:": "",
+    "script": "chmod +x $SCRIPT && $SCRIPT"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "@/(.*)": "<rootDir>/src/$1"
+    },
+    "testMatch": [
+      "<rootDir>/src/__tests__/**/*.test.ts"
+    ],
+    "testTimeout": 600000
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "_moduleAliases": {
+    "@": "dist/"
+  },
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "author": "kotsmile",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.6.6",
+    "ethers-multicall": "^0.2.3",
+    "express": "^4.18.1",
+    "express-automatic-routes": "^1.1.0",
+    "helmet": "^5.0.2",
+    "module-alias": "^2.2.2",
+    "moment": "^2.29.3",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/jest": "^29.0.1",
+    "@types/mocha": "^9.1.1",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.31",
+    "@types/supertest": "^2.0.12",
+    "c8": "^7.11.3",
+    "chai": "^4.3.6",
+    "concurrently": "^7.1.0",
+    "jest": "^29.0.3",
+    "mocha": "^10.0.0",
+    "node-dev": "^7.4.3",
+    "supertest": "^6.2.4",
+    "ts-jest": "^29.0.0",
+    "typescript": "^4.6.4"
+  }
+}

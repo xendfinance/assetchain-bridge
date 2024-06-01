@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../assets/colors.scss"
+    ],
+    "names": [],
+    "file": "colors.min.css"
+}

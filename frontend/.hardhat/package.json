@@ -1,0 +1,14 @@
+{
+  "name": "hardhat-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "node": "npx hardhat node --fork"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^2.9.9"
+  }
+}

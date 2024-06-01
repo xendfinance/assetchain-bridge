@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../assets/config.scss"
+    ],
+    "names": [],
+    "file": "config.min.css"
+}

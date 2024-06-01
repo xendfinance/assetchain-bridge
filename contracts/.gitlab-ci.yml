@@ -1,0 +1,12 @@
+stages:
+  - test
+
+hardhat-test:
+  stage: test
+  image: node:16
+  tags:
+    - k8s
+  script:
+    - cd $CONTRACTS_DIR
+    - yarn
+    - yarn testf

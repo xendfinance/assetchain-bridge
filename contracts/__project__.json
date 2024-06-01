@@ -1,0 +1,3 @@
+{
+  "networks": ["bsc_testnet", "rinkeby", "avax_testnet", "polygon_testnet"]
+}

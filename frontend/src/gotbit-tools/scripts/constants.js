@@ -1,0 +1,24 @@
+const path = require('path')
+
+const SRC_PATH = path.join('src')
+const CONTRACTS_PATH = path.join(SRC_PATH, 'contracts')
+
+const TYPECHAIN_NAME = 'typechain'
+const CONTRACTS_JSON_NAME = 'contracts.json'
+
+const SOURCE_TYPECHAIN_PATH = path.join('..', 'contracts', TYPECHAIN_NAME)
+const SOURCE_CONTRACTS_JSON_PATH = path.join('..', 'contracts', CONTRACTS_JSON_NAME)
+
+const TARGET_TYPECHAIN_PATH = path.join(CONTRACTS_PATH, TYPECHAIN_NAME)
+const TARGET_CONTRACTS_JSON_PATH = path.join(CONTRACTS_PATH, CONTRACTS_JSON_NAME)
+
+module.exports = {
+  SRC_PATH,
+  CONTRACTS_PATH,
+  TYPECHAIN_NAME,
+  CONTRACTS_JSON_NAME,
+  SOURCE_TYPECHAIN_PATH,
+  SOURCE_CONTRACTS_JSON_PATH,
+  TARGET_TYPECHAIN_PATH,
+  TARGET_CONTRACTS_JSON_PATH,
+}

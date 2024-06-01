@@ -1,0 +1,58 @@
+stages:
+  - frontend
+  - backend
+  - contracts
+
+frontend:
+  stage: frontend
+  trigger:
+    include: $FRONTEND_DIR/.gitlab-ci.yml
+    strategy: depend
+
+backend_rwa:
+  stage: backend
+  trigger:
+    include: $BACKEND_DIR/.gitlab-ci.yml
+    strategy: depend
+
+backend_usdt:
+  stage: backend
+  variables:
+    BACKEND_URL_PREFIX: "usdt-"
+    BACKEND_DIR: backend-usdt
+  trigger:
+    include: $BACKEND_DIR/.gitlab-ci.yml
+    strategy: depend
+
+backend_usdc:
+  stage: backend
+  variables:
+    BACKEND_URL_PREFIX: "usdc-"
+    BACKEND_DIR: backend-usdc
+  trigger:
+    include: $BACKEND_DIR/.gitlab-ci.yml
+    strategy: depend
+
+backend_wnt:
+  stage: backend
+  variables:
+    BACKEND_URL_PREFIX: "wnt-"
+    BACKEND_DIR: backend-wnt
+  trigger:
+    include: $BACKEND_DIR/.gitlab-ci.yml
+    strategy: depend
+
+backend_weth:
+  stage: backend
+  variables:
+    BACKEND_URL_PREFIX: "weth-"
+    BACKEND_DIR: backend-weth
+  trigger:
+    include: $BACKEND_DIR/.gitlab-ci.yml
+    strategy: depend
+
+contracts:
+  stage: contracts
+  trigger:
+    include: $CONTRACTS_DIR/.gitlab-ci.yml
+    strategy: depend

@@ -1,0 +1,33 @@
+stages:
+  - aws_resources
+  - setup
+  - test
+  - build
+  - deploy
+
+variables:
+  SKIP_COMPONENTS_TEST: 'true'
+  SKIP_BUILD_TEST: 'false'
+  SKIP_TYPECHECK_TEST: 'false'
+  SKIP_LINT_TEST: 'true'
+
+include:
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/terraform/frontend/.gitlab-ci.yml'
+
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/test/frontend/.gitlab-ci.yml'
+
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/build/frontend/.gitlab-ci.yml'
+
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'gitlabci/deploy/frontend/.gitlab-ci.yml'
+    
+  - project: '$DEVOPS_PROJECT_PATH'
+    ref: 'main'
+    file: 'clients/deploy/frontend/aws/.gitlab-ci.yml'

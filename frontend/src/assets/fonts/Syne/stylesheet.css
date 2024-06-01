@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'Syne';
+  src:
+    url('Syne-Bold.ttf') format('embedded-opentype'),
+    url('Syne-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Syne';
+  src:
+    url('Syne-Medium.ttf') format('embedded-opentype'),
+    url('Syne-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Syne';
+  src:
+    url('Syne-Regular.ttf') format('embedded-opentype'),
+    url('Syne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Syne';
+  src:
+    url('Syne-SemiBold.ttf') format('embedded-opentype'),
+    url('Syne-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}

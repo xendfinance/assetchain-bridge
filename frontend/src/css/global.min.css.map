@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../assets/global.scss"
+    ],
+    "names": [],
+    "file": "global.min.css"
+}
