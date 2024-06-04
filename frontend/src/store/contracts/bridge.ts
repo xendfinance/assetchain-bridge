@@ -241,14 +241,14 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           const bridgeAddress = assistAndTokenAddresses[fromChain].find(
             (item) => item.token === token.tokenAddress,
           )?.bridgeAssist
-          const contract = getContract(fromChain)
-          if (bridgeAddress) {
-            const tokenAddress = await safeRead(
-              contract.anyBridgeAssist(bridgeAddress).TOKEN(),
-              '',
-            )
-            symbol = await safeRead(contract.anyToken(tokenAddress).symbol(), '')
-          }
+          // const contract = getContract(fromChain)
+          // if (bridgeAddress) {
+          //   const tokenAddress = await safeRead(
+          //     contract.anyBridgeAssist(bridgeAddress).TOKEN(),
+          //     '',
+          //   )
+          //   symbol = await safeRead(contract.anyToken(tokenAddress).symbol(), '')
+          // }
 
           const fulfillInfo = await this.fulfilledInfo(transaction)
           fulfilled[hashedTx] = fulfillInfo.isFulfilled
@@ -285,6 +285,8 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         }
       },
       async getUserTransactions() {
+        this.loadingHistory = true
+
         const [transactions, fulfilled, claimInfo, symbol] = await this.pairTransactions()
         const signedTransactions = []
         for (const transaction of transactions) {
@@ -298,6 +300,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             symbol,
           })
         }
+        this.loadingHistory = false
 
         return signedTransactions.map((d) => ({
           ...d,

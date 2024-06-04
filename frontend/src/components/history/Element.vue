@@ -165,7 +165,7 @@ const blocksToClaim = computed(() => {
     props.claimInfo.confirmations > 0 ? difference / props.claimInfo.confirmations : 0
   isConfirmed.value = confirmed
 
-  return confirmed ? 'Confirmed!' : `Blocks left: ${difference} (${percent}%)`
+  return confirmed ? 'Confirmed!' : `Blocks left: ${difference} (${percent.toFixed(2)}%)`
 })
 
 const fromChain = computed(() => chainsLabels.filter((c) => c.value === props.from)[0])

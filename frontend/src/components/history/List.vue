@@ -100,7 +100,7 @@
         </div> -->
       </div>
       <div
-        v-else-if="bridge.emptyHistory"
+        v-else-if="bridge.emptyHistory && !bridge.loadingHistory"
         class="md:text-left text-left text-[16px] mt-[12px] text-label-text"
       >
         You haven't made any transactions.
@@ -239,11 +239,7 @@ const itemFulfill = async (
   console.log(index, 'INDEX')
   console.log(sortedHistory.value)
   console.log(transaction, 'tx', transactionCard, 'txCard')
-  await fulfill(
-    fulfillTransaction,
-    claimAmount?.claimAmount.value,
-    index
-  )
+  await fulfill(fulfillTransaction, claimAmount?.claimAmount.value, index)
 
   if (
     onlyUnclamed.value &&

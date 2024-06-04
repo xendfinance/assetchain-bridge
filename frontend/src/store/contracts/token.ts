@@ -133,10 +133,7 @@ export const useToken = defineContractStore<
           // const { token } = useContracts(undefined, chainId)
           const contract = getContract(chainId)
 
-          if (
-            this.tokenAddress ===
-            DEFAULT_NATIVE_TOKEN_CONTRACT_2
-          ) {
+          if (this.tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
             const provider = getProvider(chainId)
             this.balances[chainId] = await provider.getBalance(web3.wallet)
           } else
@@ -199,24 +196,29 @@ export const useToken = defineContractStore<
       const web3 = useWeb3()
       const factory = useFactory()
       console.log(tokenAddress)
-      let chainId = web3.chainId
-      if (!factory.assistAndTokenAddresses[chainId].find((a) => a.token === tokenAddress)) {
+      let chainId: ChainId = web3.chainId as ChainId
+      if (
+        !factory.assistAndTokenAddresses[chainId].find((a) => a.token === tokenAddress)
+      ) {
         for (const c of REAL_CHAIN_IDS) {
           if (factory.assistAndTokenAddresses[c].find((a) => a.token === tokenAddress)) {
             chainId = c
             console.log(chainId, 'setToken')
-            break;
+            break
           }
         }
       }
 
-      const contract = getContract(chainId)
+      const contract = getContract(chainId as ChainId)
       if (tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
         this.symbol = 'RWA'
         this.decimals = 18
       } else {
         const dataSymbol = await safeRead(contract.anyToken(tokenAddress).symbol(), 'RWA')
-        const dataDecimals = await safeRead(contract.anyToken(tokenAddress).decimals(), 18)
+        const dataDecimals = await safeRead(
+          contract.anyToken(tokenAddress).decimals(),
+          18,
+        )
 
         this.symbol = dataSymbol
         this.decimals = dataDecimals
@@ -242,7 +244,10 @@ export const useToken = defineContractStore<
         contract
           .anyToken(tokenAddress)
           .connect(signer)
-          .approve(bridgeAssistAddress, amount.toBigNumber(this.cDecimals[web3.chainId][this.symbol])),
+          .approve(
+            bridgeAssistAddress,
+            amount.toBigNumber(this.cDecimals[web3.chainId][this.symbol]),
+          ),
       )
       if (tx) this.hasAllowance(web3.wallet, web3.chainId, amount, tokenAddress)
       this.loading = false
