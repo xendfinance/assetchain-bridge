@@ -1,4 +1,4 @@
-# Xend Bridge
+# Xend Multitoken Bridge
 
 ## Getting Started
 
@@ -42,7 +42,7 @@ Solidity smart contracts are found in `./contracts/`.
 
 ### Deploy
 
-Deploy script can be found in the `./deploy/localhost` for local testing and `./deploy/mainnet` for mainnet deploy
+Deploy scripts can be found in the `./deploy/localhost` for local testing, `./deploy/testnet` for testnet deploy and `./deploy/mainnet` for mainnet deploy
 
 Generate `.env` file
 
@@ -59,7 +59,7 @@ PRIVATE_TEST=
 PRIVATE_MAIN=
 ```
 
-To add API Keys for verifying
+To add API Keys for verifying (only for mainnet)
 
 ```
 API_ETH=
@@ -70,15 +70,89 @@ API_FTM=
 API_ARBITRUM=
 ```
 
-To deploy contracts on `Ethereum`
+For testnet networks, contract verification must be done manually through scanners.
+
+**For deployment, a new wallet (without transactions on it) is required to match nonces, so that the addresses of identical contracts match on different networks.**
+
+**Under no circumstances should you make extraneous transactions during the deployment process (for example, if the deployment fails, make some other transaction). Otherwise, the deployment may not be completed correctly and a redeploy will be necessary.**
+
+The deployment process is structured in such a way that the addresses of identical contracts on different networks will be the same for ease of subsequent use if you follow the deployment rules described above.
+
+***
+
+#### Mainnet Deploy
+
+To deploy all contracts on **mainnets**
+
+You can validate the token parameters on Asset Chain (already filled) in the `config_mainnet.ts` file in the root directory.
+
+After this you need to call:
 
 ```bash
-$ yarn deploy --network eth_mainnet
+yarn deploy --network arbitrum_mainnet
+yarn deploy --network polygon_mainnet
+yarn deploy --network eth_mainnet
+yarn deploy --network bsc_mainnet
+yarn deploy --network base_mainnet
+yarn deploy --network xend_mainnet
 ```
 
-For native & transfer bridges tokens (and native funds) also have to be transferred manually to the BridgeAssist contract address on BNB Chain.
+The token parameters will be taken from the `config_mainnet.ts` file in the root folder.
 
-For bridge factory contract you need two initialize parameters: `bridgeAssistTransferImplementation` (bridge assist transfer bridge contract address - implementation for proxy clones), `bridgeAssistMintImplementation` (bridge assist mint bridge contract address - implementation for proxy clones), `bridgeAssistNativeImplementation` (bridge assist native bridge contract address - implementation for proxy clones) and `owner` (address, who will have writes to give to someone role to create bridges, address who can set new bridge implementations, remove and add new bridges to the stored list).
+The total supply for tokens on the Asset Chain should be equal to zero, since for them the bridge works according to the mint-burn principle. Otherwise (if you specify a total supply that is not equal to zero), the bridge will not work correctly.
+
+***
+
+#### Testnet Deploy
+
+To deploy all contracts on **testnets**
+
+Fill in the token parameters in the `config.ts` file, the parameters of asset-chain tokens depend on the parameters of tokens on other networks, so it is recommended to deploy to asset-chain last.
+
+The parameters of tokens on networks, except for Asset Сhain, are located in the `DEFAULT_TOKEN_PARAMS` file constant, an example of one chain id from file:
+```typescript
+84532: {
+  USDT: {
+    name: 'Tether USD',
+    symbol: 'USDT',
+    decimals: 6,
+    totalSupply: '51998658367', // excluding decimals
+  },
+  USDC: {
+    name: 'USD Coin',
+    symbol: 'USDC',
+    decimals: 6,
+    totalSupply: '2937691509', // excluding decimals
+  },
+}
+```
+The parameters of tokens on Asset Сhain network, are located in the `BRIDGED_TOKEN_PARAMS` file constant, an example of one token parameters from file:
+```typescript
+USDT: {
+  name: 'Tether USD',
+  symbol: 'USDT',
+  decimals: 6,
+  totalSupply: '0', // should be equal to 0 due to mint/burn system on Asset Chain
+  isLockActive: true, // is the blacklisting system enabled for the token
+  tokenOriginal: '0x6cb8C82DaB692a708D0bbB533aa6A709d4CE6dCA', // original (non-bridged) token address
+  chainIdOriginal: CHAIN_IDS.ethereum, // original (non-bridged) token chain id
+},
+```
+
+After filling out the config, you need to call:
+
+```bash
+yarn deploy --network arbitrum_sepolia
+yarn deploy --network polygon_amoy
+yarn deploy --network eth_sepolia
+yarn deploy --network bsc_testnet
+yarn deploy --network base_sepolia
+yarn deploy --network xend_testnet
+```
+
+The token parameters will be taken from the `config.ts` file in the root folder.
+
+***
 
 ### Deployments
 
@@ -91,6 +165,10 @@ To verify contracts on `Polygon chain`
 ```bash
 $ yarn verify --network polygon_mainnet
 ```
+
+The `base` network and all testnet networks do not support hardhat verification, so these networks require manual verification through a scanner.
+
+***
 
 ### Setup
 Setup is needed after bridge creating through the `BridgeFactory`.
@@ -213,23 +291,23 @@ setuping "BridgeFactoryTransfer" ... setuped
   59 passing (2m)
 
 --------------------------------------|----------|----------|----------|----------|----------------|
-File                                  |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
---------------------------------------|----------|----------|----------|----------|----------------|
- contracts/                           |      100 |      100 |      100 |      100 |                |
-  BridgeFactoryUpgradeable.sol        |      100 |      100 |      100 |      100 |                |
-  BridgedAssetChainToken.sol          |      100 |      100 |      100 |      100 |                |
- contracts/bridges/                   |      100 |      100 |      100 |      100 |                |
-  BridgeAssistMintUpgradeable.sol     |      100 |      100 |      100 |      100 |                |
-  BridgeAssistNativeUpgradeable.sol   |      100 |      100 |      100 |      100 |                |
-  BridgeAssistTransferUpgradeable.sol |      100 |      100 |      100 |      100 |                |
- contracts/bridges/base/              |      100 |      100 |      100 |      100 |                |
-  BridgeAssistGenericUpgradeable.sol  |      100 |      100 |      100 |      100 |                |
- contracts/interfaces/                |      100 |      100 |      100 |      100 |                |
-  IBridgeAssist.sol                   |      100 |      100 |      100 |      100 |                |
-  ITokenMintBurn.sol                  |      100 |      100 |      100 |      100 |                |
---------------------------------------|----------|----------|----------|----------|----------------|
-All files                             |      100 |      100 |      100 |      100 |                |
---------------------------------------|----------|----------|----------|----------|----------------|
+| File                                   | % Stmts    | % Branch   | % Funcs    | % Lines    | Uncovered Lines  |
+| -------------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------------- |
+| contracts/                             | 100        | 100        | 100        | 100        |                  |
+| BridgeFactoryUpgradeable.sol           | 100        | 100        | 100        | 100        |                  |
+| BridgedAssetChainToken.sol             | 100        | 100        | 100        | 100        |                  |
+| contracts/bridges/                     | 100        | 100        | 100        | 100        |                  |
+| BridgeAssistMintUpgradeable.sol        | 100        | 100        | 100        | 100        |                  |
+| BridgeAssistNativeUpgradeable.sol      | 100        | 100        | 100        | 100        |                  |
+| BridgeAssistTransferUpgradeable.sol    | 100        | 100        | 100        | 100        |                  |
+| contracts/bridges/base/                | 100        | 100        | 100        | 100        |                  |
+| BridgeAssistGenericUpgradeable.sol     | 100        | 100        | 100        | 100        |                  |
+| contracts/interfaces/                  | 100        | 100        | 100        | 100        |                  |
+| IBridgeAssist.sol                      | 100        | 100        | 100        | 100        |                  |
+| ITokenMintBurn.sol                     | 100        | 100        | 100        | 100        |                  |
+| -------------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------------- |
+| All files                              | 100        | 100        | 100        | 100        |                  |
+| -------------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------------- |
 ```
 
 Contracts in contracts/mock/ will not be deployed to mainnet so they are not tested.
