@@ -184,19 +184,17 @@ const tokenStore = useToken()
 
 const web3 = useWeb3()
 
-const nativeToken = computed(() =>
-  tokenStore.tokens[web3.chainId].filter(
-    (t) =>
-      t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_1 ||
-      t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2,
-  ),
-)
+// const nativeToken = computed(() =>
+//   tokenStore.tokens[web3.chainId].filter(
+//     (t) =>
+//       t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_1 ||
+//       t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2,
+//   ),
+// )
 
-const isNativeToken = computed(() =>
-  nativeToken.value && nativeToken.value.length
-    ? nativeToken.value[0].label === tokenStore.symbol
-    : false,
-)
+const isNativeToken = computed(() => {
+  return 'RWA' === props.tokenSymbol
+})
 
 const chainsFrom = ref<{ value: ChainId; label: string; disabled: boolean }[]>([])
 const chainsTo = ref<{ value: ChainId; label: string; disabled: boolean }[]>([])
@@ -253,14 +251,15 @@ watch(
     if (isNativeToken.value && from.value === '42421') toggle()
 
     chainsTo.value = isNativeToken.value
-      ? unref(normalizedChainsLabels)
-          ?.filter((c) => c.value === '42421')
-          .map((c) => ({
-            value: c.value,
-            label: c.label,
-            disabled: false,
-          }))
-      : unref(normalizedChainsLabels)
+      ? []
+      : // unref(normalizedChainsLabels)
+        //     ?.filter((c) => c.value === '42421')
+        //     .map((c) => ({
+        //       value: c.value,
+        //       label: c.label,
+        //       disabled: false,
+        //     }))
+        unref(normalizedChainsLabels)
           // .filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
           .map((c) => ({
             value: c.value,

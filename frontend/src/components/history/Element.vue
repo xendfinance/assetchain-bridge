@@ -159,10 +159,15 @@ const disabledConfirmations = computed(() => {
 // )
 
 const blocksToClaim = computed(() => {
-  const difference = currentBlocks.value[props.from] - props.claimInfo.txBlock
-  const confirmed = difference >= props.claimInfo.confirmations
+  const difference =
+    props.claimInfo.txBlock +
+    props.claimInfo.confirmations -
+    currentBlocks.value[props.from]
+  const confirmed = Math.max(difference, 0) === 0
   const percent =
-    props.claimInfo.confirmations > 0 ? difference / props.claimInfo.confirmations : 0
+    props.claimInfo.confirmations > 0
+      ? 100 * (1 - difference / props.claimInfo.confirmations)
+      : 0
   isConfirmed.value = confirmed
 
   return confirmed ? 'Confirmed!' : `Blocks left: ${difference} (${percent.toFixed(2)}%)`

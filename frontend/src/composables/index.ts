@@ -50,27 +50,36 @@ export const useInterval = (callback: () => any, ms: number) => {
     intervalId.value = setInterval(callback, ms)
   })
   onUnmounted(() => {
-    if (intervalId.value) clearInterval(unref(intervalId)?.[Symbol?.toPrimitive]?.())
+    if (intervalId.value) clearInterval(unref(intervalId)?.[Symbol?.toPrimitive]())
   })
 }
 
 const currentBlock = ref(genPerChainId(() => 0))
 
-
 export const getCurrentBlock = async () => {
   const web3 = useWeb3()
-  // let currentBlocks = genPerChainId(() => 0)
-  console.log('web3.chainIds__1', currentBlocks.value);
+
+  // console.log('web3.chainIds__1', currentBlocks.value)
   for (const chainId of web3.chainIds) {
     const provider = getProvider(chainId)
     const res = await provider.getBlockNumber()
     currentBlock.value[chainId] = res
-    console.log('web3.chainIds', chainId, res);
-
   }
-  console.log('web3.chainIds__2', currentBlocks);
+  console.log('web3.chainIds__2', currentBlocks)
 
   return currentBlocks
+}
+
+export const useLatestChainBlockUpdate = () => {
+  const UPDATE_TIME = 10000
+
+  onMounted(async () => {
+    await getCurrentBlock()
+  })
+
+  useInterval(async () => {
+    await getCurrentBlock()
+  }, UPDATE_TIME)
 }
 
 // const { pause, resume, isActive } = useIntervalFn(async () => {

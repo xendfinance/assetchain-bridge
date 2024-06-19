@@ -6,7 +6,7 @@ import type { Size, State } from '@/components/gotbit-ui-kit/types'
 import LoaderIcon from '@/components/gotbit-ui-kit/icons/LoaderIcon.vue'
 import DoneIcon from '@/components/gotbit-ui-kit/icons/DoneIcon.vue'
 
-export interface ButtonProps extends ButtonHTMLAttributes {
+export interface ButtonProps extends /* @vue-ignore */ ButtonHTMLAttributes {
   size?: Size
   state?: State
   disabled?: boolean
@@ -59,8 +59,6 @@ onMounted(() => {
           'w-[159px] h-[40px] md:w-[201px] md:h-[50px] no-connect': props.connect,
           'w-[201px] h-[40px] no-connect': props.mobile,
           'w-[113px] h-[35px] btn-red': props.red,
-          login: props.login,
-          confirm: props.confirm,
           ...props,
         },
         props.size,

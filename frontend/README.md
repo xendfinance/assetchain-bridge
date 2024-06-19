@@ -1,8 +1,8 @@
-# Asset Chain Bridge frontend
+# CREO Bridge frontend
 
 ## Getting Started
 
-Recommended Node version is 16.20.0. Yarn version 1.22.19
+Recommended Node version is 18.18.0.
 
 Generate `.env` file
 
@@ -15,13 +15,13 @@ Add .env file to the project root.
 To add console logs, backend link and select mainnet, assign the following variables
 
 ```
-VITE_DEBUG=true
-VITE_BACKEND_LINK_USDT=https://gotbit-usdt-xend-multitoken-backend-dev.dev.gotbit.app
-VITE_BACKEND_LINK_USDC=https://gotbit-usdc-xend-multitoken-backend-dev.dev.gotbit.app
-VITE_BACKEND_LINK_RWA=https://gotbit-xend-multitoken-backend-dev.dev.gotbit.app
-VITE_BACKEND_LINK_WETH=https://gotbit-weth-xend-multitoken-backend-dev.dev.gotbit.app
-VITE_BACKEND_LINK_WNT=https://gotbit-wnt-xend-multitoken-backend-dev.dev.gotbit.app
+VITE_BACKEND_LINK=https://bridge-testnet-api.assetchain.org
+VITE_BACKEND_LINK_USDT=https://bridge-testnet-api-usdt.assetchain.org
+VITE_BACKEND_LINK_USDC=https://bridge-testnet-api-usdc.assetchain.org
+VITE_BACKEND_LINK_WNT=https://bridge-testnet-api-wnt.assetchain.org
+VITE_BACKEND_LINK_WETH=https://bridge-testnet-api-weth.assetchain.org
 VITE_PROD=false
+VITE_DEBUG=true
 ```
 
 ```bash

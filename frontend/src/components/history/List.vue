@@ -168,7 +168,7 @@ import { useUIBridge } from '@/store/ui/bridge'
 import { useDialogs } from '@/store/ui/dialogs'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { getCurrentBlock } from '@/composables'
+import { getCurrentBlock, useLatestChainBlockUpdate } from '@/composables'
 import type { ChainId } from '@/gotbit-tools/vue/types'
 import { useTokenRead } from '@/store/business/token'
 
@@ -267,7 +267,7 @@ const onOnlyUnclamed = () => {
 onMounted(async () => {
   await getCurrentBlock()
 })
-
+useLatestChainBlockUpdate()
 // useInterval(async () => {
 //   await getCurrentBlock()
 // }, UPDATE_TIME)

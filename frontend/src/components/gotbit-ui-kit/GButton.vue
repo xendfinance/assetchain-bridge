@@ -6,7 +6,7 @@ import type { Size, State } from '@/components/gotbit-ui-kit/types'
 import LoaderIcon from '@/components/gotbit-ui-kit/icons/LoaderIcon.vue'
 import DoneIcon from '@/components/gotbit-ui-kit/icons/DoneIcon.vue'
 
-export interface ButtonProps extends ButtonHTMLAttributes {
+export interface ButtonProps extends /* @vue-ignore */ ButtonHTMLAttributes {
   size?: Size
   state?: State
   disabled?: boolean
@@ -86,16 +86,16 @@ button {
   transition: all linear $timeout;
 
   &.primary {
-    background-color: #2042B8;
+    background-color: #2042b8;
     color: #ffffff;
     border: 0;
 
     &:hover {
-      background-color: #2042B870;
+      background-color: #2042b870;
     }
 
     &:active {
-      background-color: #2042B850;
+      background-color: #2042b850;
       border-color: transparent;
     }
 
@@ -105,39 +105,38 @@ button {
       //   opacity: 0.3;
       // }
       opacity: 0.3;
-      background-color: #2042B8;
+      background-color: #2042b8;
     }
   }
 
-
   &.secondary {
-    background-color: #070E17;
+    background-color: #070e17;
     color: #ffffff;
-    border: 1.5px solid #1E2643;
+    border: 1.5px solid #1e2643;
     border-radius: 32px;
     &:hover {
-      background-color: #2042B870;
-      border: 1.5px solid #1E2643;
+      background-color: #2042b870;
+      border: 1.5px solid #1e2643;
     }
 
     &:active {
-      background-color: #2042B870;
-      border: solid 1.5px #1E2643;
+      background-color: #2042b870;
+      border: solid 1.5px #1e2643;
     }
   }
 
   &.outline {
-    background-color: #070E17;
-    border: solid 1.5px #2042B8;
+    background-color: #070e17;
+    border: solid 1.5px #2042b8;
     color: white;
 
     &:hover {
-      background-color: #2042B870;
+      background-color: #2042b870;
     }
 
     &:active {
-      background-color: #2042B850;
-      border: solid 1.5px #2042B8;
+      background-color: #2042b850;
+      border: solid 1.5px #2042b8;
     }
   }
 

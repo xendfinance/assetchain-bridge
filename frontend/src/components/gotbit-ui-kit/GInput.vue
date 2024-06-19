@@ -6,9 +6,9 @@
         v-bind="props"
         v-model="value"
         class="p-4 border-[1px] bg-primary-bg border-primary-border focus:border-primary-btn rounded-lg h-[48px]"
-        :class="{ 
+        :class="{
           invalid: !isValid,
-          'opacity-60': props.disabled
+          'opacity-60': props.disabled,
         }"
         :placeholder="placeholder"
         :disabled="disabled"
@@ -34,7 +34,7 @@
 import type { InputHTMLAttributes } from 'vue'
 import { computed } from 'vue'
 
-export interface InputProps extends Omit<InputHTMLAttributes, 'type'> {
+export interface InputProps extends /* @vue-ignore */ Omit<InputHTMLAttributes, 'type'> {
   modelValue?: string
   placeholder?: string
   isValid?: boolean
@@ -70,12 +70,12 @@ input[type='text'] {
 
   &:disabled {
     &::placeholder {
-      color: #5F667E;
+      color: #5f667e;
     }
   }
 
   &::placeholder {
-    color: #A3A8BB;
+    color: #a3a8bb;
   }
 
   &:focus {
