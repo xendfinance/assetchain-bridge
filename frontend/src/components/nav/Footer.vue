@@ -6,20 +6,20 @@
       <a href="https://xend.finance" target="_blank" class="md:block w-[25%] hidden">
         <div class="flex flex-col items-start w-[135px]">
           <Logotip class="hidden md:block"/>
-          <p class="text-[14px] mt-[10px] text-label-text uppercase">
-            © {{ new Date().getFullYear() }} Gotbit Ltd
+          <p class="text-[12px] mt-[10px] text-label-text uppercase">
+            © {{ new Date().getFullYear() }} Xend Finance
           </p>
         </div>
       </a>
       <Social :links="links" class=""/>
     </div>
-    <div class="w-full flex justify-center items-center">
+    <!-- <div class="w-full flex justify-center items-center">
       <p class="max-w-[1280px] w-full flex justify-center md:justify-end items-center border-t-[1px] border-t-primary-border py-4 md:py-5 md:pt-[12px]">
         <span class="text text-[13px]">
           <a href="https://gotbit.io/">develop by Gotbit</a>
         </span>
       </p>
-    </div>
+    </div> -->
   </footer>
 </template>
 
@@ -36,7 +36,7 @@ const links = ref([
   },
   {
     name: 'telegram',
-    link: 'https://t.me/XendAnnouncements',
+    link: 'https://t.me/XendFinanceDevs',
     img: 'Telegram.svg',
   },
   {
