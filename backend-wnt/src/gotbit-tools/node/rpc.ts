@@ -23,7 +23,7 @@ export const ankrRpc = (): RpcFunction => {
     if (chainTag === 'pulse_testnet') return 'https://rpc.v4.testnet.pulsechain.com'
     if (chainTag === 'base_mainnet') return 'https://base-rpc.publicnode.com'
     if (chainTag === 'arbitrum_sepolia') return 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia'
-    if (chainTag === 'xend_testnet') return 'https://rpctestnet.xendrwachain.com'
+    if (chainTag === 'xend_testnet') return 'https://enugu-rpc.assetchain.org/'
     if (chainTag === 'eth_sepolia') return 'https://ethereum-sepolia-rpc.publicnode.com'
     if (chainTag === 'polygon_amoy') return 'https://rpc-amoy.polygon.technology'
     if (chainTag === 'base_sepolia') return 'https://rpc.notadegen.com/base/sepolia'
