@@ -1,4 +1,4 @@
-# CREO Bridge frontend
+# Asset Chain Bridge frontend
 
 ## Getting Started
 
