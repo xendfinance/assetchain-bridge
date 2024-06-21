@@ -22,24 +22,33 @@ export const useBridgeRead = () => {
   return {
     history: () => {
       return bridge.histories.length
-        ? bridge.histories.filter((tx) => tx.symbol === token.symbol).reverse().map((h) => ({
-          transactionCard: {
-            date: formatDate(h.transaction.timestamp),
-            amount: h.transaction.toChain === '97' || h.transaction.fromChain === '97' ?
-              h.transaction.amount.toBigNumber(0).formatNumber(6, 3)
-              : h.transaction.amount.toBigNumber(0).formatNumber(token.cDecimals[h.transaction.toChain][h.symbol], 3),
-            fullAmount: h.transaction.amount
-              .toBigNumber(0)
-              .formatString(token.decimals, 19),
-            to: h.transaction.toChain as ChainId,
-            from: h.transaction.fromChain as ChainId,
-            fulfilled: h.fulfilled,
-            claimInfo: h.claimInfo,
-          },
-          transaction: {
-            ...h.transaction,
-          },
-        }))
+        ? bridge.histories
+            .filter((tx) => tx.symbol === token.symbol)
+            .reverse()
+            .map((h) => ({
+              transactionCard: {
+                date: formatDate(h.transaction.timestamp),
+                amount:
+                  h.transaction.toChain === '97' || h.transaction.fromChain === '97'
+                    ? h.transaction.amount.toBigNumber(0).formatNumber(6, 3)
+                    : h.transaction.amount
+                        .toBigNumber(0)
+                        .formatNumber(
+                          token.cDecimals[h.transaction.toChain][h.symbol],
+                          3
+                        ),
+                fullAmount: h.transaction.amount
+                  .toBigNumber(0)
+                  .formatString(token.decimals[h.transaction.toChain], 19),
+                to: h.transaction.toChain as ChainId,
+                from: h.transaction.fromChain as ChainId,
+                fulfilled: h.fulfilled,
+                claimInfo: h.claimInfo,
+              },
+              transaction: {
+                ...h.transaction,
+              },
+            }))
         : []
     },
     loadingHistory: computed(() => bridge.loadingHistory),
@@ -48,14 +57,14 @@ export const useBridgeRead = () => {
     feeFulfill: (chainId: ChainId) => bridge.feeFulfill[chainId]?.formatNumber(2),
     feeSend: (chainId: ChainId) => bridge.feeSend[chainId]?.formatNumber(2),
     supportedChains: computed(() => factory.supportedChains),
-    claimAmount: ref(0)
+    claimAmount: ref(0),
   }
 }
 
 const createAction = async (
   dialog: Dialog,
   action: () => Promise<ContractTransaction | null>,
-  customDialog?: () => Promise<void | boolean>,
+  customDialog?: () => Promise<void | boolean>
 ) => {
   const dialogs = useDialogs()
   const web3 = useWeb3()
@@ -107,7 +116,7 @@ const createAction = async (
         waitingText: 'Please switch your network to continue.',
         successMsg: '',
       },
-      { notClosable: true },
+      { notClosable: true }
     )
 
     const switched = await web3.switchChain(uiBridge.network)
@@ -122,7 +131,7 @@ const createAction = async (
           waitingText: 'Please switch your network to continue.',
           successMsg: '',
         },
-        { noCross: false },
+        { noCross: false }
       )
       return
     }
@@ -152,7 +161,7 @@ const createAction = async (
       waitingText: 'It will take some time for the transaction to be completed.',
       successMsg: '',
     },
-    { notClosable: true },
+    { notClosable: true }
   )
   const success = await action()
   if (!success) {
@@ -166,7 +175,7 @@ const createAction = async (
         waitingText: 'It will take some time for the transaction to be completed.',
         successMsg: '',
       },
-      { noCross: false },
+      { noCross: false }
     )
     return
   }
@@ -197,8 +206,7 @@ export const useBridgeWrite = () => {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories
         .map((h) => {
-
-          return ({
+          return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
               amount: h.transaction.amount.toBigNumber(0).formatNumber(6, 3),
@@ -214,31 +222,30 @@ export const useBridgeWrite = () => {
               ...h.transaction,
             },
             fulfillTransaction: { ...h.fulfillTransaction },
-          })
+          }
         })
         .sort((a, b) =>
           asc
             ? b.transaction.timestamp - a.transaction.timestamp
-            : a.transaction.timestamp - b.transaction.timestamp,
+            : a.transaction.timestamp - b.transaction.timestamp
         )
         .filter((p) => (onlyUnclaimed ? !p.transactionCard.fulfilled : true))
     },
     enable: (amount: string, chainId: ChainId, tokenAddress?: string) =>
       createAction(enableDialog, () => {
-        return token.approveIf(
-          web3.signer!,
-          amount,
-          chainId,
-          tokenAddress ?? '')
+        return token.approveIf(web3.signer!, amount, chainId, tokenAddress ?? '')
       }),
     bridge: (tokenAddress?: string) =>
       createAction(
         transferDialog,
-        () => bridge.send(
-          uiBridge.inputAmount.toBigNumber(token.cDecimals[web3.chainId][token.cSymbol[tokenAddress ?? '']]),
-          uiBridge.to,
-          tokenAddress ?? ''
-        ),
+        () =>
+          bridge.send(
+            uiBridge.inputAmount.toBigNumber(
+              token.cDecimals[web3.chainId][token.cSymbol[tokenAddress ?? '']]
+            ),
+            uiBridge.to,
+            tokenAddress ?? ''
+          ),
         async () =>
           new Promise<boolean>((resolve) => {
             dialogs.openDialog(
@@ -253,14 +260,16 @@ export const useBridgeWrite = () => {
               {
                 noCross: false,
                 notClosable: false,
-              },
+              }
             )
-          }),
+          })
       ),
 
     fulfill: (transaction: FulfillTx, amount: number, index: number) =>
       createAction(
-        formatDialog(claimDialog(`${amount} ${token.symbol}`), { amount: `${amount} ${token.symbol}` }),
+        formatDialog(claimDialog(`${amount} ${token.symbol}`), {
+          amount: `${amount} ${token.symbol}`,
+        }),
         () => bridge.fulfill(transaction, index)
       ),
   }

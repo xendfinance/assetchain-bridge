@@ -28,10 +28,10 @@
             "
             class="mr-3"
           />
-          <span 
+          <span
             class="text-label-text text-[15px]"
             :class="{
-              '!text-primary-text': active
+              '!text-primary-text': active,
             }"
           >
             {{
@@ -44,7 +44,10 @@
         <ArrowDownIcon v-else />
       </div>
 
-      <div v-if="active" class="options bg-select-drop border-[1px] border-primary-border rounded-lg">
+      <div
+        v-if="active"
+        class="options bg-select-drop border-[1px] border-primary-border rounded-lg"
+      >
         <div
           v-for="option of options"
           :key="option.label"
@@ -62,6 +65,14 @@
         </div>
       </div>
     </div>
+    <p :class="{ invisible: !Number(contractBalance) }" class="text-[14px]">
+      Total liquidity:
+      {{
+        contractBalance
+          ? `${formatBigNums(contractBalance)} ${props.symbol}`
+          : 'Loading...'
+      }}
+    </p>
   </div>
 </template>
 
@@ -74,6 +85,7 @@ import ArrowDownIcon from '@/components/gotbit-ui-kit/icons/ArrowDownIcon.vue'
 import ArrowUpIcon from '@/components/gotbit-ui-kit/icons/ArrowUpIcon.vue'
 import SvgoThreeDots from '@/components/base/ThreeDots.vue'
 import { useBridgeRead } from '@/store/business/bridge'
+import { formatBigNums } from '@/misc/utils'
 
 export interface SelectorProps {
   options: { value: ChainId; label: string; disabled: boolean }[]
@@ -82,6 +94,8 @@ export interface SelectorProps {
   title?: string
   subtitle?: string
   mobile?: boolean
+  contractBalance?: string
+  symbol?: string
 }
 
 const props = defineProps<SelectorProps>()
@@ -92,8 +106,7 @@ const dropdown = ref<HTMLElement | any>(null)
 
 const bridgeRead = useBridgeRead()
 const normalizedChainsLabels = computed(() =>
-  chainsLabels
-    .filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
+  chainsLabels.filter((item) => unref(bridgeRead.supportedChains).includes(item.value)),
 )
 
 onClickOutside(dropdown, () => {
@@ -159,7 +172,7 @@ const onSelect = (value: string) => {
     opacity: 0.5;
     background-color: rgba(255, 255, 255, 0.06);
     &:hover {
-      background-color: rgba(255, 255, 255, 0.06);;
+      background-color: rgba(255, 255, 255, 0.06);
     }
   }
 }

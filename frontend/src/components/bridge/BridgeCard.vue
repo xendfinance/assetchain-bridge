@@ -28,6 +28,8 @@
         title="To"
         subtitle="Destination chain"
         :loading="bridgeLoading"
+        :symbol="symbol"
+        :contract-balance="balanceBridge(to)"
       />
     </div>
     <div class="mt-7 w-full">
@@ -43,9 +45,7 @@
             <span class="flex text-[11px] text-label-text">
               {{
                 formatBigNums(
-                  balanceToken(from)
-                    .toBigNumber(tokenStore.decimals)
-                    .formatString(tokenStore.decimals) ?? 0,
+                  balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0
                 )
               }}
               {{ tokenStore.symbol }}
@@ -174,7 +174,7 @@ const symbol = computed(() => props.tokenSymbol)
 
 const dialogs = useDialogs()
 const bridgeUI = useUIBridge()
-const { balanceToken, addresses, allowance } = useTokenRead()
+const { balanceToken, addresses, allowance, balanceBridge } = useTokenRead()
 const token = useToken()
 const { login, wallet } = useWallet()
 const bridgeWrite = useBridgeWrite()
@@ -195,6 +195,8 @@ const web3 = useWeb3()
 const isNativeToken = computed(() => {
   return 'RWA' === props.tokenSymbol
 })
+const decimals = computed(() => tokenStore.decimals[web3.chainId])
+const decimalsTo = computed(() => tokenStore.decimals[unref(to) as ChainId])
 
 const chainsFrom = ref<{ value: ChainId; label: string; disabled: boolean }[]>([])
 const chainsTo = ref<{ value: ChainId; label: string; disabled: boolean }[]>([])
@@ -208,7 +210,7 @@ const normalizedChainsLabels = computed(() =>
       value: chain.value as ChainId,
       label: chain.label,
       disabled: from.value === chain.value,
-    })),
+    }))
 )
 
 onMounted(() => {
@@ -282,7 +284,7 @@ watch(
 
     bridgeUI.from = from.value
     bridgeUI.to = to.value
-  },
+  }
 )
 
 const onTransfer = () => {
@@ -293,20 +295,20 @@ const onTransfer = () => {
 const feeSendPercent = computed(() =>
   IS_PROD
     ? (100 - bridgeRead.feeSend(to.value)) / 100
-    : (100 - bridgeRead.feeFulfill(to.value)) / 100,
+    : (100 - bridgeRead.feeFulfill(to.value)) / 100
 )
 const feeAmount = computed(() =>
   (
     Number(bridgeUI.inputAmount) -
     Number(bridgeUI.inputAmount) * unref(feeSendPercent)
-  ).toFixed(3),
+  ).toFixed(3)
 )
 
 watch(
   () => login.value,
   (isLogin) => {
     if (!isLogin) bridgeUI.inputAmount = ''
-  },
+  }
 )
 
 const willReceive = computed(() => Number(bridgeUI.inputAmount) * unref(feeSendPercent))
@@ -314,9 +316,9 @@ const willReceive = computed(() => Number(bridgeUI.inputAmount) * unref(feeSendP
 const balanceAfterReceive = computed(() => {
   try {
     return balanceToken(to.value)
-      .toBigNumber(tokenStore.decimals)
-      .add(willReceive.value?.toString().toBigNumber(tokenStore.decimals))
-      .formatString(tokenStore.decimals)
+      .toBigNumber(unref(decimalsTo))
+      .add(willReceive.value?.toString().toBigNumber(unref(decimalsTo)))
+      .formatString(unref(decimalsTo))
   } catch (e) {
     return '0'
   }
@@ -354,7 +356,7 @@ const checkAllowance = useDebounceFn(async () => {
     wallet.value,
     bridgeUI.from,
     bridgeUI.inputAmount,
-    unref(tokenAddress),
+    unref(tokenAddress)
   )
   allowanceLoading.value = false
 
@@ -369,17 +371,15 @@ watchEffect(async () => {
 
 const isValidInput = computed(() => {
   try {
-    const amount = bridgeUI.inputAmount.toBigNumber(tokenStore.decimals)
+    const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
 
     return (
       (Number(bridgeUI.inputAmount) >= 0.1 &&
         amount.gt(0) &&
-        amount.lte(
-          balanceToken(from.value)?.toString().toBigNumber(tokenStore.decimals),
-        ) &&
+        amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
-          ? bridgeUI.inputAmount.split('.')[1].length <= tokenStore.decimals
+          ? bridgeUI.inputAmount.split('.')[1].length <= unref(decimals)
           : true) &&
         bridgeUI.inputAmount[0] !== '.' &&
         bridgeRead.limitPerSend(from.value).gte(amount)) ||
@@ -392,18 +392,16 @@ const isValidInput = computed(() => {
 
 const isValid = computed(() => {
   try {
-    const amount = bridgeUI.inputAmount.toBigNumber(tokenStore.decimals)
+    const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
     // if (allowance(from.value).lt(bridgeUI.inputAmount.toBigNumber()) && amount.gt(0))
     //   return true
     return (
       (Number(bridgeUI.inputAmount) >= 0.1 &&
         amount.gt(0) &&
-        amount.lte(
-          balanceToken(from.value)?.toString().toBigNumber(tokenStore.decimals),
-        ) &&
+        amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
-          ? bridgeUI.inputAmount.split('.')[1].length <= tokenStore.decimals
+          ? bridgeUI.inputAmount.split('.')[1].length <= unref(decimals)
           : true) &&
         bridgeUI.inputAmount[0] !== '.' &&
         bridgeRead.limitPerSend(from.value).gte(amount)) ||
@@ -416,15 +414,15 @@ const isValid = computed(() => {
 
 const errorMessage = computed(() => {
   try {
-    const amount = bridgeUI.inputAmount.toBigNumber(tokenStore.decimals)
+    const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
     if (bridgeRead.limitPerSend(from.value).lte(amount))
       return `Amount must be lower then ${bridgeRead
         .limitPerSend(from.value)
-        .formatString(tokenStore.decimals, 0)}`
+        .formatString(unref(decimals), 0)}`
     if (Number(bridgeUI.inputAmount) < 0.1) return 'Amount must be more than 1'
     // if (amount.lte(0)) return 'Amount must be more than 0'
 
-    if (amount.gt(balanceToken(from.value)?.toString().toBigNumber(tokenStore.decimals)))
+    if (amount.gt(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))))
       return 'Transfer amount exceeds balance'
 
     // if (amount.gt(allowance(from.value)))
@@ -435,7 +433,7 @@ const errorMessage = computed(() => {
     }
     if (
       bridgeUI.inputAmount.split('.').length === 2 &&
-      bridgeUI.inputAmount.split('.')[1].length > tokenStore.decimals
+      bridgeUI.inputAmount.split('.')[1].length > unref(decimals)
     )
       return `Supported only ${tokenStore.decimals} numbers after point`
   } catch (e) {
@@ -452,7 +450,7 @@ const toggle = () => {
 
 watch(from, (newValue) => {
   chainsTo.value.map((c) =>
-    c.value === newValue ? (c.disabled = true) : (c.disabled = false),
+    c.value === newValue ? (c.disabled = true) : (c.disabled = false)
   )[0]
   if (chainsTo.value.find((c) => c.value === to.value)?.disabled) {
     to.value = chainsTo.value.find((c) => !c.disabled)!.value
