@@ -26,7 +26,7 @@ export interface ITokenState extends IContractState {
   allowances: Record<ChainId, boolean>
   symbol: string
   cSymbol: Record<string, string>
-  decimals: number
+  decimals: Record<ChainId, number>
   cDecimals: Record<string, { [x: string]: number }>
   cAddresses: Record<string, { [x: string]: string }>
   tokens: Record<ChainId, ITokens[]>
@@ -37,19 +37,20 @@ export interface ITokenActions extends IContractActions {
     owner: string,
     chainId: ChainId,
     amount: string,
-    tokenAddress: string,
+    tokenAddress: string
   ) => Promise<boolean>
   approveIf: (
     signer: INotNullSigner,
     amount: string,
     chainId: ChainId,
-    tokenAddress: string,
+    tokenAddress: string
   ) => Promise<ContractTransaction | null>
   reset: () => void
   getTokens: () => Promise<void>
   getBalances: () => Promise<void>
   setLoading: (loading: boolean) => void
   setToken: (symbol: string, tokenAddress: string) => Promise<void>
+  setDecimals: (tokenAddress: string) => Promise<void>
 }
 
 interface ITokenGetters {
@@ -70,7 +71,14 @@ export const useToken = defineContractStore<
     cSymbol: {},
     cDecimals: {},
     cAddresses: {},
-    decimals: 6,
+    decimals: {
+      '97': 18,
+      '421614': 6,
+      '42421': 6,
+      '80002': 6,
+      '84532': 6,
+      '11155111': 6,
+    },
     tokens: genPerChainId(() => []),
     contractBalances: genPerChainId(() => BigNumber.from(0)),
   }),
@@ -132,15 +140,27 @@ export const useToken = defineContractStore<
         for (const chainId of REAL_CHAIN_IDS) {
           // const { token } = useContracts(undefined, chainId)
           const contract = getContract(chainId)
+          const factory = useFactory()
+          const bridgeAssistAddress =
+            factory.assistAndTokenAddresses[chainId]?.find(
+              (item) => item.token === this.tokenAddress
+            )?.bridgeAssist ?? ''
 
           if (this.tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
             const provider = getProvider(chainId)
             this.balances[chainId] = await provider.getBalance(web3.wallet)
+            this.contractBalances[chainId] = await provider.getBalance(
+              bridgeAssistAddress
+            )
           } else
             this.balances[chainId] = await safeRead(
               contract.anyToken(this.tokenAddress).balanceOf(web3.wallet),
-              '0'.toBigNumber(),
+              '0'.toBigNumber()
             )
+          this.contractBalances[chainId] = await safeRead(
+            contract.anyToken(this.tokenAddress).balanceOf(bridgeAssistAddress),
+            '0'.toBigNumber()
+          )
         }
 
       this.loading = false
@@ -212,16 +232,22 @@ export const useToken = defineContractStore<
       const contract = getContract(chainId as ChainId)
       if (tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
         this.symbol = 'RWA'
-        this.decimals = 18
+        this.decimals[chainId] = 18
       } else {
         const dataSymbol = await safeRead(contract.anyToken(tokenAddress).symbol(), 'RWA')
-        const dataDecimals = await safeRead(
-          contract.anyToken(tokenAddress).decimals(),
-          18,
-        )
-
         this.symbol = dataSymbol
-        this.decimals = dataDecimals
+        await this.setDecimals(tokenAddress)
+      }
+    },
+
+    async setDecimals(tokenAddress) {
+      for (const chainID of REAL_CHAIN_IDS) {
+        const _contract = getContract(chainID as ChainId)
+        const dataDecimals = await safeRead(
+          _contract.anyToken(tokenAddress).decimals(),
+          18
+        )
+        this.decimals[chainID] = dataDecimals
       }
     },
 
@@ -233,7 +259,7 @@ export const useToken = defineContractStore<
 
       const bridgeAssistAddress =
         factory.assistAndTokenAddresses[chainId]?.find(
-          (item) => item.token === tokenAddress,
+          (item) => item.token === tokenAddress
         )?.bridgeAssist ?? ''
       console.log('approveIf BridgeAssist', {
         bridgeAssistAddress,
@@ -246,8 +272,8 @@ export const useToken = defineContractStore<
           .connect(signer)
           .approve(
             bridgeAssistAddress,
-            amount.toBigNumber(this.cDecimals[web3.chainId][this.symbol]),
-          ),
+            amount.toBigNumber(this.cDecimals[web3.chainId][this.symbol])
+          )
       )
       if (tx) this.hasAllowance(web3.wallet, web3.chainId, amount, tokenAddress)
       this.loading = false
@@ -258,16 +284,16 @@ export const useToken = defineContractStore<
       console.log(owner, chainId, amount, tokenAddress, 'AAAAA')
       const factory = useFactory()
       const bridgeAssist = factory.assistAndTokenAddresses[chainId]?.find(
-        (item) => item.token === tokenAddress,
+        (item) => item.token === tokenAddress
       )?.bridgeAssist
       // const { token } = useContracts(undefined, chainId)
       const contract = getContract(chainId)
       const allowance = await safeRead(
         contract.anyToken(tokenAddress).allowance(owner, bridgeAssist ?? ''),
-        BigNumber.from(0),
+        BigNumber.from(0)
       )
 
-      if (allowance.gte(amount.toBigNumber(this.decimals))) {
+      if (allowance.gte(amount.toBigNumber(this.decimals[chainId]))) {
         this.allowances[chainId] = true
         return true
       }
