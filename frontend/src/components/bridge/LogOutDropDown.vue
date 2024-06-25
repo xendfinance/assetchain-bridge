@@ -172,11 +172,11 @@ const { supportedChains } = useBridgeRead()
 
 const normalizedChainsLabels = computed(() =>
   chainsLabels
-    // .filter((item) => unref(supportedChains).includes(item.value))
+    .filter((item) => unref(supportedChains).includes(item.value))
     .map((chain) => ({
       value: chain.value,
       label: chain.label,
-    })),
+    }))
 )
 
 const onDisconnect = async () => {

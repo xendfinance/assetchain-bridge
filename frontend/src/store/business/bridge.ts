@@ -206,10 +206,11 @@ export const useBridgeWrite = () => {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories
         .map((h) => {
+          const decimals = token.decimals[h.transaction.fromChain]
           return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
-              amount: h.transaction.amount.toBigNumber(0).formatNumber(6, 3),
+              amount: h.transaction.amount.toBigNumber(0).formatNumber(decimals, 3),
               fullAmount: h.transaction.amount
                 .toBigNumber(0)
                 .formatString(token.cDecimals[h.transaction.toChain][h.symbol], 19),

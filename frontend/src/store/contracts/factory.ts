@@ -1,4 +1,3 @@
-
 import { mapContractSafe, safeRead } from '@/gotbit-tools/vue'
 import { defineContractStore } from '@/gotbit-tools/vue/store'
 
@@ -6,7 +5,7 @@ import type { ChainId, ContractActions } from '@/gotbit-tools/vue/types'
 import { config } from '@/gotbit.config'
 import { REAL_CHAIN_IDS } from '@/misc/chains'
 import { BigNumber, ethers } from 'ethers'
-import { getContract } from '@/misc/utils';
+import { getContract } from '@/misc/utils'
 import { useToken } from './token'
 
 export interface BridgeFact {
@@ -69,10 +68,19 @@ export const useFactory = defineContractStore<
         const assistsLength = await contract.bridgeFactory.getCreatedBridgesLength()
         this.bridgesLength[chainId] = assistsLength
         if (assistsLength.toNumber()) {
-          const assists = await contract.bridgeFactory.getCreatedBridgesInfo(0, assistsLength)
+          const assists = await contract.bridgeFactory.getCreatedBridgesInfo(
+            0,
+            assistsLength
+          )
 
           console.log(assists, 'assists getCreatedBridgesInfo for ', chainId)
-          console.log(Object.values(assists).map(v => ({ bridgeAssist: v.bridgeAssist, token: v.token })), 'keys')
+          console.log(
+            Object.values(assists).map((v) => ({
+              bridgeAssist: v.bridgeAssist,
+              token: v.token,
+            })),
+            'keys'
+          )
 
           this.assistAndTokenAddresses[chainId] = assists
           // this.bridgeAssistAddress[chainId] = assists[0]
@@ -87,19 +95,30 @@ export const useFactory = defineContractStore<
 
       const res = await Promise.all(
         REAL_CHAIN_IDS.map(async (id) => {
-          const bridgeAddress = this.assistAndTokenAddresses[id].find((item) => item.token === token.tokenAddress)?.bridgeAssist
+          const bridgeAddress = this.assistAndTokenAddresses[id].find(
+            (item) => item.token === token.tokenAddress
+          )?.bridgeAssist
 
           if (bridgeAddress) {
             const contract = getContract(id)
-            return await safeRead(
+            const listBytes = await safeRead(
               contract.anyBridgeAssist(bridgeAddress).supportedChainList(),
               []
             )
+            return [...listBytes, ethers.utils.formatBytes32String(`evm.${id}`)]
           }
         })
       )
-      const defaultChainsList = res.flat().map((chainBytes) => chainBytes ? ethers.utils.parseBytes32String(chainBytes) : '') ?? []
-      const normalizedChainsList = defaultChainsList.filter((el) => !!el).map((el) => el.split('.')[1])
+      const defaultChainsList =
+        res
+          .flat()
+          .map((chainBytes) =>
+            chainBytes ? ethers.utils.parseBytes32String(chainBytes) : ''
+          ) ?? []
+
+      const normalizedChainsList = defaultChainsList
+        .filter((el) => !!el)
+        .map((el) => el.split('.')[1])
       this.supportedChains = [...new Set(normalizedChainsList)]
       this.loading = false
     },

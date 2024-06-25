@@ -35,27 +35,24 @@
     <div class="mt-7 w-full">
       <div class="flex items-center justify-between text-[11px] text-white">
         <p class="text-[11px] text-label-text">Enter amount</p>
-        <div v-if="login" class="text-end flex items-center">
+        <div v-if="login && !token.loading" class="text-end flex items-center">
           <span class="pr-1 text-[11px] text-label-text"> Balance</span>
-          <GTooltip
-            :hint="`${balanceToken(from)} ${tokenStore.symbol}`"
-            text
-            position="top"
-          >
+          <GTooltip :hint="`${balanceToken(from)} ${token.symbol}`" text position="top">
             <span class="flex text-[11px] text-label-text">
               {{
                 formatBigNums(
                   balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0
                 )
               }}
-              {{ tokenStore.symbol }}
+              {{ token.symbol }}
             </span>
           </GTooltip>
         </div>
+        <SvgoThreeDots v-else-if="token.loading" class="w-8" />
       </div>
       <GInput
         v-model="bridgeUI.inputAmount"
-        :placeholder="`0 ${tokenStore.symbol}`"
+        :placeholder="`0 ${token.symbol}`"
         :is-valid="isValidInput"
         :error="isValidInput"
         :error-message="errorMessage"
@@ -69,7 +66,7 @@
         class="mt-1 block text-[11px] text-disabled-text"
         :class="{ 'opacity-0 md:opacity-100': !isValidInput }"
       >
-        Fee: {{ isNaN(+feeAmount) ? 0 : feeAmount }} {{ tokenStore.symbol }}
+        Fee: {{ isNaN(+feeAmount) ? 0 : feeAmount }} {{ token.symbol }}
       </span>
     </div>
     <div class="mt-7 w-full">
@@ -86,7 +83,7 @@
       >
         {{ Number(willReceive) > 0 ? willReceive : 0 }}
 
-        {{ tokenStore.symbol }}
+        {{ token.symbol }}
       </div>
       <div
         v-if="login"
@@ -97,16 +94,18 @@
           Balance after receiving
         </span>
         <GTooltip
-          :hint="`${balanceAfterReceive} ${tokenStore.symbol}`"
+          v-if="!token.loading"
+          :hint="`${balanceAfterReceive} ${token.symbol}`"
           text
           position="top"
         >
           <span class="flex text-[11px] text-disabled-text">
             <!-- {{ !bridgeUI.inputAmount ? 0 : formatBigNums(balanceAfterReceive.toString() ?? 0) }} -->
             {{ formatBigNums(balanceAfterReceive) }}
-            {{ tokenStore.symbol }}
+            {{ token.symbol }}
           </span>
         </GTooltip>
+        <SvgoThreeDots v-else class="w-8" />
       </div>
     </div>
     <div class="flex font-bold items-center justify-center md:justify-end mt-6">
@@ -140,6 +139,7 @@
 <script lang="ts" setup>
 import { ref, watch, computed, unref, onMounted, watchEffect } from 'vue'
 
+import SvgoThreeDots from '@/components/base/ThreeDots.vue'
 import BaseCard from '@/components/gotbit-ui-kit/GCard.vue'
 import ChainSelect from '@/components/bridge/ChainSelect.vue'
 import type { ChainId } from '@/gotbit-tools/vue/types'
@@ -161,7 +161,6 @@ import {
 import GTooltip from '@/components/gotbit-ui-kit/GTooltipCustom.vue'
 import { useToken } from '@/store/contracts/token'
 import LogoutButton from '@/components/base/LogoutButton.vue'
-import { IS_PROD } from '@/gotbit.config'
 import { useDebounceFn } from '@vueuse/core'
 
 export interface ElementProps {
@@ -180,12 +179,11 @@ const { login, wallet } = useWallet()
 const bridgeWrite = useBridgeWrite()
 const bridgeRead = useBridgeRead()
 const { loading: bridgeLoading } = useBridgeRead()
-const tokenStore = useToken()
 
 const web3 = useWeb3()
 
 // const nativeToken = computed(() =>
-//   tokenStore.tokens[web3.chainId].filter(
+//   token.tokens[web3.chainId].filter(
 //     (t) =>
 //       t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_1 ||
 //       t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2,
@@ -195,8 +193,8 @@ const web3 = useWeb3()
 const isNativeToken = computed(() => {
   return 'RWA' === props.tokenSymbol
 })
-const decimals = computed(() => tokenStore.decimals[web3.chainId])
-const decimalsTo = computed(() => tokenStore.decimals[unref(to) as ChainId])
+const decimals = computed(() => token.decimals[web3.chainId])
+const decimalsTo = computed(() => token.decimals[unref(to) as ChainId])
 
 const chainsFrom = ref<{ value: ChainId; label: string; disabled: boolean }[]>([])
 const chainsTo = ref<{ value: ChainId; label: string; disabled: boolean }[]>([])
@@ -239,7 +237,7 @@ onMounted(() => {
 watch(
   [
     normalizedChainsLabels,
-    tokenStore.symbol,
+    token.symbol,
     web3.chainId,
     isNativeToken,
     bridgeRead.supportedChains,
@@ -292,10 +290,11 @@ const onTransfer = () => {
   bridgeWrite.bridge(tokenAddress.value)
 }
 
-const feeSendPercent = computed(() =>
-  IS_PROD
-    ? (100 - bridgeRead.feeSend(to.value)) / 100
-    : (100 - bridgeRead.feeFulfill(to.value)) / 100
+const feeSendPercent = computed(
+  () => (100 - bridgeRead.feeSend(from.value)) / 100
+  // IS_PROD
+  //   ? (100 - bridgeRead.feeSend(to.value)) / 100
+  //   : (100 - bridgeRead.feeFulfill(to.value)) / 100
 )
 const feeAmount = computed(() =>
   (
@@ -435,7 +434,7 @@ const errorMessage = computed(() => {
       bridgeUI.inputAmount.split('.').length === 2 &&
       bridgeUI.inputAmount.split('.')[1].length > unref(decimals)
     )
-      return `Supported only ${tokenStore.decimals} numbers after point`
+      return `Supported only ${token.decimals} numbers after point`
   } catch (e) {
     return 'Amount must be a number'
   }
