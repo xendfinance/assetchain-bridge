@@ -141,26 +141,31 @@ export const useToken = defineContractStore<
           // const { token } = useContracts(undefined, chainId)
           const contract = getContract(chainId)
           const factory = useFactory()
+          const tokenAddr =
+            this.symbol === 'RWA' && chainId === '42421'
+              ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
+              : this.tokenAddress
           const bridgeAssistAddress =
             factory.assistAndTokenAddresses[chainId]?.find(
-              (item) => item.token === this.tokenAddress
+              (item) => item.token === tokenAddr
             )?.bridgeAssist ?? ''
 
-          if (this.tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
+          if (this.symbol === 'RWA' && chainId === '42421') {
             const provider = getProvider(chainId)
             this.balances[chainId] = await provider.getBalance(web3.wallet)
             this.contractBalances[chainId] = await provider.getBalance(
               bridgeAssistAddress
             )
-          } else
+          } else {
             this.balances[chainId] = await safeRead(
               contract.anyToken(this.tokenAddress).balanceOf(web3.wallet),
               '0'.toBigNumber()
             )
-          this.contractBalances[chainId] = await safeRead(
-            contract.anyToken(this.tokenAddress).balanceOf(bridgeAssistAddress),
-            '0'.toBigNumber()
-          )
+            this.contractBalances[chainId] = await safeRead(
+              contract.anyToken(this.tokenAddress).balanceOf(bridgeAssistAddress),
+              '0'.toBigNumber()
+            )
+          }
         }
 
       this.loading = false
@@ -215,7 +220,7 @@ export const useToken = defineContractStore<
     async setToken(symbol, tokenAddress) {
       const web3 = useWeb3()
       const factory = useFactory()
-      console.log(tokenAddress)
+      this.loading = true
       let chainId: ChainId = web3.chainId as ChainId
       if (
         !factory.assistAndTokenAddresses[chainId].find((a) => a.token === tokenAddress)
@@ -238,6 +243,7 @@ export const useToken = defineContractStore<
         this.symbol = dataSymbol
         await this.setDecimals(tokenAddress)
       }
+      await this.getBalances()
     },
 
     async setDecimals(tokenAddress) {

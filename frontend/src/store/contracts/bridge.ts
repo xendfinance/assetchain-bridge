@@ -23,7 +23,7 @@ import { REAL_CHAIN_IDS } from '@/misc/chains'
 export const packTx = (tx: TransactionContract) => {
   return ethers.utils.defaultAbiCoder.encode(
     ['uint', 'uint', 'address', 'string', 'string', 'string', 'uint'],
-    [tx.amount, tx.timestamp, tx.fromUser, tx.toUser, tx.fromChain, tx.toChain, tx.nonce],
+    [tx.amount, tx.timestamp, tx.fromUser, tx.toUser, tx.fromChain, tx.toChain, tx.nonce]
   )
 }
 export const hashTx = (tx: TransactionContract) => ethers.utils.keccak256(packTx(tx))
@@ -43,7 +43,7 @@ export interface IBridgeAssistActions {
   send: (
     amount: BigNumber,
     to: ChainId,
-    tokenAddress: string,
+    tokenAddress: string
   ) => Promise<ContractTransaction | null>
   fulfill: (transaction: FulfillTx, index: number) => Promise<ContractTransaction | null>
   getTransactions: () => Promise<TransactionContract[]>
@@ -125,7 +125,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const contract = getContract(web3.chainId)
         const bridgeAssistAddress =
           factory.assistAndTokenAddresses[web3.chainId].find(
-            (item) => item.token === tokenAddress,
+            (item) => item.token === tokenAddress
           )?.bridgeAssist ?? ''
         // contract.anyBridgeAssist('').connect(web3.signer!).send()
         this.loading = true
@@ -133,7 +133,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           contract
             .anyBridgeAssist(bridgeAssistAddress)
             .connect(web3.signer!)
-            .send(amount, web3.wallet, 'evm.' + to.toString()),
+            .send(amount, web3.wallet, 'evm.' + to.toString())
         )
         this.loading = false
 
@@ -150,13 +150,13 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           transaction,
           'transaction',
           transaction.fromChain.slice(4),
-          token.tokenAddress,
+          token.tokenAddress
         )
         const fromBridgeAssistAddress = computed(
           () =>
             factory.assistAndTokenAddresses[
               transaction.fromChain.slice(4) as ChainId
-            ].find((item) => item.token === token.tokenAddress)?.bridgeAssist ?? '',
+            ].find((item) => item.token === token.tokenAddress)?.bridgeAssist ?? ''
         )
 
         const toBridgeAssistAddress = computed(
@@ -166,8 +166,8 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
                 item.token ===
                 (token.symbol === 'RWA'
                   ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
-                  : token.tokenAddress),
-            )?.bridgeAssist ?? '',
+                  : token.tokenAddress)
+            )?.bridgeAssist ?? ''
         )
 
         this.loading = true
@@ -179,14 +179,14 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           toBridgeAssistAddress.value,
           transaction.fromChain,
           transaction.fromUser,
-          index,
+          index
         )
         // console.log(signature, transaction)
         const [tx] = await safeWrite(
           contract
             .anyBridgeAssist(toBridgeAssistAddress.value)
             .connect(web3.signer!)
-            .fulfill(transaction, [signature]),
+            .fulfill(transaction, [signature])
         )
 
         console.log(transaction, [signature])
@@ -206,9 +206,12 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         for (const chainId of supportedChains as ChainId[]) {
           // const { bridgeAssist } = useContracts(undefined, chainId)
-
+          const tokenAddr =
+            token.symbol === 'RWA' && chainId === '42421'
+              ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
+              : token.tokenAddress
           const bridgeAddress = assistAndTokenAddresses[chainId].find(
-            (item) => item.token === token.tokenAddress,
+            (item) => item.token === tokenAddr
           )?.bridgeAssist
 
           const contract = getContract(chainId)
@@ -216,8 +219,8 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             transactions = transactions.concat(
               await safeRead(
                 contract.anyBridgeAssist(bridgeAddress).getUserTransactions(web3.wallet),
-                [],
-              ),
+                []
+              )
             )
           }
         }
@@ -237,10 +240,6 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         for (const transaction of transactions) {
           const hashedTx = hashTx(transaction)
-          const fromChain = transaction.fromChain.replace('evm.', '') as ChainId
-          const bridgeAddress = assistAndTokenAddresses[fromChain].find(
-            (item) => item.token === token.tokenAddress,
-          )?.bridgeAssist
           // const contract = getContract(fromChain)
           // if (bridgeAddress) {
           //   const tokenAddress = await safeRead(
@@ -266,8 +265,10 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const chainId = tx.toChain.replace('evm.', '') as ChainId
 
         const { assistAndTokenAddresses } = useFactory()
+        const tokenAddr =
+          token.symbol === 'RWA' ? DEFAULT_NATIVE_TOKEN_CONTRACT_2 : token.tokenAddress
         const bridgeAddress = assistAndTokenAddresses[chainId].find(
-          (item) => item.token === token.tokenAddress,
+          (item) => item.token === tokenAddr
         )?.bridgeAssist
         const contract = getContract(chainId)
 
@@ -275,7 +276,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           contract
             .anyBridgeAssist(bridgeAddress!)
             .fulfilledAt(tx.fromChain, tx.fromUser, tx.nonce),
-          ethers.constants.Zero,
+          ethers.constants.Zero
         )
 
         return {
@@ -317,5 +318,5 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         }))
       },
     },
-  },
+  }
 )
