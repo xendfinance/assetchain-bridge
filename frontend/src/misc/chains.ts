@@ -26,7 +26,7 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       // { value: '369', label: 'PulseChain', component: PulseIconVue },
       // { value: '8453', label: 'Base', component: BaseIconVue },
       { value: '421614', label: 'Arbitrum', component: ArbitumIcon },
-      { value: '42421', label: 'Xend', component: XendIcon },
+      { value: '42421', label: 'Asset Chain', component: XendIcon },
       { value: '97', label: 'BSC', component: BinanceIcon },
     ]
   : [
@@ -35,6 +35,6 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       // { value: '80001', label: 'Polygon', component: PolygonIcon },
 
       { value: '421614', label: 'Arbitrum', component: ArbitumIcon },
-      { value: '42421', label: 'Xend', component: XendIcon },
+      { value: '42421', label: 'Asset Chain', component: XendIcon },
       { value: '97', label: 'BSC', component: BinanceIcon },
     ]
