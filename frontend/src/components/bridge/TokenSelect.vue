@@ -83,7 +83,7 @@ export interface SelectorProps {
 
 const props = defineProps<SelectorProps>()
 const emit = defineEmits(['update:modelValue', 'active'])
-const tokens = useToken()
+const token = useToken()
 const factory = useFactory()
 const bridge = useBridge()
 
@@ -104,7 +104,7 @@ const onSelect = async (tokenSymbol: string, tokenAddress: string) => {
   console.log(tokenAddress, 'tokenAddress')
   if (item.disabled) return
   emit('update:modelValue', tokenSymbol)
-  await tokens.setToken(tokenSymbol, tokenAddress)
+  await token.setToken(tokenSymbol, tokenAddress)
   await factory.getSupportedChains()
   await bridge.upload()
 

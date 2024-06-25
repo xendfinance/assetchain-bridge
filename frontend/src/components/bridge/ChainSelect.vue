@@ -65,7 +65,7 @@
         </div>
       </div>
     </div>
-    <p :class="{ invisible: !Number(contractBalance) }" class="text-[14px]">
+    <p :class="{ invisible: props.title === 'From' }" class="text-[14px]">
       Total liquidity:
       {{
         contractBalance
@@ -106,7 +106,7 @@ const dropdown = ref<HTMLElement | any>(null)
 
 const bridgeRead = useBridgeRead()
 const normalizedChainsLabels = computed(() =>
-  chainsLabels.filter((item) => unref(bridgeRead.supportedChains).includes(item.value)),
+  chainsLabels.filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
 )
 
 onClickOutside(dropdown, () => {

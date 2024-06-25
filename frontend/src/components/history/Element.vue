@@ -141,6 +141,7 @@ const emit = defineEmits(['claim'])
 const isConfirmed = ref(false)
 
 const disabledConfirmations = computed(() => {
+  if (props.from === '42421') return false
   return (
     currentBlocks.value[props.from] -
       props.claimInfo.txBlock -
@@ -159,6 +160,10 @@ const disabledConfirmations = computed(() => {
 // )
 
 const blocksToClaim = computed(() => {
+  if (props.from === '42421') {
+    isConfirmed.value = true
+    return 'Confirmed!'
+  }
   const difference =
     props.claimInfo.txBlock +
     props.claimInfo.confirmations -
