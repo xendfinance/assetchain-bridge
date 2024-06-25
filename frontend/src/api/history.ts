@@ -4,7 +4,7 @@ import { ChainId } from '@/gotbit-tools/vue/types'
 
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_BACKEND_LINK
+// const baseURL = import.meta.env.VITE_BACKEND_LINK
 // const baseURL = 'http://localhost:3000'
 
 export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT'
@@ -26,23 +26,24 @@ const getUrl = (symbol: Symbol) => {
   }
 }
 
-const axiosClientToken = (token: Symbol) => axios.create({
-  baseURL: getUrl(token),
-  transformResponse: [
-    (data) => {
-      return JSON.parse(data)
-    },
-  ],
-})
+const axiosClientToken = (token: Symbol) =>
+  axios.create({
+    baseURL: getUrl(token),
+    transformResponse: [
+      (data) => {
+        return JSON.parse(data)
+      },
+    ],
+  })
 
-const axiosClient = axios.create({
-  baseURL,
-  transformResponse: [
-    (data) => {
-      return JSON.parse(data)
-    },
-  ],
-})
+// const axiosClient = axios.create({
+//   baseURL,
+//   transformResponse: [
+//     (data) => {
+//       return JSON.parse(data)
+//     },
+//   ],
+// })
 
 const TRANSACTIONS = '/transactions'
 const SIGN = '/sign'
@@ -77,31 +78,31 @@ export async function getTokenSignature(
   toBridgeAssistAddress: string,
   fromChain: string,
   fromUser: string,
-  index: number,
+  index: number
 ): Promise<string> {
   const [response, error] = await safe(
     axiosClientToken(symbol).get<{ signature: string }>(SIGN, {
       params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },
-    }),
+    })
   )
 
   if (response) return response.data.signature
   return ''
 }
 
-export async function getSignature(
-  fromBridgeAddress: string,
-  toBridgeAssistAddress: string,
-  fromChain: string,
-  fromUser: string,
-  index: number,
-): Promise<string> {
-  const [response, error] = await safe(
-    axiosClient.get<{ signature: string }>(SIGN, {
-      params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },
-    }),
-  )
+// export async function getSignature(
+//   fromBridgeAddress: string,
+//   toBridgeAssistAddress: string,
+//   fromChain: string,
+//   fromUser: string,
+//   index: number
+// ): Promise<string> {
+//   const [response, error] = await safe(
+//     axiosClient.get<{ signature: string }>(SIGN, {
+//       params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },
+//     })
+//   )
 
-  if (response) return response.data.signature
-  return ''
-}
+//   if (response) return response.data.signature
+//   return ''
+// }

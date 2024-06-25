@@ -1,7 +1,7 @@
 import { safeRead, safeWrite, useContracts, useWeb3 } from '@/gotbit-tools/vue'
 import { defineContractStore } from '@/gotbit-tools/vue/store'
 
-import { Symbol, getSignature, getTokenSignature } from '@/api/history'
+import { Symbol, getTokenSignature } from '@/api/history'
 import type { ChainId } from '@/gotbit-tools/vue/types'
 import type { ContractTransaction } from 'ethers'
 import { BigNumber, ethers } from 'ethers'
