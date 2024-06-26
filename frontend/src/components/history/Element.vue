@@ -123,7 +123,6 @@ export interface ElementProps {
   to: ChainId
   date: string
   amount: number
-  fullAmount: string
   fulfilled: boolean
   claimInfo: {
     txBlock: number
@@ -182,18 +181,14 @@ const fromChain = computed(() => chainsLabels.filter((c) => c.value === props.fr
 const toChain = computed(() => chainsLabels.filter((c) => c.value === props.to)[0])
 
 const bridgeRead = useBridgeRead()
-const feeSendPercent = computed(() => (100 - bridgeRead.feeFulfill(props.to)) / 100)
-const claimAmount = computed(() => Number(props.amount) * unref(feeSendPercent))
+
+const claimAmount = computed(
+  () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
+)
 
 function handleClick() {
   emit('claim', { claimAmount: claimAmount })
 }
-// const claimAmount = computed(() =>
-//   (
-//     Number(props.amount) -
-//     Number(props.amount) * unref(feeSendPercent)
-//   ).toFixed(3),
-// )
 
 const windowWidth = ref<number>(window.innerWidth)
 const onWidthChange = () => (windowWidth.value = window.innerWidth)

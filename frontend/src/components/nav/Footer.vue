@@ -5,19 +5,20 @@
     >
       <a href="https://xend.finance" target="_blank" class="md:block w-[25%] hidden">
         <div class="flex flex-col items-start w-[135px]">
-          <Logotip class="hidden md:block"/>
+          <Logotip class="hidden md:block" />
           <p class="text-[14px] mt-[10px] text-label-text uppercase">
             © {{ new Date().getFullYear() }} Gotbit Ltd
           </p>
         </div>
       </a>
-      <Social :links="links" class=""/>
+      <Social :links="links" class="" />
     </div>
     <div class="w-full flex justify-center items-center">
-      <p class="max-w-[1280px] w-full flex justify-center md:justify-end items-center border-t-[1px] border-t-primary-border py-4 md:py-5 md:pt-[12px]">
-        <span class="text text-[13px]">
-          <a href="https://gotbit.io/">develop by Gotbit</a>
-        </span>
+      <p
+        class="max-w-[1280px] w-full flex justify-center md:justify-between items-center border-t-[1px] border-t-primary-border py-4 md:py-5 px-2 md:pt-[12px] text text-[13px]"
+      >
+        <a href="https://xend.finance/policy" target="_blank">Privacy Police</a>
+        <a href="https://gotbit.io/" target="_blank">develop by Gotbit</a>
       </p>
     </div>
   </footer>
@@ -54,28 +55,26 @@ const links = ref([
     link: 'http://www.reddit.com/r/XendFinance/',
     img: 'Reddit.svg',
   },
-  { 
-    name: 'twitter', 
-    link: 'http://twitter.com/xendfinance', 
-    img: 'Twitter.svg' 
+  {
+    name: 'twitter',
+    link: 'http://twitter.com/xendfinance',
+    img: 'Twitter.svg',
   },
   {
     name: 'Github',
     link: ' https://github.com/xendfinance',
     img: 'Github.png',
   },
-  { 
-    name: 'discord', 
-    link: 'https://discord.gg/QGHb7jp2GV', 
-    img: 'Discord.svg' 
+  {
+    name: 'discord',
+    link: 'https://discord.gg/QGHb7jp2GV',
+    img: 'Discord.svg',
   },
 ])
-
 </script>
 
 <style scoped lang="scss">
 .text {
-  color: rgba(239, 239, 229, 0.30)
+  color: rgba(239, 239, 229, 0.3);
 }
-
 </style>

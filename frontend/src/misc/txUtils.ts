@@ -28,7 +28,9 @@ export type FulfillTx = {
   toUser: string
 }
 
-const bridgeWithAddress = contracts['97']['anyBridgeAssist']('97')('0x4F18a162dcfa08bB7797DbBCd910F4A0c0FaE1a3')
+const bridgeWithAddress = contracts['97']['anyBridgeAssist']('97')(
+  '0x4F18a162dcfa08bB7797DbBCd910F4A0c0FaE1a3'
+)
 
 type UseContracts = typeof bridgeWithAddress
 
@@ -47,7 +49,7 @@ export type TransactionAndFulfilled = {
 
 export const extractTransaction = (tx: TransactionContract) => {
   return {
-    amount: tx.amount.toString(),
+    amount: tx.amount,
     timestamp: tx.timestamp.toString(),
     fromUser: tx.fromUser,
     toUser: tx.toUser,

@@ -1,10 +1,11 @@
 import type { ChainId } from '@/gotbit-tools/vue/types'
+import { BigNumber } from 'ethers'
 
 export interface TrasactionData {
   fromUser: string
   toUser: string
   timestamp: number
-  amount: string
+  amount: BigNumber
   toChain: ChainId
   fromChain: ChainId
   nonce: number

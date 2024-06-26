@@ -1,7 +1,7 @@
 import { safeRead, safeWrite, useContracts, useWeb3 } from '@/gotbit-tools/vue'
 import { defineContractStore } from '@/gotbit-tools/vue/store'
 
-import { Symbol, getTokenSignature } from '@/api/history'
+import { Symbol, getSignature, getTokenSignature } from '@/api/history'
 import type { ChainId } from '@/gotbit-tools/vue/types'
 import type { ContractTransaction } from 'ethers'
 import { BigNumber, ethers } from 'ethers'
@@ -56,6 +56,7 @@ export interface IBridgeAssistActions {
     confirmations: number
   }>
   getUserTransactions: () => Promise<HistoryData[]>
+  getFees: () => void
 }
 
 export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistActions>(
@@ -76,23 +77,6 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
       async onInit() {
         this.loading = true
 
-        for (const chainId of REAL_CHAIN_IDS as ChainId[]) {
-          const contract = getContract(chainId)
-          // this.bridgeAssist[chainId] = bridgeAssistAddress[chainId].bridgeAssist
-
-          // const { bridgeAssist } = useContracts(undefined, chainId)
-
-          // TODO get fees
-          // this.feeFulfill[chainId] = await safeRead(
-          //   contract.anyBridgeAssist(this.bridgeAssist[chainId]).feeFulfill(),
-          //   this.feeFulfill[chainId],
-          // )
-          // this.feeSend[chainId] = await safeRead(
-          //   contract.anyBridgeAssist(this.bridgeAssist[chainId]).feeSend(),
-          //   this.feeSend[chainId],
-          // )
-        }
-
         this.loading = false
         return true
       },
@@ -107,14 +91,36 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
       },
 
       async upload() {
-        const web3 = useWeb3()
         this.loadingHistory = true
+        this.getFees()
         // this.histories = await getHistory(web3.wallet)
         this.histories = await this.getUserTransactions()
 
         this.loadingHistory = false
 
         this.emptyHistory = this.histories.length > 0 ? false : true
+      },
+      async getFees() {
+        const factory = useFactory()
+        const token = useToken()
+
+        for (const chainId of REAL_CHAIN_IDS as ChainId[]) {
+          const bridgeAssistAddress =
+            factory.assistAndTokenAddresses[chainId].find(
+              (item) => item.token === token.tokenAddress
+            )?.bridgeAssist ?? ''
+          const contract = getContract(chainId)
+
+          this.feeFulfill[chainId] = await safeRead(
+            contract.anyBridgeAssist(bridgeAssistAddress).feeFulfill(),
+            this.feeFulfill[chainId]
+          )
+          this.feeSend[chainId] = await safeRead(
+            contract.anyBridgeAssist(bridgeAssistAddress).feeSend(),
+            this.feeSend[chainId]
+          )
+        }
+        console.log('getFees result', this.feeFulfill, this.feeSend)
       },
 
       async send(amount, to, tokenAddress) {

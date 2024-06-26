@@ -65,13 +65,19 @@
         </div>
       </div>
     </div>
-    <p :class="{ invisible: props.title === 'From' }" class="text-[14px]">
-      Total liquidity:
+    <p
+      :class="{
+        invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA'),
+      }"
+      class="text-[14px] text-[#A0A0A0]"
+    >
+      Total liquidity for a chain
       {{
         contractBalance
           ? `${formatBigNums(contractBalance)} ${props.symbol}`
           : 'Loading...'
       }}
+      ({{ chainsLabels.filter((o) => o.value === props.modelValue)[0]?.label }})
     </p>
   </div>
 </template>

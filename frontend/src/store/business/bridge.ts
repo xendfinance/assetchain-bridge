@@ -20,37 +20,37 @@ export const useBridgeRead = () => {
   const factory = useFactory()
 
   return {
-    history: () => {
-      return bridge.histories.length
-        ? bridge.histories
-            .filter((tx) => tx.symbol === token.symbol)
-            .reverse()
-            .map((h) => ({
-              transactionCard: {
-                date: formatDate(h.transaction.timestamp),
-                amount:
-                  h.transaction.toChain === '97' || h.transaction.fromChain === '97'
-                    ? h.transaction.amount.toBigNumber(0).formatNumber(6, 3)
-                    : h.transaction.amount
-                        .toBigNumber(0)
-                        .formatNumber(
-                          token.cDecimals[h.transaction.toChain][h.symbol],
-                          3
-                        ),
-                fullAmount: h.transaction.amount
-                  .toBigNumber(0)
-                  .formatString(token.decimals[h.transaction.toChain], 19),
-                to: h.transaction.toChain as ChainId,
-                from: h.transaction.fromChain as ChainId,
-                fulfilled: h.fulfilled,
-                claimInfo: h.claimInfo,
-              },
-              transaction: {
-                ...h.transaction,
-              },
-            }))
-        : []
-    },
+    // history: () => {
+    //   return bridge.histories.length
+    //     ? bridge.histories
+    //         .filter((tx) => tx.symbol === token.symbol)
+    //         .reverse()
+    //         .map((h) => ({
+    //           transactionCard: {
+    //             date: formatDate(h.transaction.timestamp),
+    //             amount:
+    //               h.transaction.toChain === '97' || h.transaction.fromChain === '97'
+    //                 ? h.transaction.amount.toBigNumber(0).formatNumber(6, 3)
+    //                 : h.transaction.amount
+    //                     .toBigNumber(0)
+    //                     .formatNumber(
+    //                       token.cDecimals[h.transaction.toChain][h.symbol],
+    //                       3
+    //                     ),
+    //             fullAmount: h.transaction.amount
+    //               .toBigNumber(0)
+    //               .formatString(token.decimals[h.transaction.toChain], 19),
+    //             to: h.transaction.toChain as ChainId,
+    //             from: h.transaction.fromChain as ChainId,
+    //             fulfilled: h.fulfilled,
+    //             claimInfo: h.claimInfo,
+    //           },
+    //           transaction: {
+    //             ...h.transaction,
+    //           },
+    //         }))
+    //     : []
+    // },
     loadingHistory: computed(() => bridge.loadingHistory),
     loading: computed(() => bridge.loading),
     limitPerSend: (chainId: ChainId) => bridge.limitPerSend[chainId],
@@ -206,14 +206,15 @@ export const useBridgeWrite = () => {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories
         .map((h) => {
-          const decimals = token.decimals[h.transaction.fromChain]
+          const decimals =
+            h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
+              ? 6
+              : token.decimals[h.transaction.toChain]
+
           return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
-              amount: h.transaction.amount.toBigNumber(0).formatNumber(decimals, 3),
-              fullAmount: h.transaction.amount
-                .toBigNumber(0)
-                .formatString(token.cDecimals[h.transaction.toChain][h.symbol], 19),
+              amount: h.transaction.amount.formatNumber(decimals, 3),
               to: h.transaction.toChain as ChainId,
               from: h.transaction.fromChain as ChainId,
               fulfilled: h.fulfilled,

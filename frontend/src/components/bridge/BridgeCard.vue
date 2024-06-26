@@ -10,7 +10,7 @@
         subtitle="Source chain"
         :loading="bridgeLoading"
       />
-      <div class="flex items-center justify-between w-full lg:max-w-[48px] pt-6 lg:pt-20">
+      <div class="flex items-center justify-between w-full lg:max-w-[48px] pt-6 lg:pt-16">
         <span class="font-semibold text-[20px] lg:hidden">To</span>
         <ArrowRigth
           v-if="isNativeToken"
@@ -66,7 +66,7 @@
         class="mt-1 block text-[11px] text-disabled-text"
         :class="{ 'opacity-0 md:opacity-100': !isValidInput }"
       >
-        Fee: {{ isNaN(+feeAmount) ? 0 : feeAmount }} {{ token.symbol }}
+        Fee: {{ isNaN(totalFees) ? 0 : totalFees }}
       </span>
     </div>
     <div class="mt-7 w-full">
@@ -290,17 +290,14 @@ const onTransfer = () => {
   bridgeWrite.bridge(tokenAddress.value)
 }
 
-const feeSendPercent = computed(
-  () => (100 - bridgeRead.feeSend(from.value)) / 100
-  // IS_PROD
-  //   ? (100 - bridgeRead.feeSend(to.value)) / 100
-  //   : (100 - bridgeRead.feeFulfill(to.value)) / 100
+const feeSend = computed(
+  () => (Number(bridgeUI.inputAmount) * bridgeRead.feeSend(from.value)) / 100
 )
-const feeAmount = computed(() =>
-  (
-    Number(bridgeUI.inputAmount) -
-    Number(bridgeUI.inputAmount) * unref(feeSendPercent)
-  ).toFixed(3)
+const totalFees = computed(
+  () =>
+    ((Number(bridgeUI.inputAmount) - feeSend.value) * bridgeRead.feeFulfill(to.value)) /
+      100 +
+    feeSend.value
 )
 
 watch(
@@ -310,7 +307,7 @@ watch(
   }
 )
 
-const willReceive = computed(() => Number(bridgeUI.inputAmount) * unref(feeSendPercent))
+const willReceive = computed(() => Number(bridgeUI.inputAmount) - totalFees.value)
 
 const balanceAfterReceive = computed(() => {
   try {
