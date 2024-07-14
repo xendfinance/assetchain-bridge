@@ -36,18 +36,24 @@ const config: HardhatUserConfig = {
       //   url: 'https://rpc.ankr.com/bsc',
       // },
     },
-    // xend_testnet: {
-    //   tags: ['testnet'],
-    //   deploy: ['deploy/testnet/'],
-    //   url: 'https://rpctestnet.xendrwachain.com',
-    //   accounts: [process.env.PRIVATE_TEST!]
-    // },
-    // arbitrum_sepolia: {
-    //   tags: ['testnet'],
-    //   deploy: ['deploy/testnet/'],
-    //   url: 'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
-    //   accounts: [process.env.PRIVATE_TEST!],
-    // },
+    xend_testnet: {
+      tags: ['testnet'],
+      deploy: ['deploy/testnet/'],
+      url: 'https://rpctestnet.xendrwachain.com',
+      accounts: [process.env.PRIVATE_TEST!]
+    },
+    arbitrum_sepolia: {
+      tags: ['testnet'],
+      deploy: ['deploy/testnet/'],
+      url: 'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
+      accounts: [process.env.PRIVATE_TEST!],
+    },
+    bsc_testnet: {
+      tags: ['testnet'],
+      deploy: ['deploy/testnet/'],
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      accounts: [process.env.PRIVATE_TEST!],
+    },
     // polygon_amoy: {
     //   tags: ['testnet'],
     //   deploy: ['deploy/testnet/'],

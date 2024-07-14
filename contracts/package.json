@@ -15,7 +15,16 @@
     "accounts": "hardhat accounts",
     "export:local": "hardhat export --export contracts.json --network localhost && chmod +x ./gotbit-tools/scripts/shell/format-local-deploys.sh && ./shell/format-local-deploys.sh",
     "node:local": "chmod +x ./shell/clear-local-deploys.sh && ./gotbit-tools/scripts/shell/clear-local-deploys.sh && hardhat node --no-reset",
-    "test:cicd": "chmod +x ./gotbit-tools/scripts/cicd/hardhat-test.sh && ./gotbit-tools/scripts/cicd/hardhat-test.sh"
+    "test:cicd": "chmod +x ./gotbit-tools/scripts/cicd/hardhat-test.sh && ./gotbit-tools/scripts/cicd/hardhat-test.sh",
+    "deploy:arb_testnet": "hardhat deploy --export-all dev/contracts.json --network arbitrum_sepolia",
+    "deploy:xend_testnet": "hardhat deploy --export-all dev/contracts.json --network xend_testnet",
+    "deploy:bsc_testnet": "hardhat deploy --export-all dev/contracts.json --network bsc_testnet",
+    "factory:arb": "hardhat --network arbitrum_sepolia run scripts/factory.ts",
+    "factory:xend": "hardhat --network xend_testnet run scripts/factory.ts",
+    "factory:bsc": "hardhat --network bsc_testnet run scripts/factory.ts",
+    "bridge:arb": "hardhat --network arbitrum_sepolia run scripts/bridge.ts",
+    "bridge:xend": "hardhat --network xend_testnet run scripts/bridge.ts",
+    "bridge:bsc": "hardhat --network bsc_testnet run scripts/bridge.ts"
   },
   "_moduleAliases": {
     "@": "."
@@ -36,6 +45,7 @@
     "@typescript-eslint/parser": "^4.33.0",
     "axios": "^0.27.2",
     "chai": "^4.3.6",
+    "colors": "^1.4.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -54,6 +64,7 @@
     "module-alias": "^2.2.2",
     "prettier": "^2.8.8",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
+    "readline-sync": "^1.4.10",
     "solhint": "^3.3.6",
     "solidity-coverage": "0.8.11",
     "ts-node": "^10.4.0",
