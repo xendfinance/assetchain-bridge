@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Recommended Node version is 16.0.0.
+Recommended Node version is 16.0.0. and higher
 
 ```bash
 $ yarn
@@ -400,3 +400,40 @@ Below are detailed step-by-step usage scenarios. They may duplicate the ones des
    relayers.
 3. With the signatures and `Transaction` structure user goes to the Solana BridgeAssist contract and is able to
    claim his tokens there
+
+## Scripts:
+1. factory
+  this is an interactive script that can be used to carry out some functions on the bridge factory contracts. this functions includes; `createBridge`, `addbridge`, `removebridge`
+  to run the script;
+```bash
+  yarn factory:arb 
+  # to run script on sepolia testnet
+```
+
+```bash
+  yarn factory:bsc 
+  # to run script on bsc testnet
+```
+
+```bash
+  yarn factory:xend 
+  # to run script on asset chain testnet
+```
+
+2. bridge
+  this is an interactive script that can be used to carry out some functions on the bridge assist contracts. this functions includes; `addChains`, `send`, `fulfil`
+
+```bash
+  yarn bridge:arb 
+  # to run script on sepolia testnet
+```
+
+```bash
+  yarn bridge:bsc 
+  # to run script on bsc testnet
+```
+
+```bash
+  yarn bridge:xend 
+  # to run script on asset chain testnet
+```

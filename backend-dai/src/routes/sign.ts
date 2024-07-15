@@ -25,8 +25,8 @@ export default (): Resource => ({
         index
       )
       res.status(200).json({ signature })
-    } catch (error) {
-      throw error
+    } catch (error: any) {
+      res.status(400).json({ error: error.message })
     }
   },
 })

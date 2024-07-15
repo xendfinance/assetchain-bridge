@@ -3,7 +3,6 @@ import colors from 'colors'
 import { ethers } from 'hardhat'
 import * as CONTRACTS from '../dev/contracts.json'
 import { BigNumber, Contract, ContractTransaction } from 'ethers'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 enum BRIDGETYPE {
   TRANSFER,
@@ -71,15 +70,8 @@ async function init() {
 }
 
 async function addChains(config: any, chainId: string, bridgeAssist: Contract) {
-  const { bridgetransferAbi, bridgeMintAbi, bridgeNativeAbi, owner } = config
-  //   let bridgeAssist: Contract
-  //   if (type === BRIDGETYPE.TRANSFER) {
-  //     bridgeAssist = await ethers.getContractAt(bridgetransferAbi, bridgeAddress)
-  //   } else if (type === BRIDGETYPE.MINT) {
-  //     bridgeAssist = await ethers.getContractAt(bridgeMintAbi, bridgeAddress)
-  //   } else {
-  //     bridgeAssist = await ethers.getContractAt(bridgeNativeAbi, bridgeAddress)
-  //   }
+  const { owner } = config
+
   chainId = `evm.${chainId}`
   const MANAGER_ROLE = await bridgeAssist.MANAGER_ROLE()
   console.log(colors.green(`Manager role ${MANAGER_ROLE}`))
@@ -119,9 +111,10 @@ async function send(
   _amount: string,
   toChain: string,
   bridgeAssist: Contract,
-  type: BRIDGETYPE
+  type: BRIDGETYPE,
+  tokenContract: Contract
 ) {
-  const { owner, tokenContract, bridgetokenContract } = config
+  const { owner, chainId } = config
   console.log(colors.yellow(`checking if to chain is supported...`))
   toChain = `evm.${toChain}`
   const isSupportedChain = await bridgeAssist.isSupportedChain(toChain)
@@ -132,12 +125,8 @@ async function send(
   } else {
     console.log(colors.green(`to chain is supported...`))
   }
-  let decimals: number
-  if (type === BRIDGETYPE.MINT) {
-    decimals = await bridgetokenContract.decimals()
-  } else {
-    decimals = await tokenContract.decimals()
-  }
+  let decimals = await tokenContract.decimals()
+  
   console.log(colors.blue(`token decimals ${decimals}...`))
 
   let allowance: BigNumber
@@ -158,10 +147,23 @@ async function send(
     console.log(colors.green(`tokens apppoved ${tx.hash}`))
   }
 
+  if (type === BRIDGETYPE.MINT){
+    const BURNER_ROLE = await tokenContract.BURNER_ROLE()
+    console.log(colors.green(`BURNER ROLE ${BURNER_ROLE}`))
+    const hasRole = await tokenContract.hasRole(BURNER_ROLE, bridgeAssist.address)
+    if (!hasRole){
+      console.log(colors.yellow(`bridge assist does not have Burner role`))
+      console.log(colors.yellow(`granting role...`))
+      const tx: ContractTransaction = await tokenContract.grantRole(BURNER_ROLE, bridgeAssist.address)
+      await tx.wait(1)
+      console.log(colors.green(`role granted. Hash: ${tx.hash}...`))
+    }
+  }
+
   const tx2: ContractTransaction = await bridgeAssist
     .connect(owner)
     .send(amount, owner.address, toChain)
-  console.log(colors.green(`tokens sent to ${getChainName(toChain)} ${tx2.hash}`))
+  console.log(colors.green(`tokens sent to bridgeAssist ${bridgeAssist.address} ${getChainName(`evm.${chainId}`)} ${tx2.hash}`))
 }
 
 async function claim(
@@ -169,9 +171,10 @@ async function claim(
   fultx: FulfillTx,
   bridgeAssist: Contract,
   type: BRIDGETYPE,
-  signatures: string[]
+  signatures: string[],
+  tokenContract: Contract
 ) {
-  const { owner, tokenContract, bridgetokenContract, chainId } = config
+  const { owner, bridgetokenContract, chainId } = config
   console.log(colors.yellow(`checking if to chain is supported...`))
   const isSupportedChain = await bridgeAssist.isSupportedChain(fultx.fromChain)
   if (!isSupportedChain) {
@@ -184,13 +187,13 @@ async function claim(
   }
 
   if (type === BRIDGETYPE.MINT) {
-    const MINTER_ROLE = await bridgetokenContract.MINTER_ROLE()
+    const MINTER_ROLE = await tokenContract.MINTER_ROLE()
     console.log(colors.green(`Minter role ${MINTER_ROLE}`))
-    const hasRole = await bridgetokenContract.hasRole(MINTER_ROLE, bridgeAssist.address)
+    const hasRole = await tokenContract.hasRole(MINTER_ROLE, bridgeAssist.address)
     if (!hasRole) {
       console.log(colors.yellow(`bridge does not have role ${MINTER_ROLE}`))
       console.log(colors.yellow(`granting Minter role`))
-      const tx: ContractTransaction = await bridgetokenContract
+      const tx: ContractTransaction = await tokenContract
         .connect(owner)
         .grantRole(MINTER_ROLE, bridgeAssist.address)
       await tx.wait(1)
@@ -273,7 +276,7 @@ function _chainType(answer: string) {
 }
 
 async function initBridgeAssit(config: any) {
-    const { bridgetransferAbi, bridgeMintAbi, bridgeNativeAbi } = config;
+    const { bridgetransferAbi, bridgeMintAbi, bridgeNativeAbi, bridgetokenAbi, tokenAbi } = config;
     console.log(colors.bold.yellow('Input bridge assist address: '));
     const bridgeAddress = readlineSync.question(colors.bold.yellow('Input address: '));
   
@@ -294,8 +297,10 @@ async function initBridgeAssit(config: any) {
           continue;
         }
   
-        let bridgeAssist;
-        let type;
+        let bridgeAssist: Contract | undefined = undefined;
+        let type: BRIDGETYPE | undefined = undefined
+        let tokenContract : Contract | undefined = undefined
+        let tokenName : string  = ''
         switch (choice) {
           case 1:
             bridgeAssist = await ethers.getContractAt(bridgetransferAbi, bridgeAddress);
@@ -310,8 +315,13 @@ async function initBridgeAssit(config: any) {
             type = BRIDGETYPE.NATIVE;
             break;
         }
-  
-        return { bridgeAssist, type };
+        
+        if (bridgeAssist){
+           const address = tokenContract = await bridgeAssist.TOKEN()
+           tokenContract = await ethers.getContractAt(type === BRIDGETYPE.MINT ? bridgetokenAbi : tokenAbi, address)
+           tokenName = await tokenContract.name()
+        }
+        return { bridgeAssist, type, tokenContract, tokenName };
       }
     }
   }
@@ -321,10 +331,12 @@ async function main() {
   console.log(`done....`)
 
   const bridge = await initBridgeAssit(config)
-  if (!bridge || !bridge.bridgeAssist) throw new Error(`Bridge was not initialised!`)
+  if (!bridge || !bridge.bridgeAssist || !bridge.tokenContract) throw new Error(`Bridge was not initialised!`)
 
   console.log(colors.green(`Bridge Assist address ${bridge.bridgeAssist.address}`))
   console.log(colors.green(`Bridge type ${bridge.type}`))
+  console.log(colors.green(`Bridge token address ${bridge.tokenContract.address}`))
+  console.log(colors.green(`token name ${bridge.tokenName}`))
 
   let running = true
 
@@ -369,7 +381,7 @@ async function main() {
             continue
         }
         try {
-          await send(config, _amount, _chain, bridge.bridgeAssist, bridge.type!)
+          await send(config, _amount, _chain, bridge.bridgeAssist, bridge.type!, bridge.tokenContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -406,7 +418,7 @@ async function main() {
 
         }
         try {
-          await claim(config, fulfilTx, bridge.bridgeAssist,bridge.type!, [signature])
+          await claim(config, fulfilTx, bridge.bridgeAssist,bridge.type!, [signature], bridge.tokenContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }

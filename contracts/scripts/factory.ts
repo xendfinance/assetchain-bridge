@@ -59,17 +59,15 @@ async function init() {
   }
 }
 
-async function createBridge(configs: any, type: BRIDGETYPE) {
+async function createBridge(configs: any, token: string, type: BRIDGETYPE, relayers: string) {
   const {
     factoryContract,
-    tokenContract,
     owner,
-    user,
     bridgetokenAddress,
     bridgetokenAbi,
     chainId,
   } = configs
-  console.log(`Creating bridge of type ${type}`)
+  console.log(colors.blue(`Creating bridge of type ${type}`))
   if (type === BRIDGETYPE.MINT && chainId !== 42421)
     throw new Error(
       `You can only create mint type bridge on assetchain with this script...`
@@ -78,32 +76,37 @@ async function createBridge(configs: any, type: BRIDGETYPE) {
     throw new Error(
       `You can only create Native type bridge on assetchain with this script...`
     )
+  if (type === BRIDGETYPE.NATIVE && token !== NATIVE_TOKEN)
+    throw new Error(
+      `Token for native typ bridge must be ${NATIVE_TOKEN}...`
+    )
+  if (!ethers.utils.isAddress(token)) throw new Error(`Token ${token} is not a valid`)
+  const _relayers = relayers.split(',')
+  _relayers.forEach(r => {
+    if (!ethers.utils.isAddress(r)) throw new Error(`${r} is not a valid relayer address`)
+  })
   const createBridgetx: ContractTransaction = await factoryContract
     .connect(owner)
     .createBridgeAssist(
       type,
-      type === BRIDGETYPE.MINT
-        ? bridgetokenAddress
-        : type === BRIDGETYPE.NATIVE
-        ? NATIVE_TOKEN
-        : tokenContract.address,
+      token,
       DEFAULT_LIMIT_PER_SEND,
       owner.address,
       DEFAULT_FEE_SEND,
       DEFAULT_FEE_FULFILL,
       owner.address,
-      [owner.address],
-      DEFAULT_RELAYER_CONSENSUS_THRESHOLD
+      _relayers,
+      _relayers.length
     )
   await createBridgetx.wait(1)
-  console.log(`created bridge type of ${type} ${createBridgetx.hash}`)
+  console.log(colors.green(`created bridge type of ${type} hash: ${createBridgetx.hash}`))
   if (type === BRIDGETYPE.MINT) {
-    console.log(`Trying to grant createdbrigde role for token...`)
-    console.log(`getting bridgeAssist address`)
+    console.log(colors.yellow(`Trying to grant createdbrigde role for token...`))
+    console.log(colors.yellow(`getting bridgeAssist address`))
     const bridgeLength: BigNumber = await factoryContract.getBridgesByTokenLength(
       bridgetokenAddress
     )
-    console.log(`Bridge length ${bridgeLength.toNumber()}`)
+    console.log(colors.green(`Bridge length ${bridgeLength.toNumber()}`))
     const bridgeAssistAddress: string = await factoryContract.getBridgeByToken(
       bridgetokenAddress,
       bridgeLength.toNumber() - 1
@@ -120,17 +123,18 @@ async function createBridge(configs: any, type: BRIDGETYPE) {
       .connect(owner)
       .grantRole(MINTERROLE, bridgeAssistAddress)
     await tx.wait(1)
-    console.log(`minter role granted`, `hash ${tx.hash}`)
+    console.log(colors.green(`minter role granted. hash: ${tx.hash}`))
     const tx2: ContractTransaction = await bridgeTokenContract
       .connect(owner)
       .grantRole(BURNERROLE, bridgeAssistAddress)
     await tx2.wait(1)
-    console.log(`burner role granted`, `hash ${tx2.hash}`)
+    console.log(colors.green(`burner role granted hash: ${tx2.hash}`))
   }
 }
 // use this to add bridge assist contract already deployed....
 async function addBridge(config: any, bridgeAddress: string) {
   const { factoryContract, owner } = config
+  if (!ethers.utils.isAddress(bridgeAddress)) throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
   const tx: ContractTransaction = await factoryContract
     .connect(owner)
     .addBridgeAssists([bridgeAddress])
@@ -140,6 +144,7 @@ async function addBridge(config: any, bridgeAddress: string) {
 // use this to remove bridge assist from the factory
 async function removeBridgeAssists(config: any, bridgeAddress: string) {
   const { factoryContract, owner } = config
+  if (!ethers.utils.isAddress(bridgeAddress)) throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
   const tx: ContractTransaction = await factoryContract
     .connect(owner)
     .removeBridgeAssists([bridgeAddress])
@@ -150,8 +155,10 @@ async function removeBridgeAssists(config: any, bridgeAddress: string) {
 // getBridgeAssist
 async function getFactoryBridgeAssists(config: any) {
   const { factoryContract, owner } = config
+  const bridgeLength: number = await factoryContract.getCreatedBridgesLength()
+  console.log(colors.green(`bridges length ${bridgeLength}`))
   const bridges: { bridgeAssist: string; token: string }[] =
-    await factoryContract.getCreatedBridgesInfo(0, 2)
+    await factoryContract.getCreatedBridgesInfo(0, bridgeLength)
 
   for (let b of bridges) {
     console.log(colors.green(`Bridge Assist Address: ${b.bridgeAssist}`))
@@ -201,9 +208,13 @@ async function main() {
         )
         const type = bridgeType(bridgeTypeChoice)
         if (!type) continue
-        if (type > 3) return running = false
+        if (type > 3) return (running = false)
+        console.log(colors.blue('enter token address for the bridge'))
+        const _token = readlineSync.question(colors.bold.yellow('input address: '))
+        console.log(colors.blue('enter relayers address(es) use comma to seperate addresses if there are more than one...'))
+        const relayers = readlineSync.question(colors.bold.yellow('input relayer address(es): '))
         try {
-          await createBridge(config, type - 1)
+          await createBridge(config, _token, type - 1, relayers)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -274,7 +285,7 @@ function bridgeTypeMessage() {
 function bridgeType(answer: string) {
   if (!isNumeric(answer)) {
     console.log(colors.green('system: ') + `Invalid choice ${answer}`)
-    return 
+    return
   }
   return +answer
 }

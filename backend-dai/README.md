@@ -1,4 +1,4 @@
-# CREO Bridge backend
+# Asset Chain Bridge backend for DAI
 
 ## Description
 
