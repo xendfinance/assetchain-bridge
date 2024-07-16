@@ -1,7 +1,7 @@
 import readlineSync from 'readline-sync'
 import colors from 'colors'
 import { ethers } from 'hardhat'
-import * as CONTRACTS from '../dev/contracts.json'
+import * as CONTRACTS from '../contracts.json'
 import { BigNumber, Contract, ContractTransaction } from 'ethers'
 
 enum BRIDGETYPE {
@@ -116,7 +116,6 @@ async function send(
 ) {
   const { owner, chainId } = config
   console.log(colors.yellow(`checking if to chain is supported...`))
-  toChain = `evm.${toChain}`
   const isSupportedChain = await bridgeAssist.isSupportedChain(toChain)
   if (!isSupportedChain) {
     console.log(colors.yellow(`chain not supported...`))
@@ -162,7 +161,7 @@ async function send(
 
   const tx2: ContractTransaction = await bridgeAssist
     .connect(owner)
-    .send(amount, owner.address, toChain)
+    .send(amount, owner.address, `evm.${toChain}`)
   console.log(colors.green(`tokens sent to bridgeAssist ${bridgeAssist.address} ${getChainName(`evm.${chainId}`)} ${tx2.hash}`))
 }
 
@@ -198,6 +197,20 @@ async function claim(
         .grantRole(MINTER_ROLE, bridgeAssist.address)
       await tx.wait(1)
       console.log(colors.green(`role granted ${tx.hash}`))
+    }
+  }
+
+  if (type === BRIDGETYPE.TRANSFER){
+    const decimals = await tokenContract.decimals()
+    console.log(colors.green(`Token Decimals ${decimals}`))
+    console.log(colors.yellow(`Getting bridge assist token balance...`))
+    const balance = await tokenContract.balanceOf(bridgeAssist.address)
+    console.log(colors.green(`Bridge Assit Token Balance ${balance}`))
+    if (+balance < +fultx.amount){
+      console.log(colors.yellow(`Bridge assist does not have enough tokens. sending...`))
+      const tx: ContractTransaction = await tokenContract.transfer(bridgeAssist.address, fultx.amount)
+      await tx.wait(1)
+      console.log(colors.green(`Transfer of tokens done ${tx.hash}`))
     }
   }
 

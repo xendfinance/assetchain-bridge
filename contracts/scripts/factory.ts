@@ -2,7 +2,7 @@
 import readlineSync from 'readline-sync'
 import colors from 'colors'
 import { ethers } from 'hardhat'
-import * as CONTRACTS from '../dev/contracts.json'
+import * as CONTRACTS from '../contracts.json'
 import { BigNumber, ContractTransaction } from 'ethers'
 
 enum BRIDGETYPE {
