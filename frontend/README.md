@@ -1,18 +1,30 @@
-# CREO Bridge frontend
+# Asset Chain Bridge frontend
 
 ## Getting Started
 
 Recommended Node version is 18.18.0.
 
-Generate `.env` file
+## Project Structure
 
+This a typescript project with `Vue 3` and `Tailwind`.
+
+### Contracts
+
+Smart contracts abis are found in `./src/contracts/contracts.json`.
+
+## Setup
+
+### Generate `.env` file
+to generate .env file, run:
 ```bash
 $ cp .env.local.example .env.local
 ```
 
-Add .env file to the project root.
+Add .env file to the frontend project root.
 
-To add console logs, backend link and select mainnet, assign the following variables
+your .env file should look the below
+
+<!-- To add console logs, backend link and select mainnet, assign the following variables -->
 
 ```
 VITE_BACKEND_LINK=https://bridge-testnet-api.assetchain.org
@@ -24,24 +36,20 @@ VITE_PROD=false
 VITE_DEBUG=true
 ```
 
+## Running project
+
 ```bash
-$ yarn
-$ yarn build
-$ yarn serve
+$ yarn # to install dependencies
+$ yarn build # to run a build
+$ yarn serve # to run built bundle of the frontend project
 ```
 
 or
 
 ```bash
-$ yarn
-$ yarn dev
+$ yarn # to install dependencies
+$ yarn dev # to run frontend project
 ``` 
 to test in dev mode
-## Project Structure
 
-This a typescript project with `Vue 3` and `Tailwind`.
-
-### Contracts
-
-Smart contracts abis are found in `./src/contracts/contracts.json`.
 

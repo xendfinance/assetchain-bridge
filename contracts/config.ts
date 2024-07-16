@@ -45,14 +45,20 @@ export const DEFAULT_TOKEN_PARAMS: {
     USDT: {
       name: 'Tether USD',
       symbol: 'USDT',
-      decimals: 18, // 18!
+      decimals: 6, // 18!
       totalSupply: '3979997892',
     },
     USDC: {
       name: 'USD Coin',
       symbol: 'USDC',
-      decimals: 18, // 18!
+      decimals: 6, // 18!
       totalSupply: '548999999',
+    },
+    DAI: {
+      name: 'DAI Coin',
+      symbol: 'DAI',
+      decimals: 18, // 18!
+      totalSupply: '200000',
     },
   },
   11155111: {
@@ -120,8 +126,57 @@ export const DEFAULT_TOKEN_PARAMS: {
       decimals: 18,
       totalSupply: '190246',
     },
+    DAI: {
+      name: 'DAI Coin',
+      symbol: 'DAI',
+      decimals: 6,
+      totalSupply: '200000',
+    },
   },
 }
+
+// export const BRIDGED_TOKEN_PARAMS: {
+//   [chainId: number]: { [token: string]: IBridgedTokenParams }
+// } = {
+//   42421: {
+//     WETH: {
+//       name: 'Wrapped Ether',
+//       symbol: 'WETH',
+//       decimals: 18,
+//       totalSupply: '0',
+//       isLockActive: false,
+//       tokenOriginal: '0x2F633a89Cf5cd1269b71F095265d708e65d56B89',
+//       chainIdOriginal: CHAIN_IDS.arbitrum,
+//     },
+//     WNT: {
+//       name: 'Wicrypt Network Token',
+//       symbol: 'WNT',
+//       decimals: 18,
+//       totalSupply: '0',
+//       isLockActive: false,
+//       tokenOriginal: '0xE8975a94296e3A473c1731E09d687Dda8c437309',
+//       chainIdOriginal: CHAIN_IDS.polygon,
+//     },
+//     USDT: {
+//       name: 'Tether USD',
+//       symbol: 'USDT',
+//       decimals: 6,
+//       totalSupply: '0',
+//       isLockActive: true,
+//       tokenOriginal: '0x6cb8C82DaB692a708D0bbB533aa6A709d4CE6dCA',
+//       chainIdOriginal: CHAIN_IDS.ethereum,
+//     },
+//     USDC: {
+//       name: 'USD Coin',
+//       symbol: 'USDC',
+//       decimals: 6,
+//       totalSupply: '0',
+//       isLockActive: true,
+//       tokenOriginal: '0x58B202B9650b4e55D9F3f573c25b2930Ba16d0B2',
+//       chainIdOriginal: CHAIN_IDS.ethereum,
+//     },
+//   },
+// }
 
 export const BRIDGED_TOKEN_PARAMS: {
   [chainId: number]: { [token: string]: IBridgedTokenParams }
@@ -133,7 +188,7 @@ export const BRIDGED_TOKEN_PARAMS: {
       decimals: 18,
       totalSupply: '0',
       isLockActive: false,
-      tokenOriginal: '0x2F633a89Cf5cd1269b71F095265d708e65d56B89',
+      tokenOriginal: '0xd5Ed38f9f619e25130FeD45bb7052E8CcDd2bd51',
       chainIdOriginal: CHAIN_IDS.arbitrum,
     },
     WNT: {
@@ -142,8 +197,8 @@ export const BRIDGED_TOKEN_PARAMS: {
       decimals: 18,
       totalSupply: '0',
       isLockActive: false,
-      tokenOriginal: '0xE8975a94296e3A473c1731E09d687Dda8c437309',
-      chainIdOriginal: CHAIN_IDS.polygon,
+      tokenOriginal: '0x5FE56E863d5C4564CF33F4BB35b6d24e246f7157',
+      chainIdOriginal: CHAIN_IDS.arbitrum,
     },
     USDT: {
       name: 'Tether USD',
@@ -151,8 +206,8 @@ export const BRIDGED_TOKEN_PARAMS: {
       decimals: 6,
       totalSupply: '0',
       isLockActive: true,
-      tokenOriginal: '0x6cb8C82DaB692a708D0bbB533aa6A709d4CE6dCA',
-      chainIdOriginal: CHAIN_IDS.ethereum,
+      tokenOriginal: '0x4192E781452601757D1D5C88c88b9e4F59453463',
+      chainIdOriginal: CHAIN_IDS.bsc,
     },
     USDC: {
       name: 'USD Coin',
@@ -160,8 +215,17 @@ export const BRIDGED_TOKEN_PARAMS: {
       decimals: 6,
       totalSupply: '0',
       isLockActive: true,
-      tokenOriginal: '0x58B202B9650b4e55D9F3f573c25b2930Ba16d0B2',
-      chainIdOriginal: CHAIN_IDS.ethereum,
+      tokenOriginal: '0xeAEDBCf842D4B7F198a552e385fc69AB886fCD46',
+      chainIdOriginal: CHAIN_IDS.bsc,
+    },
+    DAI: {
+      name: 'DAI Coin',
+      symbol: 'DAI',
+      decimals: 6,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: '0x4BCf919e7B32c7e0a8a4fe08F40928fAd5d57b40',
+      chainIdOriginal: CHAIN_IDS.arbitrum,
     },
   },
 }

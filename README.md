@@ -1,30 +1,33 @@
-# xend-multitoken
+# Asset Chain Bridge
 
+This is Multichain token bridge that facilitates token transfers between different blockchain networks (including non evm chains)
 
-1)
-# Clone your project and navigate to the xend-multitoken directory
-##### Build the backend as a Docker image. You will have 5 backends for different networks.
-# !!!!!!!!!!! Repeat the following actions for each backend directory:
-# For each {backend_dir}, you have 5 paths: backend (this for net RWA), backend-usdc, backend-usdt, backend-weth, backend-wnt.
-# For      {private_key}, specify the private key appropriate to the network for your backend.
-export BACKEND_DIR={backend_dir} 
-export PRIVATE_KEY={private_key}
-cd $BACKEND_DIR
-docker build -t $BACKEND_DIR .
-cd ..
+## Contract Overview
 
-2)
-##### build static frontend: You must have node version v16.20.2 and yarn version 1.22.19
+- **BridgeAssistGenericUpgradeable**: this employs a relayer system for transaction verification, uses OpenZeppelin’s access control and security features, and allows for fee management and configurable transaction limits. The contract includes functionality to add or remove supported chains, manage relayers and their consensus threshold, and emit events for key actions. Additionally, it features pausability for emergency stops and requires implementation of post-send and post-fulfill actions in derived contracts.
+
+- **BridgeAssistTransferUpgradeable**: The `BridgeAssistTransferUpgradeable` contract is an implementation of the `BridgeAssistGenericUpgradeable` abstract contract. The contract includes an initialization function to set up parameters such as the token, transaction limits, fee wallet, fees for sending and fulfilling transactions, the owner, and relayers with their consensus threshold. The `_afterSend` and `_afterFulfill` functions handle the token transfers and fee deductions. Specifically, `_afterSend` ensures tokens are transferred from the user to the contract and then the fee is sent to the fee wallet, while `_afterFulfill` transfers the fulfilled amount to the user minus the fee, which is again sent to the fee wallet. The contract uses OpenZeppelin libraries for secure token transfers and upgradeable functionality.
+
+- **BridgeAssistMintUpgradeable**: The contract extends `BridgeAssistGenericUpgradeable` contracts and includes an initializer to set up key parameters such as the token, transaction limits, fee wallet, fees, owner, relayers, and the consensus threshold. The `_afterSend` function burns the specified amount of tokens from the sender and mints the fee to the fee wallet, while the `_afterFulfill` function mints the specified amount minus the fee to the recipient and mints the fee to the fee wallet. This ensures secure and efficient token transfers across different blockchains.
+
+- **BridgeAssistMintUpgradeable**: The `BridgeFactoryUpgradeable` contract is designed to create and manage instances of BridgeAssist contracts for cross-chain token transfers. It uses OpenZeppelin's `ClonesUpgradeable` library to deploy new instances efficiently. The contract supports three types of bridges: `TRANSFER`, `MINT`, and `NATIVE`. Key functionalities include initializing with specific bridge implementations, creating new bridges, adding and removing third-party bridges, and changing bridge implementations. It employs roles for access control, with specific roles for creators and administrators. The contract also provides functions to query created bridges and their associated tokens, ensuring a comprehensive management system for bridge contracts within a blockchain ecosystem.
+
+- **BridgedAssetChainToken**: The `BridgedAssetChainToken` contract is an `ERC20` token implementation designed for use as a bridged asset from another blockchain. The contract includes minting and burning functionalities, along with an optional blacklist feature to restrict transfers for specific addresses. It uses OpenZeppelin's `AccessControl` for role-based access management, defining roles such as `MINTER_ROLE`, `BURNER_ROLE`, and BLACKLISTER_ROLE. The contract is initialized with parameters including the token name, symbol, decimals, total supply, owner, whether the lock stage is active, the original token address, and the original chain ID. The mint and burn functions can only be called by accounts with the respective roles, and the blacklist functionality can be permanently disabled by an administrator. The decimals and name functions override the `ERC20` standard to return custom values, and _beforeTokenTransfer ensures transfers are blocked if either the sender or receiver is blacklisted
+
+## Environmental Setup
+1. contract
+
+```bash
+cd contracts
+# Follow the instructions in the README.md file for setting up the harhat environment
+```
+
+2. frontend
+
+```bash
 cd frontend
-# install package
-yarn
-# Set the environment variables, where {link_backend} is the link to your specific backend.
-export VITE_BACKEND_LINK_RWA=https://{link_backend_rwa}
-export VITE_BACKEND_LINK_USDC=https://{link_backend_usdc}
-export VITE_BACKEND_LINK_USDT=https://{link_backend_usdt}
-export VITE_BACKEND_LINK_WETH=https://{link_backend_weth}
-export VITE_BACKEND_LINK_WNT=https://{link_backend_wnt}
-# build static
-yarn build
-# Your static files are dist path
-ls dist
+# Follow the instructions in the README.md file for setting up the frontend
+```
+
+3. backend
+for each of the token backend (e.g backend_usdt). navigate to the folder and Follow the instructions in the README.md file to set up it environment
