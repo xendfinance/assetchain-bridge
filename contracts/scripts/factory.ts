@@ -3,7 +3,7 @@ import readlineSync from 'readline-sync'
 import colors from 'colors'
 import { ethers } from 'hardhat'
 import * as CONTRACTS from '../contracts.json'
-import { BigNumber, ContractTransaction } from 'ethers'
+import { BigNumber, Contract, ContractTransaction } from 'ethers'
 
 enum BRIDGETYPE {
   TRANSFER,
@@ -24,9 +24,8 @@ async function init() {
   if (signers.length > 1) throw new Error(`Signers must be at least 2`)
   const contract = CONTRACTS[getIndex(chainId)]
   if (!contract) throw new Error(`Contract not deployed on network ${name} ${chainId}`)
-  const factoryAddress = contract[0].contracts.BridgeFactoryUpgradeable.address
   const factoryAbi = contract[0].contracts.BridgeFactoryUpgradeable.abi
-  const factoryContract = await ethers.getContractAt(factoryAbi, factoryAddress)
+
   const tokenAddress = contract[0].contracts.USDC.address // you can choose any token of your choose, USDC,USDT,DAI
   const tokenAbi = contract[0].contracts.USDC.abi
   const tokenContract = await ethers.getContractAt(tokenAbi, tokenAddress)
@@ -35,38 +34,38 @@ async function init() {
   const owner = signers[0]
   const user = signers[1]
 
-  console.log(`getting creator role...`)
-  const creatorRole: string = await factoryContract.CREATOR_ROLE()
-  console.log(`Creator role ${creatorRole}`)
-  const hasRole: boolean = await factoryContract.hasRole(creatorRole, owner.address)
-  if (!hasRole) {
-    console.warn(`${owner.address} doesn't have creator role. Granting role...`)
-    const tx: ContractTransaction = await factoryContract
-      .connect(owner)
-      .grantRole(creatorRole, owner.address)
-    await tx.wait(1)
-    console.log(`Granted ${owner.address} creator role`, `hash ${tx.hash}`)
-  }
+  // console.log(`getting creator role...`)
+  // const creatorRole: string = await factoryContract.CREATOR_ROLE()
+  // console.log(`Creator role ${creatorRole}`)
+  // const hasRole: boolean = await factoryContract.hasRole(creatorRole, owner.address)
+  // if (!hasRole) {
+  //   console.warn(`${owner.address} doesn't have creator role. Granting role...`)
+  //   const tx: ContractTransaction = await factoryContract
+  //     .connect(owner)
+  //     .grantRole(creatorRole, owner.address)
+  //   await tx.wait(1)
+  //   console.log(`Granted ${owner.address} creator role`, `hash ${tx.hash}`)
+  // }
 
   return {
-    factoryContract,
     tokenContract,
     owner,
     user,
     bridgetokenAbi,
     bridgetokenAddress,
     chainId,
+    factoryAbi,
   }
 }
 
-async function createBridge(configs: any, token: string, type: BRIDGETYPE, relayers: string) {
-  const {
-    factoryContract,
-    owner,
-    bridgetokenAddress,
-    bridgetokenAbi,
-    chainId,
-  } = configs
+async function createBridge(
+  configs: any,
+  token: string,
+  type: BRIDGETYPE,
+  relayers: string,
+  factoryContract: Contract
+) {
+  const { owner, bridgetokenAddress, bridgetokenAbi, chainId } = configs
   console.log(colors.blue(`Creating bridge of type ${type}`))
   if (type === BRIDGETYPE.MINT && chainId !== 42421)
     throw new Error(
@@ -77,12 +76,10 @@ async function createBridge(configs: any, token: string, type: BRIDGETYPE, relay
       `You can only create Native type bridge on assetchain with this script...`
     )
   if (type === BRIDGETYPE.NATIVE && token !== NATIVE_TOKEN)
-    throw new Error(
-      `Token for native typ bridge must be ${NATIVE_TOKEN}...`
-    )
+    throw new Error(`Token for native typ bridge must be ${NATIVE_TOKEN}...`)
   if (!ethers.utils.isAddress(token)) throw new Error(`Token ${token} is not a valid`)
   const _relayers = relayers.split(',')
-  _relayers.forEach(r => {
+  _relayers.forEach((r) => {
     if (!ethers.utils.isAddress(r)) throw new Error(`${r} is not a valid relayer address`)
   })
   const createBridgetx: ContractTransaction = await factoryContract
@@ -132,9 +129,10 @@ async function createBridge(configs: any, token: string, type: BRIDGETYPE, relay
   }
 }
 // use this to add bridge assist contract already deployed....
-async function addBridge(config: any, bridgeAddress: string) {
-  const { factoryContract, owner } = config
-  if (!ethers.utils.isAddress(bridgeAddress)) throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
+async function addBridge(config: any, bridgeAddress: string, factoryContract: Contract) {
+  const { owner } = config
+  if (!ethers.utils.isAddress(bridgeAddress))
+    throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
   const tx: ContractTransaction = await factoryContract
     .connect(owner)
     .addBridgeAssists([bridgeAddress])
@@ -142,9 +140,14 @@ async function addBridge(config: any, bridgeAddress: string) {
   console.log(`add bridge assist successful`, `hash ${tx.hash}`)
 }
 // use this to remove bridge assist from the factory
-async function removeBridgeAssists(config: any, bridgeAddress: string) {
-  const { factoryContract, owner } = config
-  if (!ethers.utils.isAddress(bridgeAddress)) throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
+async function removeBridgeAssists(
+  config: any,
+  bridgeAddress: string,
+  factoryContract: Contract
+) {
+  const { owner } = config
+  if (!ethers.utils.isAddress(bridgeAddress))
+    throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
   const tx: ContractTransaction = await factoryContract
     .connect(owner)
     .removeBridgeAssists([bridgeAddress])
@@ -153,8 +156,7 @@ async function removeBridgeAssists(config: any, bridgeAddress: string) {
 }
 
 // getBridgeAssist
-async function getFactoryBridgeAssists(config: any) {
-  const { factoryContract, owner } = config
+async function getFactoryBridgeAssists(config: any, factoryContract: Contract) {
   const bridgeLength: number = await factoryContract.getCreatedBridgesLength()
   console.log(colors.green(`bridges length ${bridgeLength}`))
   const bridges: { bridgeAssist: string; token: string }[] =
@@ -190,6 +192,8 @@ async function main() {
   const config = await init()
   console.log(`done....`)
 
+  const { factoryContract } = await initFactory(config)
+
   let running = true
 
   while (running) {
@@ -211,10 +215,16 @@ async function main() {
         if (type > 3) return (running = false)
         console.log(colors.blue('enter token address for the bridge'))
         const _token = readlineSync.question(colors.bold.yellow('input address: '))
-        console.log(colors.blue('enter relayers address(es) use comma to seperate addresses if there are more than one...'))
-        const relayers = readlineSync.question(colors.bold.yellow('input relayer address(es): '))
+        console.log(
+          colors.blue(
+            'enter relayers address(es) use comma to seperate addresses if there are more than one...'
+          )
+        )
+        const relayers = readlineSync.question(
+          colors.bold.yellow('input relayer address(es): ')
+        )
         try {
-          await createBridge(config, _token, type - 1, relayers)
+          await createBridge(config, _token, type - 1, relayers, factoryContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -228,7 +238,7 @@ async function main() {
         //   continue
         // }
         try {
-          await addBridge(config, choiceAdd)
+          await addBridge(config, choiceAdd, factoryContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -242,14 +252,14 @@ async function main() {
         //   continue
         // }
         try {
-          await removeBridgeAssists(config, choiceremove)
+          await removeBridgeAssists(config, choiceremove, factoryContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
         break
       case 4:
         try {
-          await getFactoryBridgeAssists(config)
+          await getFactoryBridgeAssists(config, factoryContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -263,6 +273,41 @@ async function main() {
         break
     }
   }
+}
+
+async function initFactory(config: any) {
+  const { factoryAbi, owner } = config
+  let selected = false
+  console.log(colors.bold.yellow('Input factory address: '))
+  let factoryaddress = ''
+  while (!selected) {
+    factoryaddress = readlineSync.question(colors.bold.yellow('Input address: '))
+    if (!ethers.utils.isAddress(factoryaddress)){
+      console.log(colors.red(`${factoryaddress} is not a valid address`))
+    }else {
+      selected = true
+    }
+  }
+
+  const factoryContract = await ethers.getContractAt(factoryAbi, factoryaddress)
+
+  console.log(colors.green(`Factory Contract initiated ${factoryContract.address}`))
+
+  console.log(colors.yellow(`getting creator role...`))
+  const creatorRole: string = await factoryContract.CREATOR_ROLE()
+  console.log(colors.green(`Creator role ${creatorRole}`))
+  const hasRole: boolean = await factoryContract.hasRole(creatorRole, owner.address)
+  if (!hasRole) {
+    console.log(
+      colors.yellow(`${owner.address} doesn't have creator role. Granting role...`)
+    )
+    const tx: ContractTransaction = await factoryContract
+      .connect(owner)
+      .grantRole(creatorRole, owner.address)
+    await tx.wait(1)
+    console.log(colors.green(`Granted ${owner.address} creator role. hash ${tx.hash}`))
+  }
+  return { factoryContract, creatorRole }
 }
 
 function initMessage() {
