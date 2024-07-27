@@ -4,7 +4,7 @@ import { universalRpc } from '@/gotbit-tools/node/rpc'
 export const IS_PROD = process.env.PROD === 'true'
 
 export const config = defineConfig({
-  chainIds: ['97', '42421', '421614'],
+  chainIds: ['97', '42421', '421614', '84532'],
   // DEFAULT_CHAINID: IS_PROD ? '56' : '97',
   DEFAULT_CHAINID: '97',
   rpc: universalRpc(),
@@ -19,4 +19,5 @@ export const contracts = defineContracts({
   '97': {},
   '42421': {},
   '421614': {},
+  '84532': {}
 })

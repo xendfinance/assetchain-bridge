@@ -15,17 +15,16 @@ const func: DeployFunction = async (hre) => {
     return
   }
 
-  const token = 'DAI'
+  const token = 'aUSDC.e'
   const params = DEFAULT_TOKEN_PARAMS[chainId][token]
-  if (!params) return
 
   await deploy<DefaultToken__factory>(token, {
     contract: 'DefaultToken',
     from: deployer.address,
-    args: [params.name, params.symbol, params.decimals, BigNumber.from(params.totalSupply)],
+    args: ['TEST aUSDC.e', token, 6, BigNumber.from(100000000)],
     log: true,
   })
 }
 export default func
 
-func.tags = ['DAI.deploy']
+func.tags = ['aUSDC.e.deploy']

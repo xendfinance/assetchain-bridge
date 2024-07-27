@@ -32,7 +32,6 @@ async function init() {
   const { chainId, name } = await ethers.provider.getNetwork()
   console.log(colors.bold.yellow(`ChainId ${chainId} network ${name}`))
   const signers = await ethers.getSigners()
-  console.log(signers.length, 'shj')
   if (signers.length <= 0) throw new Error(`Signers must be at least 2`)
   const contract = CONTRACTS[getIndex(chainId)]
   if (!contract) throw new Error(`Contract not deployed on network ${name} ${chainId}`)
@@ -270,7 +269,8 @@ function chainTypeMessage() {
   console.log(colors.blue('1:  ') + `Asset Chain`)
   console.log(colors.blue('2:  ') + `BSC chain`)
   console.log(colors.blue('3:  ') + `Sepolia Chain`)
-  console.log(colors.blue('4:  ') + `quit process`)
+  console.log(colors.blue('4:  ') + `Base Sepolia Chain`)
+  console.log(colors.blue('5:  ') + `quit process`)
 }
 
 function bridgeTypeMessage() {
@@ -404,8 +404,8 @@ async function main() {
         const _fromChain = readlineSync.question(colors.bold.yellow('Your choice: '))
         const _from_chain = _chainType(_fromChain)
         if (!_from_chain) continue
-        if (_from_chain > 3) return (running = false)
-        const _chain_ = _from_chain === 1 ? '42421' : _from_chain === 2 ? '97' : '421614'
+        if (_from_chain > 4) return (running = false)
+        const _chain_ = _from_chain === 1 ? '42421' : _from_chain === 2 ? '97' : _from_chain === 3 ?  '421614' : '84532'
         console.log(colors.blue('enter amount to claim'))
         const _amounttoClaim = readlineSync.question(colors.bold.yellow('input amount: '))
         if (!isNumeric(_amounttoClaim)) {
