@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
     xend_testnet: {
       tags: ['testnet'],
       deploy: ['deploy/testnet/'],
-      url: 'https://rpctestnet.xendrwachain.com',
+      url: 'https://enugu-rpc.assetchain.org',
       accounts: [process.env.PRIVATE_TEST!]
     },
     arbitrum_sepolia: {
@@ -52,6 +52,12 @@ const config: HardhatUserConfig = {
       tags: ['testnet'],
       deploy: ['deploy/testnet/'],
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      accounts: [process.env.PRIVATE_TEST!],
+    },
+    base_sepolia: {
+      url: 'https://base-sepolia-rpc.publicnode.com',
+      tags: ['testnet'],
+      deploy: ['deploy/testnet/'],
       accounts: [process.env.PRIVATE_TEST!],
     },
     // polygon_amoy: {
@@ -72,7 +78,7 @@ const config: HardhatUserConfig = {
     //   url: 'https://base-sepolia.blockpi.network/v1/rpc/public',
     //   accounts: [process.env.PRIVATE_TEST!],
     // },
-    ...genNetworks(),
+    // ...genNetworks(),
     // place here any network you like (for overriding `genNetworks`)
   },
   gasReporter: {

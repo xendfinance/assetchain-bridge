@@ -403,7 +403,7 @@ Below are detailed step-by-step usage scenarios. They may duplicate the ones des
 
 ## Scripts:
 1. factory
-  this is an interactive script that can be used to carry out some functions on the bridge factory contracts. this functions includes; `createBridge`, `addbridge`, `removebridge`
+  this is an interactive script that can be used to carry out some functions on the bridge factory contracts. this functions includes; `createBridge`, `addbridge`, `removebridge`. You can get already deployed factory address in the frontend project. In the src/contracts/contracts.json file for each chainId supported
   to run the script;
 ```bash
   yarn factory:arb 
@@ -418,6 +418,10 @@ Below are detailed step-by-step usage scenarios. They may duplicate the ones des
 ```bash
   yarn factory:xend 
   # to run script on asset chain testnet
+```
+```bash
+  yarn factory:base_sepolia 
+  # to run script on Base Sepolia
 ```
 
 2. bridge
@@ -436,4 +440,9 @@ Below are detailed step-by-step usage scenarios. They may duplicate the ones des
 ```bash
   yarn bridge:xend 
   # to run script on asset chain testnet
+```
+
+```bash
+  yarn bridge:base_sepolia 
+  # to run script on Base Sepolia
 ```
