@@ -63,19 +63,39 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address owner
     ) external initializer {
         require(owner != address(0), 'Owner: zero address');
-        if (bridgeAssistTransferImplementation_ != address(0)) {
-            bridgeAssistImplementation[
-                BridgeType.TRANSFER
-            ] = bridgeAssistTransferImplementation_;
-        }
-        if (bridgeAssistMintImplementation_ != address(0)) {
-            bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
-        }
-        if (bridgeAssistNativeImplementation_ != address(0)) {
-            bridgeAssistImplementation[
-                BridgeType.NATIVE
-            ] = bridgeAssistNativeImplementation_;
-        }
+        // if (bridgeAssistTransferImplementation_ != address(0)) {
+        //     bridgeAssistImplementation[
+        //         BridgeType.TRANSFER
+        //     ] = bridgeAssistTransferImplementation_;
+        // }
+        // if (bridgeAssistMintImplementation_ != address(0)) {
+        //     bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
+        // }
+        // if (bridgeAssistNativeImplementation_ != address(0)) {
+        //     bridgeAssistImplementation[
+        //         BridgeType.NATIVE
+        //     ] = bridgeAssistNativeImplementation_;
+        // }
+        // _grantRole(DEFAULT_ADMIN_ROLE, owner);
+        require(
+            bridgeAssistTransferImplementation_ != address(0),
+            'Transfer implementation: zero address'
+        );
+        require(
+            bridgeAssistMintImplementation_ != address(0),
+            'Mint implementation: zero address'
+        );
+        require(
+            bridgeAssistNativeImplementation_ != address(0),
+            'Native implementation: zero address'
+        );
+
+        bridgeAssistImplementation[
+            BridgeType.TRANSFER
+        ] = bridgeAssistTransferImplementation_;
+        bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
+        bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
+
         _grantRole(DEFAULT_ADMIN_ROLE, owner);
     }
 
@@ -129,10 +149,9 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * @dev Third-party bridges interface must match the implementation bridge
      * @param bridges Bridge addresses to add
      */
-    function addBridgeAssists(address[] memory bridges)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function addBridgeAssists(
+        address[] memory bridges
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 length = bridges.length;
         require(length != 0, 'Zero length array');
         require(length <= ADD_REMOVE_LIMIT_PER_TIME, 'Array length exceeds limit');
@@ -178,10 +197,9 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * @notice Allows to remove bridges from the stored list
      * @param bridges Bridge addresses to remove
      */
-    function removeBridgeAssists(address[] memory bridges)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function removeBridgeAssists(
+        address[] memory bridges
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 length = bridges.length;
         require(length != 0, 'Zero length array');
         require(length <= ADD_REMOVE_LIMIT_PER_TIME, 'Array length exceeds limit');
@@ -250,12 +268,13 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * Requirements:
      * {offset} + {limit} must be less than or equal to {getCreatedBridgesLength}.
      */
-    function getCreatedBridgesInfo(uint256 offset, uint256 limit)
-        external
-        view
-        returns (BridgeAssistInfo[] memory)
-    {
+    function getCreatedBridgesInfo(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (BridgeAssistInfo[] memory) {
+        uint256 maxLimit = 20;
         require(limit != 0, 'Limit: zero');
+        require(limit <= maxLimit, 'Limit exceeds maximum allowed');
         require(offset + limit <= _createdBridges.length(), 'Invalid offset-limit');
 
         BridgeAssistInfo[] memory bridgesInfo = new BridgeAssistInfo[](limit);
@@ -282,11 +301,9 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * Requirements:
      * {index} must be less than {getCreatedBridgesLength}.
      */
-    function getCreatedBridgeInfo(uint256 index)
-        external
-        view
-        returns (BridgeAssistInfo memory)
-    {
+    function getCreatedBridgeInfo(
+        uint256 index
+    ) external view returns (BridgeAssistInfo memory) {
         require(index < _createdBridges.length(), 'Invalid index');
 
         address bridge = _createdBridges.at(index);
@@ -339,11 +356,10 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * Requirements:
      * {index} must be less than or equal to {getBridgesByTokenLength}.
      */
-    function getBridgeByToken(address token, uint256 index)
-        external
-        view
-        returns (address)
-    {
+    function getBridgeByToken(
+        address token,
+        uint256 index
+    ) external view returns (address) {
         require(_bridgesByToken[token].length() != 0, 'No bridges by this token');
         require(index < _bridgesByToken[token].length(), 'Invalid index');
 
