@@ -133,11 +133,12 @@ async function addBridge(config: any, bridgeAddress: string, factoryContract: Co
   const { owner } = config
   if (!ethers.utils.isAddress(bridgeAddress))
     throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
+  console.log(colors.yellow(`Adding bridge assist ${bridgeAddress} to factory...`))
   const tx: ContractTransaction = await factoryContract
     .connect(owner)
     .addBridgeAssists([bridgeAddress])
   await tx.wait(1)
-  console.log(`add bridge assist successful`, `hash ${tx.hash}`)
+  console.log(colors.green(`Added bridge assist successfully. hash: ${tx.hash}`))
 }
 // use this to remove bridge assist from the factory
 async function removeBridgeAssists(
@@ -148,11 +149,12 @@ async function removeBridgeAssists(
   const { owner } = config
   if (!ethers.utils.isAddress(bridgeAddress))
     throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
+  console.log(colors.yellow(`Removing bridge assist ${bridgeAddress} from factory...`))
   const tx: ContractTransaction = await factoryContract
     .connect(owner)
     .removeBridgeAssists([bridgeAddress])
   await tx.wait(1)
-  console.log(`add bridge assist successful`, `hash ${tx.hash}`)
+  console.log(colors.green(`Removed bridge assist successfully. hash: ${tx.hash}`))
 }
 
 // getBridgeAssist
@@ -282,9 +284,9 @@ async function initFactory(config: any) {
   let factoryaddress = ''
   while (!selected) {
     factoryaddress = readlineSync.question(colors.bold.yellow('Input address: '))
-    if (!ethers.utils.isAddress(factoryaddress)){
+    if (!ethers.utils.isAddress(factoryaddress)) {
       console.log(colors.red(`${factoryaddress} is not a valid address`))
-    }else {
+    } else {
       selected = true
     }
   }
