@@ -295,9 +295,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   okex_testnet: ['https://exchaintestrpc.okex.org'],
   cmp_testnet: ['https://galaxy.block.caduceus.foundation	'],
   pulse_testnet: ['https://rpc.v4.testnet.pulsechain.com'],
-  xend_testnet: [
-    'https://rpctestnet.xendrwachain.com',
-  ],
+  xend_testnet: ['https://enugu-rpc.assetchain.org/'],
   arbitrum_sepolia: ['https://public.stackup.sh/api/v1/node/arbitrum-sepolia'],
   /**
    * chainId 11155111
@@ -311,16 +309,10 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   /**
    * 80002
    */
-  polygon_amoy: [
-    'https://rpc-amoy.polygon.technology',
-    'https://polygon-amoy.drpc.org'
-  ],
+  polygon_amoy: ['https://rpc-amoy.polygon.technology', 'https://polygon-amoy.drpc.org'],
 
   /**
    * 84532
    */
-  base_sepolia: [
-    'https://rpc.notadegen.com/base/sepolia',
-    'https://sepolia.base.org'
-  ]
+  base_sepolia: ['https://rpc.notadegen.com/base/sepolia', 'https://sepolia.base.org'],
 }
