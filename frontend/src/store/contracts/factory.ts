@@ -73,14 +73,14 @@ export const useFactory = defineContractStore<
             assistsLength
           )
 
-          console.log(assists, 'assists getCreatedBridgesInfo for ', chainId)
-          console.log(
-            Object.values(assists).map((v) => ({
-              bridgeAssist: v.bridgeAssist,
-              token: v.token,
-            })),
-            'keys'
-          )
+          // console.log(assists, 'assists getCreatedBridgesInfo for ', chainId)
+          // console.log(
+          //   Object.values(assists).map((v) => ({
+          //     bridgeAssist: v.bridgeAssist,
+          //     token: v.token,
+          //   })),
+          //   'keys'
+          // )
 
           this.assistAndTokenAddresses[chainId] = assists
           // this.bridgeAssistAddress[chainId] = assists[0]

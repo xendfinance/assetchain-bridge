@@ -65,7 +65,7 @@ export const tokensLabels: {
       component: WntIcon,
     },
     {
-      label: 'USDC E',
+      label: 'aUSDC.e',
       value: 'aUSDC.e',
       component: UsdcIcon,
     },

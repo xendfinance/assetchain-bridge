@@ -65,7 +65,7 @@ export const getCurrentBlock = async () => {
     const res = await provider.getBlockNumber()
     currentBlock.value[chainId] = res
   }
-  console.log('web3.chainIds__2', currentBlocks)
+  // console.log('web3.chainIds__2', currentBlocks)
 
   return currentBlocks
 }
