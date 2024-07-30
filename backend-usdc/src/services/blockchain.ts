@@ -228,11 +228,11 @@ export const signTransaction = async (
   }
   const provider = getProvider(fromChain.slice(4) as ChainId)
   const currentBlock = await safeRead(provider.getBlockNumber(), 0)
-  // if (
-  //   currentBlock === 0 ||
-  //   tx.block.add(CONFIRMATIONS[fromChain.slice(4) as ChainId]).gt(currentBlock)
-  // )
-  //   throw Error('waiting for confirmations')
+  if (
+    currentBlock === 0 ||
+    tx.block.gt(currentBlock)
+  )
+    throw Error('waiting for confirmations')
   if (tx.toChain.startsWith('evm.')) {
     const chainId = tx.toChain.replace('evm.', '')
     const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
