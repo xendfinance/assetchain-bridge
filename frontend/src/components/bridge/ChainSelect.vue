@@ -66,6 +66,7 @@
       </div>
     </div>
     <p
+      v-if="symbol === 'RWA'"
       :class="{
         invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA'),
       }"
@@ -119,7 +120,7 @@ onClickOutside(dropdown, () => {
   if (active.value) active.value = false
 })
 
-const onSelect = (value: string) => {
+const onSelect = async (value: string) => {
   const item = props.options.filter((o) => o.value === value)[0]
   if (item.disabled) return
   emit('update:modelValue', value)

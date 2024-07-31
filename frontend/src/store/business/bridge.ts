@@ -66,133 +66,153 @@ const createAction = async (
   action: () => Promise<ContractTransaction | null>,
   customDialog?: () => Promise<void | boolean>
 ) => {
-  const dialogs = useDialogs()
-  const web3 = useWeb3()
-  // const token = useToken()
-  const token = useToken()
-  const uiBridge = useUIBridge()
-  const bridge = useBridge()
+  try {
+    const dialogs = useDialogs()
+    const web3 = useWeb3()
+    // const token = useToken()
+    const token = useToken()
+    const uiBridge = useUIBridge()
+    const bridge = useBridge()
 
-  const [waiter, res] = createWaiter()
+    const [waiter, res] = createWaiter()
 
-  const dialogSuccessText = (title?: string) => {
-    switch (title) {
-      case 'Approve':
-        return `Transaction successfully completed.
+    const dialogSuccessText = (title?: string) => {
+      switch (title) {
+        case 'Approve':
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
-      case 'Transfer':
-        return `Transaction successfully completed.
+        case 'Transfer':
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
-      case 'Claim':
-        return `Transaction successfully completed.
+        case 'Claim':
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
-      default:
-        return `Transaction successfully completed.
+        default:
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
+      }
     }
-  }
 
-  const dialogErrorText = (title?: string) => {
-    switch (title) {
-      // case 'Enable transaction':
-      //   return 'Smth u need'
-      // case 'Claim':
-      //   return 'Not claimed'
-      // case 'Transfer':
-      //   return 'Not transfered'
-      default:
-        return 'Warning! An error has occurred. Please try again.'
+    const dialogErrorText = (title?: string) => {
+      switch (title) {
+        // case 'Enable transaction':
+        //   return 'Smth u need'
+        // case 'Claim':
+        //   return 'Not claimed'
+        // case 'Transfer':
+        //   return 'Not transfered'
+        default:
+          return 'Warning! An error has occurred. Please try again.'
+      }
     }
-  }
 
-  if (web3.realChainId !== uiBridge.network) {
-    dialogs.openDialog(
-      'waitDialog',
-      {
-        loading: true,
-        success: false,
-        errorMsg: dialogErrorText(dialog.title),
-        waitingMsg: 'Waiting for switch',
-        waitingText: 'Please switch your network to continue.',
-        successMsg: '',
-      },
-      { notClosable: true }
-    )
-
-    const switched = await web3.switchChain(uiBridge.network)
-    if (!switched) {
+    if (web3.realChainId !== uiBridge.network) {
       dialogs.openDialog(
         'waitDialog',
         {
-          loading: false,
+          loading: true,
           success: false,
           errorMsg: dialogErrorText(dialog.title),
           waitingMsg: 'Waiting for switch',
           waitingText: 'Please switch your network to continue.',
           successMsg: '',
         },
-        { noCross: false }
+        { notClosable: true }
       )
-      return
+
+      const switched = await web3.switchChain(uiBridge.network)
+      if (!switched) {
+        dialogs.openDialog(
+          'waitDialog',
+          {
+            loading: false,
+            success: false,
+            errorMsg: dialogErrorText(dialog.title),
+            waitingMsg: 'Waiting for switch',
+            waitingText: 'Please switch your network to continue.',
+            successMsg: '',
+          },
+          { noCross: false }
+        )
+        return
+      }
     }
-  }
 
-  if (customDialog) {
-    const result = await customDialog()
-    res(result!)
-  } else {
-    dialogs.openDialog('confirmDialog', {
-      ...dialog,
-      onConfirm: () => res(true),
-      onCancel: () => res(false),
-    })
-  }
+    if (customDialog) {
+      const result = await customDialog()
+      res(result!)
+    } else {
+      dialogs.openDialog('confirmDialog', {
+        ...dialog,
+        onConfirm: () => res(true),
+        onCancel: () => res(false),
+      })
+    }
 
-  const response = await waiter
-  if (!response) return
+    const response = await waiter
+    if (!response) return
 
-  dialogs.openDialog(
-    'waitDialog',
-    {
-      loading: true,
-      success: false,
-      errorMsg: dialogErrorText(dialog.title),
-      waitingMsg: 'Waiting for transaction',
-      waitingText: 'It will take some time for the transaction to be completed.',
-      successMsg: '',
-    },
-    { notClosable: true }
-  )
-  const success = await action()
-  if (!success) {
     dialogs.openDialog(
       'waitDialog',
       {
-        loading: false,
+        loading: true,
         success: false,
         errorMsg: dialogErrorText(dialog.title),
         waitingMsg: 'Waiting for transaction',
         waitingText: 'It will take some time for the transaction to be completed.',
         successMsg: '',
       },
-      { noCross: false }
+      { notClosable: true }
     )
+    try {
+      const success = await action()
+      if (!success) {
+        dialogs.openDialog(
+          'waitDialog',
+          {
+            loading: false,
+            success: false,
+            errorMsg: dialogErrorText(dialog.title),
+            waitingMsg: 'Waiting for transaction',
+            waitingText: 'It will take some time for the transaction to be completed.',
+            successMsg: '',
+          },
+          { noCross: false }
+        )
+        return
+      }
+      dialogs.openDialog('successAlert', {
+        label: dialogSuccessText(dialog.title),
+        btnText: dialog.title === 'Transfer' ? 'OK' : 'Done',
+        txHash: success.hash,
+        chainId: uiBridge.network,
+      })
+    } catch (error: any) {
+      console.log(error, 'sajhashsayas')
+      dialogs.openDialog('errorAlert', {
+        loading: false,
+        success: false,
+        errorMsg: error.message,
+        waitingMsg: error.message,
+        waitingText: 'Something went wrong',
+        successMsg: '',
+        btnText: 'Close',
+      }, {
+
+      })
+    }
+
+    if (dialog.title === 'Transfer') {
+      uiBridge.inputAmount = ''
+    }
+
+    await bridge.upload()
+    // await token.upload()
+    await token.setToken(token.symbol, token.tokenAddress)
     return
-  }
-  dialogs.openDialog('successAlert', {
-    label: dialogSuccessText(dialog.title),
-    btnText: dialog.title === 'Transfer' ? 'OK' : 'Done',
-    txHash: success.hash,
-    chainId: uiBridge.network,
-  })
+  } catch (error) {
 
-  if (dialog.title === 'Transfer') {
-    uiBridge.inputAmount = ''
   }
-
-  await bridge.upload()
-  await token.upload()
-  return
 }
 
 export const useBridgeWrite = () => {
@@ -202,6 +222,7 @@ export const useBridgeWrite = () => {
   const uiBridge = useUIBridge()
   const dialogs = useDialogs()
 
+  // console.log(token.cDecimals, token.decimals, 'decimals', uiBridge.inputAmount)
   return {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories

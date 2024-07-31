@@ -230,7 +230,7 @@ export const signTransaction = async (
   const currentBlock = await safeRead(provider.getBlockNumber(), 0)
   if (
     currentBlock === 0 ||
-    tx.block.add(CONFIRMATIONS[fromChain.slice(4) as ChainId]).gt(currentBlock)
+    tx.block.gt(currentBlock)
   )
     throw Error('waiting for confirmations')
   if (tx.toChain.startsWith('evm.')) {

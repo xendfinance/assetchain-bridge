@@ -236,9 +236,9 @@ const itemFulfill = async (
     .map((a) => a.transaction.nonce)
     .indexOf(transaction.nonce)
 
-  console.log(index, 'INDEX')
-  console.log(sortedHistory.value)
-  console.log(transaction, 'tx', transactionCard, 'txCard')
+  // console.log(index, 'INDEX')
+  // console.log(sortedHistory.value)
+  // console.log(transaction, 'tx', transactionCard, 'txCard')
   await fulfill(fulfillTransaction, claimAmount?.claimAmount.value, index)
 
   if (
