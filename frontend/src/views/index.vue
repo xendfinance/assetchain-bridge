@@ -95,7 +95,7 @@ const tokens = computed(() =>
 )
 
 const options = computed(() => [
-  ...new Map(tokens.value.map((item) => [item.value, item])).values(),
+  ...new Map(tokens.value.filter( v => v.label !== 'USDC').map((item) => [item.value, item])).values(),
 ])
 </script>
 

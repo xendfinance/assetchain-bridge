@@ -22,13 +22,13 @@
         <div class="w-[100px] hover:text-primary flex items-center gap-1 justify-center">
           <span class="inline lg:hidden">Amount</span>
           <GTooltip
-            :hint="claimAmount.toString()"
+            :hint="fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10) : formatBigNums(claimAmount)"
             text
             position="right"
             class="text-[15px]"
           >
             <p class="text-[15px] whitespace-normal text-center">
-              <span> {{ formatBigNums(claimAmount) }} </span
+              <span> {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10) : formatBigNums(claimAmount) }} </span
               ><span>{{ ` ${token.symbol}` }}</span>
             </p>
           </GTooltip>
@@ -72,7 +72,7 @@
                 Amount
               </span>
               <span class="text-[15px] uppercase">
-                {{ formatBigNums(claimAmount) }} {{ token.symbol }}
+                {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10) : formatBigNums(claimAmount) }} {{ token.symbol }}
               </span>
             </div>
             <!-- </GTooltip> -->
