@@ -18,7 +18,6 @@
         <span class="text text-[13px]">
           <a href="https://gotbit.io/">develop by Gotbit</a>
         </span>
-
       </p>
     </div> -->
   </footer>
@@ -50,6 +49,11 @@ const links = ref([
   //   link: 'https://www.linkedin.com/company/chaingpt',
   //   img: 'Linkedin.svg',
   // },
+  {
+    name: 'Testnet Leaderboard',
+    link: 'https://leaderboard.assetchain.org',
+    img: 'change.svg',
+  },
   {
     name: 'reddit',
     link: 'http://www.reddit.com/r/XendFinance/',
