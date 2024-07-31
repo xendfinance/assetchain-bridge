@@ -189,17 +189,13 @@ const createAction = async (
       })
     } catch (error: any) {
       console.log(error, 'sajhashsayas')
-      dialogs.openDialog('errorAlert', {
-        loading: false,
-        success: false,
-        errorMsg: error.message,
-        waitingMsg: error.message,
-        waitingText: 'Something went wrong',
-        successMsg: '',
-        btnText: 'Close',
-      }, {
-
-      })
+      dialogs.openDialog(
+        'errorAlert',
+        {
+          label: error.message,
+        },
+        { noCross: false, notClosable: false }
+      )
     }
 
     if (dialog.title === 'Transfer') {
@@ -210,9 +206,7 @@ const createAction = async (
     // await token.upload()
     await token.setToken(token.symbol, token.tokenAddress)
     return
-  } catch (error) {
-
-  }
+  } catch (error) {}
 }
 
 export const useBridgeWrite = () => {
