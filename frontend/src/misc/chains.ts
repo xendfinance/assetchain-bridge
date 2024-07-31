@@ -14,7 +14,7 @@ import BaseIconVue from '@/components/base/icons/BaseIconVue.vue'
 
 export const REAL_CHAIN_IDS: ChainId[] = IS_DEBUG
   ? ['97', '421614', '42421', '11155111', '80002', '84532']
-  : ['97', '421614', '42421']
+  : ['97', '421614', '42421', '84532']
 
 export const chainsLabels: { value: ChainId; label: string; component: any }[] = IS_DEBUG
   ? [
@@ -24,7 +24,7 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       // { value: '942', label: 'PulseChain', component: [IconPulseChain] }
       // { value: '42161', label: 'Arbitrum', component: ArbitumIcon },
       // { value: '369', label: 'PulseChain', component: PulseIconVue },
-      // { value: '8453', label: 'Base', component: BaseIconVue },
+      { value: '84532', label: 'Base', component: BaseIconVue },
       { value: '421614', label: 'Arbitrum', component: ArbitumIcon },
       { value: '42421', label: 'Asset Chain', component: XendIcon },
       { value: '97', label: 'BSC', component: BinanceIcon },
@@ -33,7 +33,7 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       // { value: '97', label: 'BSC', component: BinanceIcon },
       // { value: '43113', label: 'Avalanche', component: AvaxIconVue },
       // { value: '80001', label: 'Polygon', component: PolygonIcon },
-
+      { value: '84532', label: 'Base', component: BaseIconVue },
       { value: '421614', label: 'Arbitrum', component: ArbitumIcon },
       { value: '42421', label: 'Asset Chain', component: XendIcon },
       { value: '97', label: 'BSC', component: BinanceIcon },

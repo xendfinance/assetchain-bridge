@@ -7,7 +7,7 @@ import axios from 'axios'
 const baseURL = import.meta.env.VITE_BACKEND_LINK
 // const baseURL = 'http://localhost:3000'
 
-export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT'
+export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT' | 'aUSDC.e'
 
 const getUrl = (symbol: Symbol) => {
   switch (symbol) {
@@ -21,19 +21,22 @@ const getUrl = (symbol: Symbol) => {
       return import.meta.env.VITE_BACKEND_LINK_WETH
     case 'WNT':
       return import.meta.env.VITE_BACKEND_LINK_WNT
+    case 'aUSDC.e':
+      return import.meta.env.VITE_BACKEND_LINK_AUSDCE
     default:
       return import.meta.env.VITE_BACKEND_LINK_USDT
   }
 }
 
-const axiosClientToken = (token: Symbol) => axios.create({
-  baseURL: getUrl(token),
-  transformResponse: [
-    (data) => {
-      return JSON.parse(data)
-    },
-  ],
-})
+const axiosClientToken = (token: Symbol) =>
+  axios.create({
+    baseURL: getUrl(token),
+    transformResponse: [
+      (data) => {
+        return JSON.parse(data)
+      },
+    ],
+  })
 
 const axiosClient = axios.create({
   baseURL,
@@ -77,12 +80,12 @@ export async function getTokenSignature(
   toBridgeAssistAddress: string,
   fromChain: string,
   fromUser: string,
-  index: number,
+  index: number
 ): Promise<string> {
   const [response, error] = await safe(
     axiosClientToken(symbol).get<{ signature: string }>(SIGN, {
       params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },
-    }),
+    })
   )
 
   if (response) return response.data.signature
@@ -94,12 +97,12 @@ export async function getSignature(
   toBridgeAssistAddress: string,
   fromChain: string,
   fromUser: string,
-  index: number,
+  index: number
 ): Promise<string> {
   const [response, error] = await safe(
     axiosClient.get<{ signature: string }>(SIGN, {
       params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },
-    }),
+    })
   )
 
   if (response) return response.data.signature

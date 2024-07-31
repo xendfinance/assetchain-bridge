@@ -194,11 +194,11 @@ export const scanners: Record<RealChainTag, string> = {
   okex_testnet: 'https://www.oklink.com/en/okc-test/',
   cmp_testnet: 'https://galaxy.scan.caduceus.foundation/',
   pulse_testnet: 'https://scan.v4.testnet.pulsechain.com',
-  xend_testnet: 'https://testnet.assetchain.org/',
+  xend_testnet: 'https://scan-testnet.assetchain.org/',
   arbitrum_sepolia: 'https://sepolia.arbiscan.io/',
-  base_sepolia: 'https://public.stackup.sh/api/v1/node/base-sepolia',
-  eth_sepolia: 'https://ethereum-sepolia-rpc.publicnode.com',
-  polygon_amoy: 'https://polygon-amoy-bor-rpc.publicnode.com',
+  base_sepolia: 'https://sepolia.basescan.org/',
+  eth_sepolia: 'https://ethereum-sepolia-rpc.publicnode.com/',
+  polygon_amoy: 'https://polygon-amoy-bor-rpc.publicnode.com/',
 }
 
 export function node(name: ChainTag): Node {

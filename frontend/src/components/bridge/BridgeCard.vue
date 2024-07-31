@@ -29,7 +29,7 @@
         subtitle="Destination chain"
         :loading="bridgeLoading"
         :symbol="symbol"
-        :contract-balance="balanceBridge(to)"
+        :contract-balance="balanceBridge(to)"    
       />
     </div>
     <div class="mt-7 w-full">
@@ -333,12 +333,12 @@ const tokenAddress = computed(() => {
 
 const onEnable = () => {
   bridgeUI.network = from.value
-  console.log('BRIDGE_CARD', {
-    network: bridgeUI.network,
-    inputAmount: bridgeUI.inputAmount,
-    from: bridgeUI.from,
-    tokenAddress: tokenAddress.value,
-  })
+  // console.log('BRIDGE_CARD', {
+  //   network: bridgeUI.network,
+  //   inputAmount: bridgeUI.inputAmount,
+  //   from: bridgeUI.from,
+  //   tokenAddress: tokenAddress.value,
+  // })
 
   bridgeWrite.enable(bridgeUI.inputAmount, bridgeUI.from, tokenAddress.value)
 }
@@ -348,6 +348,7 @@ const allowanceLoading = ref(false)
 const checkAllowance = useDebounceFn(async () => {
   if (!login.value) return false
   allowanceLoading.value = true
+  // console.log(wallet.value, bridgeUI, 'allowance')
   await token.hasAllowance(
     wallet.value,
     bridgeUI.from,
