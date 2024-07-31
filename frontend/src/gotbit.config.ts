@@ -21,7 +21,7 @@ export const config = defineConfig({
       case 'arbitrum_sepolia':
         return 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia'
       case 'xend_testnet':
-        return 'https://rpctestnet.xendrwachain.com'
+        return 'https://enugu-rpc.assetchain.org/'
       case 'bsc_testnet':
         return 'https://bsc-testnet-rpc.publicnode.com'
       case 'eth_sepolia':
