@@ -7,97 +7,105 @@
         class="flex justify-between items-center text-[15px] w-full max-w-[1440px] px-3 md:px-10 mx-auto"
       >
         <BaseLogo />
-        <div v-if="!login" class="hidden md:block justify-self-end">
-          <GButton primary size="md" @click="ui.openDialog('connectDialog', {})">
-            Connect Wallet
-          </GButton>
-        </div>
-        <div
-          v-if="login"
-          ref="dropdown"
-          class="hidden md:flex items-center justify-end gap-5 relative justify-self-end"
-        >
-          <WrongNetworkIcon
-            v-if="!REAL_CHAIN_IDS.includes(realChainId as ChainId) && login"
-            @mouseover="isWrongMessage = true"
-            @mouseleave="isWrongMessage = false"
-            @click="isWrongMessage = !isWrongMessage"
-          />
+        <div class="flex gap-9">
+          <a target="__blank__" href="https://leaderboard.assetchain.org">
+            <div class="flex items-center my-auto pt-3 w-full h-full">
+            <span class="text-base h-full">Testnet Leaderboard</span>
+          </div>
+          </a>
+          <div v-if="!login" class="hidden md:block justify-self-end">
+            <GButton primary size="md" @click="ui.openDialog('connectDialog', {})">
+              Connect Wallet
+            </GButton>
+          </div>
           <div
-            v-if="
+            v-if="login"
+            ref="dropdown"
+            class="hidden md:flex items-center justify-end gap-5 relative justify-self-end"
+          >
+            <WrongNetworkIcon
+              v-if="!REAL_CHAIN_IDS.includes(realChainId as ChainId) && login"
+              @mouseover="isWrongMessage = true"
+              @mouseleave="isWrongMessage = false"
+              @click="isWrongMessage = !isWrongMessage"
+            />
+            <div
+              v-if="
               !REAL_CHAIN_IDS.includes(realChainId as ChainId) && isWrongMessage && !menu
             "
-            class="absolute left-[-150px] md:left-[-185px] top-[24px] md:top-[54px] text-[#eb5757] p-[16px] bg-[#eb57571a] rounded-lg h-[48px] w-[310px] flex items-center gap-[12px]"
-          >
-            <WrongNetworkIcon />
-            <div class="text-start text-[13px]">An unsupported network is selected</div>
-          </div>
-          <div class="hidden md:flex relative">
-            <UserButton
-              @click="logOutPopup = !logOutPopup"
-              @mouseenter="logOutPopup = true"
-            />
-            <Transition name="fade">
-              <LogOutDropDown
-                v-if="login"
-                ref="dropdown"
-                class="absolute translate-y-[100%] bottom-[-28px] right-[-20px] hidden md:block w-[384px]"
-                :visible="logOutPopup"
-                @mouseleave="logOutPopup = false"
-              />
-            </Transition>
-          </div>
-
-          <!-- <button @click="disconnect">
-            <LogoutIcon />
-          </button> -->
-        </div>
-        <div
-          v-if="
-            !REAL_CHAIN_IDS.includes(realChainId as ChainId) && isWrongMessage && !menu
-          "
-          class="md:hidden left-[80px] absolute top-[44px] text-[#eb5757] p-[8px] bg-[#eb57571a] rounded-lg h-[35px] w-[250px] flex items-center gap-[12px]"
-        >
-          <WrongNetworkIcon />
-          <div class="text-start text-[11px]">An unsupported network is selected</div>
-        </div>
-
-        <div class="md:hidden flex items-center gap-[8px]">
-          <div v-if="!REAL_CHAIN_IDS.includes(realChainId as ChainId) && !menu && login">
-            <WrongNetworkIcon @click="isWrongMessage = !isWrongMessage" />
-          </div>
-          <button v-if="!menu" @click="menu = true" class="ml-auto">
-            <MenuNav />
-          </button>
-
-          <div
-            v-if="menu"
-            class="flex items-center justify-center gap-[8px] w-full"
-            :class="{ 'menu-open': menu }"
-          >
-            <div
-              v-if="!REAL_CHAIN_IDS.includes(realChainId as ChainId) && login"
-              @click="isWrongMessage = !isWrongMessage"
+              class="absolute left-[-150px] md:left-[-185px] top-[24px] md:top-[54px] text-[#eb5757] p-[16px] bg-[#eb57571a] rounded-lg h-[48px] w-[310px] flex items-center gap-[12px]"
             >
               <WrongNetworkIcon />
+              <div class="text-start text-[13px]">An unsupported network is selected</div>
             </div>
-          </div>
-          <button v-if="menu" @click="menu = false" class="ml-auto">
-            <MenuClose />
-          </button>
-          <Transition name="fade">
-            <div
-              v-if="menu"
-              class="flex flex-col md:hidden fixed right-0 p-5 w-full h-[100vh] top-[80px] bg-primary-card"
-            >
-              <div class="w-full flex flex-col mb-[80px] justify-end h-full">
+            <div class="hidden md:flex relative">
+              <UserButton
+                @click="logOutPopup = !logOutPopup"
+                @mouseenter="logOutPopup = true"
+              />
+              <Transition name="fade">
                 <LogOutDropDown
                   v-if="login"
-                  :visible="login"
-                  class="!w-full !min-w-full !max-w-none !bg-transparent !p-0 flex-grow"
-                  @disconnect="menu = false"
+                  ref="dropdown"
+                  class="absolute translate-y-[100%] bottom-[-28px] right-[-20px] hidden md:block w-[384px]"
+                  :visible="logOutPopup"
+                  @mouseleave="logOutPopup = false"
                 />
-                <!-- <div v-if="login">
+              </Transition>
+            </div>
+
+            <!-- <button @click="disconnect">
+            <LogoutIcon />
+          </button> -->
+          </div>
+          <div
+            v-if="
+            !REAL_CHAIN_IDS.includes(realChainId as ChainId) && isWrongMessage && !menu
+          "
+            class="md:hidden left-[80px] absolute top-[44px] text-[#eb5757] p-[8px] bg-[#eb57571a] rounded-lg h-[35px] w-[250px] flex items-center gap-[12px]"
+          >
+            <WrongNetworkIcon />
+            <div class="text-start text-[11px]">An unsupported network is selected</div>
+          </div>
+
+          <div class="md:hidden flex items-center gap-[8px]">
+            <div
+              v-if="!REAL_CHAIN_IDS.includes(realChainId as ChainId) && !menu && login"
+            >
+              <WrongNetworkIcon @click="isWrongMessage = !isWrongMessage" />
+            </div>
+            <button v-if="!menu" @click="menu = true" class="ml-auto">
+              <MenuNav />
+            </button>
+
+            <div
+              v-if="menu"
+              class="flex items-center justify-center gap-[8px] w-full"
+              :class="{ 'menu-open': menu }"
+            >
+              <div
+                v-if="!REAL_CHAIN_IDS.includes(realChainId as ChainId) && login"
+                @click="isWrongMessage = !isWrongMessage"
+              >
+                <WrongNetworkIcon />
+              </div>
+            </div>
+            <button v-if="menu" @click="menu = false" class="ml-auto">
+              <MenuClose />
+            </button>
+            <Transition name="fade">
+              <div
+                v-if="menu"
+                class="flex flex-col md:hidden fixed right-0 p-5 w-full h-[100vh] top-[80px] bg-primary-card"
+              >
+                <div class="w-full flex flex-col mb-[80px] justify-end h-full">
+                  <LogOutDropDown
+                    v-if="login"
+                    :visible="login"
+                    class="!w-full !min-w-full !max-w-none !bg-transparent !p-0 flex-grow"
+                    @disconnect="menu = false"
+                  />
+                  <!-- <div v-if="login">
                   <GButton outline class="w-full">{{ walletLabel }}</GButton>
                   <div
                     @click="disconnect()"
@@ -107,23 +115,24 @@
                     <LogoutIcon />
                   </div>
                 </div> -->
-                <div v-else class="w-full flex flex-col mb-[80px] justify-end h-full">
-                  <GButton
-                    primary
-                    class="w-full"
-                    @click="
-                      () => {
-                        ui.openDialog('connectDialog', {})
-                        menu = false
-                      }
-                    "
-                  >
-                    Connect Wallet
-                  </GButton>
+                  <div v-else class="w-full flex flex-col mb-[80px] justify-end h-full">
+                    <GButton
+                      primary
+                      class="w-full"
+                      @click="
+                        () => {
+                          ui.openDialog('connectDialog', {})
+                          menu = false
+                        }
+                      "
+                    >
+                      Connect Wallet
+                    </GButton>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Transition>
+            </Transition>
+          </div>
         </div>
       </div>
     </header>
