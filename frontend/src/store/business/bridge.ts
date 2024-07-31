@@ -207,7 +207,8 @@ const createAction = async (
     }
 
     await bridge.upload()
-    await token.upload()
+    // await token.upload()
+    await token.setToken(token.symbol, token.tokenAddress)
     return
   } catch (error) {
 

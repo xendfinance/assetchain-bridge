@@ -244,7 +244,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             )
           }
         }
-        // console.log('dddddddddd', transactions.map( t => ethers.utils.formatUnits(t.amount, 6)))
+        // console.log('dddddddddd', transactions)
         return transactions
       },
 

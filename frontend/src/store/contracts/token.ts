@@ -188,7 +188,7 @@ export const useToken = defineContractStore<
         this.tokens[chainId] = []
         const contract = getContract(chainId)
         factory.assistAndTokenAddresses[chainId]?.map(async (item) => {
-          // console.log(item.token, 'TOKEN')
+          // console.log(item.token, item.bridgeAssist, 'TOKEN')
           if (item.token) {
             let symbol = 'RWA'
             let decimals = 6
@@ -315,13 +315,15 @@ export const useToken = defineContractStore<
     async hasAllowance(owner, chainId, amount, tokenAddress) {
       // console.log(owner, chainId, amount, tokenAddress, 'AAAAA')
       const factory = useFactory()
+      const _token = this.tokens[chainId].find(t => t.label === this.symbol)
       const bridgeAssist = factory.assistAndTokenAddresses[chainId]?.find(
-        (item) => item.token === tokenAddress
+        (item) => item.token === _token?.value
       )?.bridgeAssist
       // const { token } = useContracts(undefined, chainId)
+      
       const contract = getContract(chainId)
       const allowance = await safeRead(
-        contract.anyToken(tokenAddress).allowance(owner, bridgeAssist ?? ''),
+        contract.anyToken(_token?.value!).allowance(owner, bridgeAssist ?? ''),
         BigNumber.from(0)
       )
 
