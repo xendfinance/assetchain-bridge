@@ -5,7 +5,7 @@
 			:key="item.name" 
 			:href="item.link" 
 			target="_blank" 
-			class="flex items-center justify-center md:gap-1"
+			class="flex items-center justify-center md:gap-1 text-nowrap text-white"
 		>
 			<img :src="`/socials/${item.img}`" />
 			<p class="hidden md:block capitalize text-[15px] ">
