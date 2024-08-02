@@ -318,7 +318,6 @@ abstract contract BridgeAssistGenericUpgradeable is
         require(chains.length == exchangeRatesFromPow.length, 'bad input');
 
         for (uint256 i; i < chains.length; ) {
-            require(bytes(chains[i]).length != 0, 'Empty chain name');
             require(
                 availableChainsToSend.add(bytes32(bytes(chains[i]))),
                 'Chain is already in the list'
@@ -327,7 +326,6 @@ abstract contract BridgeAssistGenericUpgradeable is
             bytes32 chain = bytes32(bytes(chains[i]));
             // implicitly reverts on overflow
             uint256 exchangeRate = 10 ** exchangeRatesFromPow[i];
-            require(exchangeRates[i] != 0, 'Zero exchange rate');
 
             if (exchangeRateFrom[chain] != 0) {
                 require(
@@ -438,20 +436,19 @@ abstract contract BridgeAssistGenericUpgradeable is
         emit LimitPerSendSet(limitPerSend_);
     }
 
-    /// @dev withdraw tokens from bridge
-    /// @param token_ token to withdraw
-    /// @param to the address the tokens will be sent
-    /// @param amount amount to withdraw
-    function withdraw(
-        IERC20Upgradeable token_,
-        address to,
-        uint256 amount
-    ) external onlyRole(MANAGER_ROLE) {
-        require(to != address(0), 'To: zero address');
-        require(amount != 0, 'Amount: zero');
-        require(amount <= token_.balanceOf(address(this)), 'Withdraw amount exceeds balance');
-        SafeERC20Upgradeable.safeTransfer(token_, to, amount);
-    }
+    // /// @dev withdraw tokens from bridge
+    // /// @param token_ token to withdraw
+    // /// @param to the address the tokens will be sent
+    // /// @param amount amount to withdraw
+    // function withdraw(
+    //     IERC20Upgradeable token_,
+    //     address to,
+    //     uint256 amount
+    // ) external onlyRole(MANAGER_ROLE) {
+    //     require(to != address(0), 'To: zero address');
+    //     require(amount != 0, 'Amount: zero');
+    //     SafeERC20Upgradeable.safeTransfer(token_, to, amount);
+    // }
 
     /// @dev pausing the contract
     function pause() external whenNotPaused onlyRole(MANAGER_ROLE) {
@@ -489,31 +486,12 @@ abstract contract BridgeAssistGenericUpgradeable is
     ///   from the current chain
     /// @param user sender address
     /// @return list of transactions
-    function getUserTransactions(address user,uint256 offset,
-        uint256 limit)
+    function getUserTransactions(address user)
         external
         view
         returns (Transaction[] memory)
     {
-        // return transactions[user];
-        Transaction[] memory userTransactions = transactions[user];
-        uint256 totalTransactions = userTransactions.length;
-
-        if (offset >= totalTransactions) {
-            return [];
-        }
-
-        uint256 end = offset + limit;
-        if (end > totalTransactions) {
-            end = totalTransactions;
-        }
-
-        Transaction[] memory slice = new Transaction[](end - offset);
-        for (uint256 i = offset; i < end; i++) {
-            slice[i - offset] = userTransactions[i];
-        }
-
-        return slice;
+        return transactions[user];
     }
 
     /// @dev returns the amount of bridge transactions sent by `user`

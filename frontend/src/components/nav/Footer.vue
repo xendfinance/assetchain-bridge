@@ -5,22 +5,21 @@
     >
       <a href="https://xend.finance" target="_blank" class="md:block w-[25%] hidden">
         <div class="flex flex-col items-start w-[135px]">
-          <Logotip class="hidden md:block" />
-          <p class="text-[14px] mt-[10px] text-label-text uppercase">
-            © {{ new Date().getFullYear() }} Gotbit Ltd
+          <Logotip class="hidden md:block"/>
+          <p class="text-[12px] mt-[10px] text-label-text uppercase">
+            © {{ new Date().getFullYear() }} Xend Finance
           </p>
         </div>
       </a>
       <Social :links="links" class="" />
     </div>
-    <div class="w-full flex justify-center items-center">
-      <p
-        class="max-w-[1280px] w-full flex justify-center md:justify-between items-center border-t-[1px] border-t-primary-border py-4 md:py-5 px-2 md:pt-[12px] text text-[13px]"
-      >
-        <a href="https://xend.finance/policy" target="_blank">Privacy Police</a>
-        <a href="https://gotbit.io/" target="_blank">develop by Gotbit</a>
+    <!-- <div class="w-full flex justify-center items-center">
+      <p class="max-w-[1280px] w-full flex justify-center md:justify-end items-center border-t-[1px] border-t-primary-border py-4 md:py-5 md:pt-[12px]">
+        <span class="text text-[13px]">
+          <a href="https://gotbit.io/">develop by Gotbit</a>
+        </span>
       </p>
-    </div>
+    </div> -->
   </footer>
 </template>
 
@@ -37,7 +36,7 @@ const links = ref([
   },
   {
     name: 'telegram',
-    link: 'https://t.me/XendAnnouncements',
+    link: 'https://t.me/XendFinanceDevs',
     img: 'Telegram.svg',
   },
   {
@@ -50,6 +49,11 @@ const links = ref([
   //   link: 'https://www.linkedin.com/company/chaingpt',
   //   img: 'Linkedin.svg',
   // },
+  {
+    name: 'Testnet Leaderboard',
+    link: 'https://leaderboard.assetchain.org',
+    img: 'change.svg',
+  },
   {
     name: 'reddit',
     link: 'http://www.reddit.com/r/XendFinance/',

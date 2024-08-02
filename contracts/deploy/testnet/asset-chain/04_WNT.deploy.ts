@@ -3,7 +3,7 @@ import type { DeployFunction } from 'hardhat-deploy/types'
 import {BRIDGED_TOKEN_PARAMS, CHAIN_IDS} from '@/config'
 
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
-import type { BridgedAssetChainToken__factory } from '@/typechain'
+import type { BridgedAssetChainToken__factory, MultiSigWallet } from '@/typechain'
 import { BigNumber } from 'ethers'
 
 const func: DeployFunction = async (hre) => {
@@ -18,6 +18,8 @@ const func: DeployFunction = async (hre) => {
   const token = 'WNT'
   const params = BRIDGED_TOKEN_PARAMS[chainId][token]
 
+  const mulsigwallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
+
   await deploy<BridgedAssetChainToken__factory>(token, {
     contract: 'BridgedAssetChainToken',
     from: deployer.address,
@@ -30,6 +32,7 @@ const func: DeployFunction = async (hre) => {
       params.isLockActive,
       params.tokenOriginal,
       params.chainIdOriginal,
+      mulsigwallet.address
     ],
     log: true,
   })
@@ -37,3 +40,4 @@ const func: DeployFunction = async (hre) => {
 export default func
 
 func.tags = ['WNT.deploy']
+func.dependencies = ['MultiSigWallet.deploy']

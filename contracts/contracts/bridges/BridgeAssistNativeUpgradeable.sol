@@ -86,16 +86,16 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
         emit FeeFulfillSet(feeFulfill_);
     }
 
-    /// @dev withdraw native tokens from bridge
-    /// @param to the address the tokens will be sent
-    /// @param amount amount to withdraw
-    function withdrawNative(address to, uint256 amount) external onlyRole(MANAGER_ROLE) {
-        require(to != address(0), 'To: zero address');
-        require(amount != 0, 'Amount: zero');
+    // /// @dev withdraw native tokens from bridge
+    // /// @param to the address the tokens will be sent
+    // /// @param amount amount to withdraw
+    // function withdrawNative(address to, uint256 amount) external onlyRole(MANAGER_ROLE) {
+    //     require(to != address(0), 'To: zero address');
+    //     require(amount != 0, 'Amount: zero');
 
-        (bool success, ) = to.call{value: amount}('');
-        require(success, 'Unable to send funds');
-    }
+    //     (bool success, ) = to.call{value: amount}('');
+    //     require(success, 'Unable to send funds');
+    // }
 
     function setFee(uint256, uint256) external pure override {
         revert('NOT SUPPORTED');

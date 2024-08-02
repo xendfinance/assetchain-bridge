@@ -18,3 +18,19 @@ export const ERRORS = {
   invalidOffsetLimit: 'Invalid offset-limit',
   noBridgesByToken: 'No bridges by this token',
 }
+
+export enum  BridgeFactoryErrors {
+  ZeroAddress='ZeroAddress',
+  ZeroLengthArray='ZeroLengthArray',
+  ArrayLengthExceedsLimit='ArrayLengthExceedsLimit',
+  InvalidOffsetLimit='InvalidOffsetLimit',
+  InvalidIndex='InvalidIndex',
+  NoBridgesByToken='NoBridgesByToken',
+  BridgeTypeInvalidImplementation='BridgeTypeInvalidImplementation',
+  DuplicateImplementations='DuplicateImplementations',
+  BridgeZeroAddress='BridgeZeroAddress',
+  BridgeDuplicate='BridgeDuplicate',
+  TokenZeroAddress='TokenZeroAddress',
+  BridgeNotFound='BridgeNotFound',
+  NotMultiSigWallet='NotMultiSigWallet'
+}

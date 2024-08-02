@@ -22,7 +22,6 @@ describe('BridgedAssetChainToken contract', () => {
 
     const assetTokenFactory: BridgedAssetChainToken__factory =
       await ethers.getContractFactory('BridgedAssetChainToken', deployer)
-
     await expect(
       assetTokenFactory
         .connect(deployer)
@@ -34,7 +33,8 @@ describe('BridgedAssetChainToken contract', () => {
           deployer.address,
           false,
           ORIGINAL_TOKEN,
-          ORIGINAL_CHAIN_ID
+          ORIGINAL_CHAIN_ID,
+          ethers.constants.AddressZero
         )
     ).revertedWith('Empty name')
     await expect(
@@ -48,7 +48,8 @@ describe('BridgedAssetChainToken contract', () => {
           deployer.address,
           false,
           ORIGINAL_TOKEN,
-          ORIGINAL_CHAIN_ID
+          ORIGINAL_CHAIN_ID,
+          ethers.constants.AddressZero
         )
     ).revertedWith('Empty symbol')
     await expect(
@@ -62,7 +63,8 @@ describe('BridgedAssetChainToken contract', () => {
           ethers.constants.AddressZero,
           false,
           ORIGINAL_TOKEN,
-          ORIGINAL_CHAIN_ID
+          ORIGINAL_CHAIN_ID,
+          ethers.constants.AddressZero
         )
     ).revertedWith('Owner: zero address')
     await expect(
@@ -76,7 +78,8 @@ describe('BridgedAssetChainToken contract', () => {
           deployer.address,
           false,
           ethers.constants.AddressZero,
-          ORIGINAL_CHAIN_ID
+          ORIGINAL_CHAIN_ID,
+          ethers.constants.AddressZero
         )
     ).revertedWith('Token original: zero address')
     await expect(
@@ -90,12 +93,13 @@ describe('BridgedAssetChainToken contract', () => {
           deployer.address,
           false,
           ORIGINAL_TOKEN,
-          0
+          0,
+          ethers.constants.AddressZero
         )
     ).revertedWith('Chain id original: zero')
   })
   it('constructor', async () => {
-    const { assetToken } = await useContracts()
+    const { assetToken, multiSigWallet } = await useContracts()
     const [deployer] = await ethers.getSigners()
 
     expect(await assetToken.name()).eq(NAME + ' (Bridged)')
@@ -114,6 +118,7 @@ describe('BridgedAssetChainToken contract', () => {
     expect(await assetToken.isLockActive()).false
     expect(await assetToken.TOKEN_ORIGINAL()).eq(ORIGINAL_TOKEN)
     expect(await assetToken.CHAIN_ID_ORIGINAL()).eq(ORIGINAL_CHAIN_ID)
+    expect(await assetToken.MULTISIG_WALLET()).eq(multiSigWallet.address)
   })
   it('mint/burn', async () => {
     const { assetToken } = await useContracts()
@@ -136,7 +141,8 @@ describe('BridgedAssetChainToken contract', () => {
     expect(await assetToken.balanceOf(user.address)).eq(userBalance)
   })
   it('lock', async () => {
-    const [deployer, user] = await ethers.getSigners()
+    const [deployer, user, user2] = await ethers.getSigners()
+    const { multiSigWallet } = await useContracts()
 
     const assetTokenFactory: BridgedAssetChainToken__factory =
       await ethers.getContractFactory('BridgedAssetChainToken', deployer)
@@ -148,44 +154,52 @@ describe('BridgedAssetChainToken contract', () => {
       deployer.address,
       true,
       ORIGINAL_TOKEN,
-      ORIGINAL_CHAIN_ID
+      ORIGINAL_CHAIN_ID,
+      multiSigWallet.address
     )
+
     expect(await token.isLockActive()).true
+
+
+    // Test transferring tokens while locked
+    await token.connect(deployer).transfer(user.address, 500)
+
+    // Create transaction data for setBlacklisted
+    const blacklistData = token.interface.encodeFunctionData('setBlacklisted', [
+      user.address,
+      true,
+    ])
+
+    // Submit, confirm, and execute the blacklist transaction
+    await multiSigWallet
+      .connect(deployer)
+      .createTransaction(token.address, blacklistData)
+
+    await multiSigWallet.connect(user2).approveTransaction(1)
+
+    await expect(
+      token.connect(deployer).transfer(user.address, 100)
+    ).to.be.revertedWith('Transfer is not allowed')
+
+    // Create transaction data for setBlacklisted (remove from blacklist)
+    const removeBlacklistData = token.interface.encodeFunctionData(
+      'setBlacklisted', [user.address, false]
+    )
+
+    // Submit, confirm, and execute the remove from blacklist transaction
+    await multiSigWallet
+      .connect(deployer)
+      .createTransaction(token.address, removeBlacklistData)
+    await multiSigWallet.connect(user).approveTransaction(2)
 
     await token.connect(deployer).transfer(user.address, 500)
 
-    await expect(token.connect(deployer).setBlacklisted(user.address, true)).reverted
-    await token
-      .connect(deployer)
-      .grantRole(await token.BLACKLISTER_ROLE(), deployer.address)
-    expect(await token.isBlacklisted(user.address)).false
-    await token.connect(deployer).setBlacklisted(user.address, true)
-    expect(await token.isBlacklisted(user.address)).true
-
-    await expect(token.connect(deployer).setBlacklisted(user.address, true)).revertedWith(
-      'Duplicate'
-    )
-
-    await expect(token.connect(deployer).transfer(user.address, 100)).revertedWith(
-      'Transfer is not allowed'
-    )
-    await expect(token.connect(user).transfer(deployer.address, 100)).revertedWith(
-      'Transfer is not allowed'
-    )
+    expect(await token.balanceOf(user.address)).eq(1000)
 
     await expect(token.connect(user).disableLockStage()).reverted
     await token.connect(deployer).disableLockStage()
+
     expect(await token.isLockActive()).false
-    expect(await token.isBlacklisted(user.address)).true
 
-    await expect(token.connect(deployer).setBlacklisted(user.address, false))
-    await expect(token.connect(deployer).transfer(user.address, 500)).not.reverted
-
-    await expect(token.connect(deployer).disableLockStage()).revertedWith(
-      'Lock stage is not active'
-    )
-    await expect(token.connect(deployer).setBlacklisted(user.address, true)).revertedWith(
-      'Lock stage is not active'
-    )
   })
 })

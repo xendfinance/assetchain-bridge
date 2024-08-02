@@ -91,8 +91,6 @@ const active = ref(false)
 const dropdown = ref<HTMLElement | any>(null)
 
 const chosenToken = computed(() => {
-  console.log('tokenAddress_', props.modelValue)
-
   if (!props.modelValue) return props.options[0]
   return props.options?.filter((o) => o?.label === props.modelValue)?.[0]
 })
@@ -101,7 +99,6 @@ const addTokenIcons = (item: string) => tokensLabels.filter((t) => t.label === i
 
 const onSelect = async (tokenSymbol: string, tokenAddress: string) => {
   const item = props.options?.filter((o) => o.label === tokenSymbol)[0]
-  console.log(tokenAddress, 'tokenAddress')
   if (item.disabled) return
   emit('update:modelValue', tokenSymbol)
   await token.setToken(tokenSymbol, tokenAddress)

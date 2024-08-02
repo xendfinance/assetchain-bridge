@@ -320,7 +320,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
    * 84532
    */
   base_sepolia: [
-    'https://rpc.notadegen.com/base/sepolia',
+    'https://base-sepolia-rpc.publicnode.com',
     'https://sepolia.base.org'
   ]
 }

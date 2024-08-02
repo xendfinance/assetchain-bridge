@@ -7,6 +7,7 @@ import type {
   BridgeAssistMintUpgradeable,
   BridgeAssistNativeUpgradeable,
   BridgeFactoryUpgradeable__factory,
+  MultiSigWallet,
 } from '@/typechain'
 
 const func: DeployFunction = async (hre) => {
@@ -35,6 +36,8 @@ const func: DeployFunction = async (hre) => {
     from: deployer.address,
     nonce: nonce + 9,
   })
+
+  const mulsigwallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
   console.log(`future mint: ${bridgeMint}`);
   console.log(`future native: ${bridgeNative}`);
 
@@ -50,6 +53,8 @@ const func: DeployFunction = async (hre) => {
           ethers.constants.AddressZero,
           bridgeMint,
           bridgeNative,
+          ethers.constants.AddressZero,
+          mulsigwallet.address,
           deployer.address,
         ],
       },
@@ -60,3 +65,4 @@ const func: DeployFunction = async (hre) => {
 export default func
 
 func.tags = ['BridgeFactoryUpgradeable.deploy']
+func.dependencies = ['MultiSigWallet.deploy']

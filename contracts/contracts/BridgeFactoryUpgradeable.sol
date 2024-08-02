@@ -7,6 +7,7 @@ import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/acce
 import {ClonesUpgradeable} from '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import {EnumerableSetUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
+import {BridgeFactoryErrors} from './utils/errors/BridgeFactoryErrors.sol';
 
 /**
  * @title BridgeFactory
@@ -20,7 +21,8 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     enum BridgeType {
         TRANSFER,
         MINT,
-        NATIVE
+        NATIVE,
+        CIRCLEMINTBURN
     }
 
     struct BridgeAssistInfo {
@@ -30,6 +32,7 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
 
     bytes32 public constant CREATOR_ROLE = keccak256('CREATOR_ROLE');
     uint256 public constant ADD_REMOVE_LIMIT_PER_TIME = 100;
+    address public MULTISIG_WALLET;
 
     mapping(BridgeType => address) public bridgeAssistImplementation;
 
@@ -45,6 +48,13 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address indexed bridgeNative
     );
 
+    using BridgeFactoryErrors for *;
+
+    modifier onlyMultisig() {
+        if (msg.sender != MULTISIG_WALLET) revert BridgeFactoryErrors.NotMultiSigWallet();
+        _;
+    }
+
     constructor() {
         _disableInitializers();
     }
@@ -52,56 +62,38 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     /**
      * @notice Initializes the BridgeFactory contract.
      * @param bridgeAssistTransferImplementation_ BridgeAssistTransfer implementation
-     * @param bridgeAssistNativeImplementation_ BridgeAssistNative implementation
      * @param bridgeAssistMintImplementation_ BridgeAssistMint implementation
+     * @param bridgeAssistNativeImplementation_ BridgeAssistNative implementation
+     * @param bridgeAssistCircleMintBurnImplementation_ BridgeAssistMint implementation
+     * @param multisigWalletAddress_ Multisig wallet address
      * @param owner DEFAULT_ADMIN_ROLE holder
      */
     function initialize(
         address bridgeAssistTransferImplementation_,
         address bridgeAssistMintImplementation_,
         address bridgeAssistNativeImplementation_,
+        address bridgeAssistCircleMintBurnImplementation_,
+        address multisigWalletAddress_,
         address owner
     ) external initializer {
-        require(owner != address(0), 'Owner: zero address');
-        // if (bridgeAssistTransferImplementation_ != address(0)) {
-        //     bridgeAssistImplementation[
-        //         BridgeType.TRANSFER
-        //     ] = bridgeAssistTransferImplementation_;
-        // }
-        // if (bridgeAssistMintImplementation_ != address(0)) {
-        //     bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
-        // }
-        // if (bridgeAssistNativeImplementation_ != address(0)) {
-        //     bridgeAssistImplementation[
-        //         BridgeType.NATIVE
-        //     ] = bridgeAssistNativeImplementation_;
-        // }
-        // _grantRole(DEFAULT_ADMIN_ROLE, owner);
-        require(
-            bridgeAssistTransferImplementation_ != address(0),
-            'Transfer implementation: zero address'
-        );
-        require(
-            bridgeAssistMintImplementation_ != address(0),
-            'Mint implementation: zero address'
-        );
-        require(
-            bridgeAssistNativeImplementation_ != address(0),
-            'Native implementation: zero address'
-        );
+        if (owner == address(0)) revert BridgeFactoryErrors.ZeroAddress();
+        if (multisigWalletAddress_ == address(0)) revert BridgeFactoryErrors.ZeroAddress();
 
         bridgeAssistImplementation[
             BridgeType.TRANSFER
         ] = bridgeAssistTransferImplementation_;
         bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
         bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
+        bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN] = bridgeAssistCircleMintBurnImplementation_;
+        MULTISIG_WALLET = multisigWalletAddress_;
 
         _grantRole(DEFAULT_ADMIN_ROLE, owner);
+        
     }
 
     /**
      * @notice Creates new BridgeAssist contract
-     * @param bridgeType 0 - MINT, 1 - NATIVE
+     * @param bridgeType 0 - TRANSFER, 1 - MINT, 2 - NATIVE, 3 - CIRCLEMINTBURN
      * @param token Supported token to send (not used if NATIVE)
      * @param limitPerSend Limit per one send (not used if NATIVE)
      * @param feeWallet Platform fee wallet
@@ -122,9 +114,9 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address owner,
         address[] memory relayers,
         uint256 relayerConsensusThreshold
-    ) external onlyRole(CREATOR_ROLE) returns (address bridge) {
+    ) external onlyMultisig returns (address bridge) {
         address implementation = bridgeAssistImplementation[bridgeType];
-        require(implementation != address(0), 'BR_TYPE_INVALID_IMPL');
+        if (implementation == address(0)) revert BridgeFactoryErrors.BridgeTypeInvalidImplementation();
 
         bridge = ClonesUpgradeable.clone(implementation);
         IBridgeAssist(bridge).initialize(
@@ -149,40 +141,17 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * @dev Third-party bridges interface must match the implementation bridge
      * @param bridges Bridge addresses to add
      */
-    function addBridgeAssists(
-        address[] memory bridges
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addBridgeAssists(address[] memory bridges) external onlyMultisig {
         uint256 length = bridges.length;
-        require(length != 0, 'Zero length array');
-        require(length <= ADD_REMOVE_LIMIT_PER_TIME, 'Array length exceeds limit');
+        if (length == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (length > ADD_REMOVE_LIMIT_PER_TIME) revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
 
         for (uint256 i = 0; i < length; ) {
-            if (bridges[i] == address(0)) {
-                revert(
-                    string.concat(
-                        'Bridge zero address at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
-            if (!_createdBridges.add(bridges[i])) {
-                revert(
-                    string.concat(
-                        'Bridge duplicate at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
+            if (bridges[i] == address(0)) revert BridgeFactoryErrors.BridgeZeroAddress(i);
+            if (!_createdBridges.add(bridges[i])) revert BridgeFactoryErrors.BridgeDuplicate(i);
 
             address token = IBridgeAssist(bridges[i]).TOKEN();
-            if (token == address(0)) {
-                revert(
-                    string.concat(
-                        'Token zero address at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
+            if (token == address(0)) revert BridgeFactoryErrors.TokenZeroAddress(i);
             _bridgesByToken[token].add(bridges[i]);
 
             emit BridgeAssistAdded(bridges[i], token);
@@ -197,22 +166,13 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * @notice Allows to remove bridges from the stored list
      * @param bridges Bridge addresses to remove
      */
-    function removeBridgeAssists(
-        address[] memory bridges
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeBridgeAssists(address[] memory bridges) external onlyMultisig {
         uint256 length = bridges.length;
-        require(length != 0, 'Zero length array');
-        require(length <= ADD_REMOVE_LIMIT_PER_TIME, 'Array length exceeds limit');
+        if (length == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (length > ADD_REMOVE_LIMIT_PER_TIME) revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
 
         for (uint256 i = 0; i < length; ) {
-            if (!_createdBridges.remove(bridges[i])) {
-                revert(
-                    string.concat(
-                        'Bridge not found at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
+            if (!_createdBridges.remove(bridges[i])) revert BridgeFactoryErrors.BridgeNotFound(i);
 
             address token = IBridgeAssist(bridges[i]).TOKEN();
             _bridgesByToken[token].remove(bridges[i]);
@@ -228,30 +188,34 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     /**
      * @notice Allows to change template for creating new bridges
      * @dev Changes the implementation address for future proxy bridges
-     * @param bridgeAssistTransferImplementation_ New transfer bridge implementaion address
-     * @param bridgeAssistMintImplementation_ New mint bridge implementaion address
-     * @param bridgeAssistNativeImplementation_ New native bridge implementaion address
+     * @param bridgeAssistTransferImplementation_ New transfer bridge implementation address
+     * @param bridgeAssistMintImplementation_ New mint bridge implementation address
+     * @param bridgeAssistNativeImplementation_ New native bridge implementation address
+     * @param bridgeAssistCircleMintBurnImplementation_ New CircleMintBurn bridge implementation address
      */
     function changeBridgeAssistImplementation(
         address bridgeAssistTransferImplementation_,
         address bridgeAssistMintImplementation_,
-        address bridgeAssistNativeImplementation_
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            bridgeAssistTransferImplementation_ !=
-                bridgeAssistImplementation[BridgeType.TRANSFER] ||
-                bridgeAssistMintImplementation_ !=
-                bridgeAssistImplementation[BridgeType.MINT] ||
-                bridgeAssistNativeImplementation_ !=
-                bridgeAssistImplementation[BridgeType.NATIVE],
-            'Duplicate implementations'
-        );
+        address bridgeAssistNativeImplementation_,
+        address bridgeAssistCircleMintBurnImplementation_
+    ) external onlyMultisig {
+        if (
+            bridgeAssistTransferImplementation_ ==
+                bridgeAssistImplementation[BridgeType.TRANSFER] &&
+            bridgeAssistMintImplementation_ ==
+                bridgeAssistImplementation[BridgeType.MINT] &&
+            bridgeAssistNativeImplementation_ ==
+                bridgeAssistImplementation[BridgeType.NATIVE] &&
+            bridgeAssistCircleMintBurnImplementation_ ==
+                bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN]
+        ) revert BridgeFactoryErrors.DuplicateImplementations();
 
         bridgeAssistImplementation[
             BridgeType.TRANSFER
         ] = bridgeAssistTransferImplementation_;
         bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
         bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
+        bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN] = bridgeAssistCircleMintBurnImplementation_;
 
         emit BridgeAssistImplementationsSet(
             bridgeAssistTransferImplementation_,
@@ -272,10 +236,8 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         uint256 offset,
         uint256 limit
     ) external view returns (BridgeAssistInfo[] memory) {
-        uint256 maxLimit = 20;
-        require(limit != 0, 'Limit: zero');
-        require(limit <= maxLimit, 'Limit exceeds maximum allowed');
-        require(offset + limit <= _createdBridges.length(), 'Invalid offset-limit');
+        if (limit == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (offset + limit > _createdBridges.length()) revert BridgeFactoryErrors.InvalidOffsetLimit();
 
         BridgeAssistInfo[] memory bridgesInfo = new BridgeAssistInfo[](limit);
 
@@ -304,7 +266,7 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     function getCreatedBridgeInfo(
         uint256 index
     ) external view returns (BridgeAssistInfo memory) {
-        require(index < _createdBridges.length(), 'Invalid index');
+        if (index >= _createdBridges.length()) revert BridgeFactoryErrors.InvalidIndex();
 
         address bridge = _createdBridges.at(index);
         return
@@ -328,12 +290,9 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         uint256 offset,
         uint256 limit
     ) external view returns (address[] memory) {
-        require(_bridgesByToken[token].length() != 0, 'No bridges by this token');
-        require(limit != 0, 'Limit: zero');
-        require(
-            offset + limit <= _bridgesByToken[token].length(),
-            'Invalid offset-limit'
-        );
+        if (_bridgesByToken[token].length() == 0) revert BridgeFactoryErrors.NoBridgesByToken();
+        if (limit == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (offset + limit > _bridgesByToken[token].length()) revert BridgeFactoryErrors.InvalidOffsetLimit();
 
         address[] memory bridges = new address[](limit);
 
@@ -360,8 +319,8 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address token,
         uint256 index
     ) external view returns (address) {
-        require(_bridgesByToken[token].length() != 0, 'No bridges by this token');
-        require(index < _bridgesByToken[token].length(), 'Invalid index');
+        if (_bridgesByToken[token].length() == 0) revert BridgeFactoryErrors.NoBridgesByToken();
+        if (index >= _bridgesByToken[token].length()) revert BridgeFactoryErrors.InvalidIndex();
 
         return _bridgesByToken[token].at(index);
     }

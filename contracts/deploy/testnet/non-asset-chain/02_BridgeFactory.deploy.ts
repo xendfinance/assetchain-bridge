@@ -6,6 +6,7 @@ import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type {
   BridgeAssistTransferUpgradeable,
   BridgeFactoryUpgradeable__factory,
+  MultiSigWallet,
 } from '@/typechain'
 
 const func: DeployFunction = async (hre) => {
@@ -20,6 +21,7 @@ const func: DeployFunction = async (hre) => {
   const bridgeTransfer = await ethers.getContract<BridgeAssistTransferUpgradeable>(
     'BridgeAssistTransferUpgradeable'
   )
+  const mulsigwallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
 
   await deploy<BridgeFactoryUpgradeable__factory>('BridgeFactoryUpgradeable', {
     contract: 'BridgeFactoryUpgradeable',
@@ -33,6 +35,8 @@ const func: DeployFunction = async (hre) => {
           bridgeTransfer.address,
           ethers.constants.AddressZero,
           ethers.constants.AddressZero,
+          ethers.constants.AddressZero,
+          mulsigwallet.address,
           deployer.address,
         ],
       },
@@ -44,3 +48,4 @@ export default func
 
 func.tags = ['BridgeFactoryUpgradeable.deploy']
 func.dependencies = ['BridgeAssistTransferUpgradeable.deploy']
+func.dependencies = ['MultiSigWallet.deploy']

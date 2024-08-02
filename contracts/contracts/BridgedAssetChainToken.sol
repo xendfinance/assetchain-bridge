@@ -27,6 +27,13 @@ contract BridgedAssetChainToken is ERC20, AccessControl {
     event BlacklistedStatusUpdated(address indexed user, bool isBlacklisted);
     event BlacklistStageDisabled();
 
+    address public immutable MULTISIG_WALLET;
+
+    modifier onlyMultisig() {
+        require(msg.sender == MULTISIG_WALLET, "Caller is not the multisig wallet");
+        _;
+    }
+
     /**
      * @notice Initializes token contract
      * @param name_ Token name
@@ -37,6 +44,7 @@ contract BridgedAssetChainToken is ERC20, AccessControl {
      * @param isLockActive_ Is lock stage enabled
      * @param tokenOriginal_ Initial token address on the original network
      * @param chainIdOriginal_ Original network chain id
+     * @param multisigWalletAddress_ Multisig wallet address
      */
     constructor(
         string memory name_,
@@ -46,7 +54,8 @@ contract BridgedAssetChainToken is ERC20, AccessControl {
         address owner_,
         bool isLockActive_,
         address tokenOriginal_,
-        uint256 chainIdOriginal_
+        uint256 chainIdOriginal_,
+        address multisigWalletAddress_
     ) ERC20(name_, symbol_) {
         require(bytes(name_).length != 0, 'Empty name');
         require(bytes(symbol_).length != 0, 'Empty symbol');
@@ -62,6 +71,7 @@ contract BridgedAssetChainToken is ERC20, AccessControl {
         isLockActive = isLockActive_;
         TOKEN_ORIGINAL = tokenOriginal_;
         CHAIN_ID_ORIGINAL = chainIdOriginal_;
+        MULTISIG_WALLET = multisigWalletAddress_;
     }
 
     /**
@@ -88,14 +98,14 @@ contract BridgedAssetChainToken is ERC20, AccessControl {
 
     /**
      * @notice Updates blacklisted status for user
-     * @dev Can only be called by BLACKLISTER_ROLE holder.
+     * @dev Can only be called by the multisig wallet.
      * Blacklisted true can only be called if lock stage is active.
      * @param user User address
      * @param status Blacklisted status
      */
     function setBlacklisted(address user, bool status)
         external
-        onlyRole(BLACKLISTER_ROLE)
+        onlyMultisig
     {
         if (status) {
             require(isLockActive, 'Lock stage is not active');

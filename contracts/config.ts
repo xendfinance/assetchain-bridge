@@ -40,6 +40,12 @@ export const DEFAULT_TOKEN_PARAMS: {
       decimals: 6,
       totalSupply: '2937691509',
     },
+    aUSDCe: {
+      name: 'Test aUSDCe',
+      symbol: 'aUSDC.e',
+      decimals: 6,
+      totalSupply: '2937691509',
+    },
   },
   97: {
     USDT: {
