@@ -22,6 +22,7 @@ export const CHAIN_IDS = {
   ethereum: 11155111,
   bsc: 97,
   base: 84532,
+  bitlayer: 200810
 }
 
 export const DEFAULT_TOKEN_PARAMS: {
@@ -139,6 +140,14 @@ export const DEFAULT_TOKEN_PARAMS: {
       totalSupply: '200000',
     },
   },
+  200810: {
+    WBTC: {
+      name: 'Wrapped Bitlayer BTC',
+      symbol: 'WBTC',
+      decimals: 18,
+      totalSupply: '20000000',
+    },
+  }
 }
 
 // export const BRIDGED_TOKEN_PARAMS: {
@@ -232,6 +241,15 @@ export const BRIDGED_TOKEN_PARAMS: {
       isLockActive: true,
       tokenOriginal: '0x4BCf919e7B32c7e0a8a4fe08F40928fAd5d57b40',
       chainIdOriginal: CHAIN_IDS.arbitrum,
+    },
+    WBTC: {
+      name: 'Wrapped Bitlayer BTC',
+      symbol: 'WBTC',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: '0x3095A7217Cda6EEc1E6BEdACb56974431f2B3623',
+      chainIdOriginal: CHAIN_IDS.bitlayer,
     },
   },
 }

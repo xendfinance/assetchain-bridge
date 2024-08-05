@@ -60,6 +60,12 @@ const config: HardhatUserConfig = {
       deploy: ['deploy/testnet/'],
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
+    bitlayer_testnet: {
+      url: 'https://testnet-rpc.bitlayer.org',
+      tags: ['testnet'],
+      deploy: ['deploy/testnet/'],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
     // polygon_amoy: {
     //   tags: ['testnet'],
     //   deploy: ['deploy/testnet/'],

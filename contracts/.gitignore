@@ -10,5 +10,5 @@ artifacts
 */**/.DS_Store
 yarn-error.log
 .vscode
-dev
+# dev
 typechain

@@ -28,7 +28,10 @@
     "deploy:base_sepolia": "hardhat deploy --export-all dev/contracts.json --network base_sepolia",
     "factory:base_sepolia": "hardhat --network base_sepolia run scripts/factory.ts",
     "bridge:base_sepolia": "hardhat --network base_sepolia run scripts/bridge.ts",
-    "bridgetoken:xend": "hardhat --network xend_testnet run scripts/assetChainBridgeToken.ts"
+    "bridgetoken:xend": "hardhat --network xend_testnet run scripts/assetChainBridgeToken.ts",
+    "factory:bitlayer_testnet": "hardhat --network bitlayer_testnet run scripts/factory.ts",
+    "deploy:bitlayer_testnet": "hardhat deploy --export-all dev/contracts.json --network bitlayer_testnet",
+    "bridge:bitlayer_testnet": "hardhat --network bitlayer_testnet run scripts/bridge.ts"
   },
   "_moduleAliases": {
     "@": "."

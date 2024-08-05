@@ -42,6 +42,8 @@ export const realTypes: Record<RealChainTag, Types> = {
   okex_mainnet: 'mainnet',
   cmp_mainnet: 'mainnet',
   pulse_mainnet: 'mainnet',
+  bitlayer_mainnet: 'mainnet',
+  base_mainnet: 'mainnet',
 
   rinkeby: 'testnet',
   ropsten: 'testnet',
@@ -62,6 +64,7 @@ export const realTypes: Record<RealChainTag, Types> = {
   sepolia: 'testnet',
   amoy: 'testnet',
   base_sepolia_testnet: 'testnet',
+  bitlayer_testnet: 'testnet'
 }
 export const realNames: Record<RealChainTag, string> = {
   localhost: 'Localhost',
@@ -78,6 +81,8 @@ export const realNames: Record<RealChainTag, string> = {
   okex_mainnet: 'OKExChain Mainnet',
   cmp_mainnet: 'CMP Mainnet',
   pulse_mainnet: 'PulseChain',
+  bitlayer_mainnet: 'BitLayer Mainnet',
+  base_mainnet: 'Base Mainnet',
 
   rinkeby: 'Rinkeby',
   ropsten: 'Ropsten',
@@ -98,6 +103,7 @@ export const realNames: Record<RealChainTag, string> = {
   sepolia: 'Sepolia',
   amoy: 'Amoy',
   base_sepolia_testnet: 'Base Sepolia Testnet',
+  bitlayer_testnet: 'BitLayer Testnet'
 }
 export const realSymbols: Record<RealChainTag, string> = {
   localhost: 'LOC',
@@ -114,6 +120,8 @@ export const realSymbols: Record<RealChainTag, string> = {
   okex_mainnet: 'OKT',
   cmp_mainnet: 'CMP',
   pulse_mainnet: 'PLS',
+  bitlayer_mainnet: 'BTC',
+  base_mainnet: 'ETH',
 
   rinkeby: 'ETH',
   ropsten: 'ETH',
@@ -134,6 +142,7 @@ export const realSymbols: Record<RealChainTag, string> = {
   sepolia: 'ETH',
   amoy: 'MATIC',
   base_sepolia_testnet: 'ETH',
+  bitlayer_testnet: 'BTC'
 }
 
 export const types: Record<ChainTag, Types> = {
@@ -171,6 +180,8 @@ export const scanners: Record<RealChainTag, string> = {
   okex_mainnet: 'https://www.oklink.com/en/okc/',
   cmp_mainnet: 'https://mainnet.scan.caduceus.foundation/',
   pulse_mainnet: 'https://scan.pulsechain.com/',
+  bitlayer_mainnet: 'https://www.btrscan.com/',
+  base_mainnet: 'https://basescan.org/',
 
   rinkeby: 'https://rinkeby.etherscan.io/',
   ropsten: 'https://ropsten.etherscan.io/',
@@ -191,6 +202,7 @@ export const scanners: Record<RealChainTag, string> = {
   sepolia: 'https://sepolia.etherscan.io/',
   amoy: 'https://www.oklink.com/ru/amoy',
   base_sepolia_testnet: 'https://sepolia.basescan.org/',
+  bitlayer_testnet: 'https://testnet-scan.bitlayer.org/'
 }
 
 export function node(name: ChainTag): Node {
@@ -264,6 +276,8 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   okex_mainnet: ['https://exchainrpc.okex.org/'],
   cmp_mainnet: ['https://mainnet.block.caduceus.foundation'],
   pulse_mainnet: ['https://rpc.pulsechain.com'],
+  bitlayer_mainnet: ['https://rpc-bitlayer.rockx.com'],
+  base_mainnet: ['https://base-rpc.publicnode.com'],
 
   rinkeby: ['https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
   ropsten: ['https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
@@ -305,5 +319,6 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   base_sepolia_testnet: [
     'https://rpc.notadegen.com/base/sepolia',
     'https://sepolia.base.org'
-  ]
+  ],
+  bitlayer_testnet: ['https://testnet-rpc.bitlayer.org']
 }

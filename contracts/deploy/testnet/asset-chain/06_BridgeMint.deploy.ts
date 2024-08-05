@@ -18,6 +18,23 @@ const func: DeployFunction = async (hre) => {
     contract: 'BridgeAssistMintUpgradeable',
     from: deployer.address,
     args: [],
+    proxy: {
+      owner: deployer.address,
+      proxyContract: 'OpenZeppelinTransparentProxy',
+      execute: {
+        methodName: 'initialize',
+        args: [
+          '0xd3eA0B04FBCCD7B616f5E6c2EAe208ba15C510A1',
+          ethers.utils.parseEther('100'),
+          deployer.address,
+          0,
+          0,
+          deployer.address,
+          [deployer.address],
+          1,
+        ],
+      },
+    },
     log: true,
   })
 }

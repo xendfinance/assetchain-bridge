@@ -3,6 +3,7 @@ import readlineSync from 'readline-sync'
 import colors from 'colors'
 import { ethers } from 'hardhat'
 import * as CONTRACTS from '../contracts.json'
+import * as _CONTRACTS from '../dev/contracts.json'
 import { BigNumber, Contract, ContractTransaction } from 'ethers'
 
 enum BRIDGETYPE {
@@ -21,16 +22,17 @@ async function init() {
   const { chainId, name } = await ethers.provider.getNetwork()
   console.log(colors.bold.yellow(`ChainId ${chainId} network ${name}`))
   const signers = await ethers.getSigners()
-  if (signers.length > 1) throw new Error(`Signers must be at least 2`)
+  if (signers.length < 1) throw new Error(`Signers must be at least 2`)
   const contract = CONTRACTS[getIndex(chainId)]
   if (!contract) throw new Error(`Contract not deployed on network ${name} ${chainId}`)
-  const factoryAbi = contract[0].contracts.BridgeFactoryUpgradeable.abi
+  const factoryAbi = _CONTRACTS['42421'][0].contracts.BridgeFactoryUpgradeable.abi
 
   const tokenAddress = contract[0].contracts.USDC.address // you can choose any token of your choose, USDC,USDT,DAI
   const tokenAbi = contract[0].contracts.USDC.abi
   const tokenContract = await ethers.getContractAt(tokenAbi, tokenAddress)
   const bridgetokenAddress = CONTRACTS[42421][0].contracts.USDC.address // you can choose any token of your choose, USDC,USDT,DAI
   const bridgetokenAbi = CONTRACTS[42421][0].contracts.USDC.abi
+  const mulsigwalletAbi = _CONTRACTS['42421'][0].contracts.MultiSigWallet.abi
   const owner = signers[0]
   const user = signers[1]
 
@@ -55,6 +57,7 @@ async function init() {
     bridgetokenAddress,
     chainId,
     factoryAbi,
+    mulsigwalletAbi,
   }
 }
 
@@ -63,9 +66,10 @@ async function createBridge(
   token: string,
   type: BRIDGETYPE,
   relayers: string,
-  factoryContract: Contract
+  factoryContract: Contract,
+  mulsigwallet: Contract
 ) {
-  const { owner, bridgetokenAddress, bridgetokenAbi, chainId } = configs
+  const { owner, bridgetokenAddress, bridgetokenAbi, chainId, user } = configs
   console.log(colors.blue(`Creating bridge of type ${type}`))
   if (type === BRIDGETYPE.MINT && chainId !== 42421)
     throw new Error(
@@ -82,9 +86,9 @@ async function createBridge(
   _relayers.forEach((r) => {
     if (!ethers.utils.isAddress(r)) throw new Error(`${r} is not a valid relayer address`)
   })
-  const createBridgetx: ContractTransaction = await factoryContract
-    .connect(owner)
-    .createBridgeAssist(
+  const createBridgeData = factoryContract.interface.encodeFunctionData(
+    'createBridgeAssist',
+    [
       type,
       token,
       DEFAULT_LIMIT_PER_SEND,
@@ -93,9 +97,29 @@ async function createBridge(
       DEFAULT_FEE_FULFILL,
       owner.address,
       _relayers,
-      _relayers.length
-    )
-  await createBridgetx.wait(1)
+      _relayers.length,
+    ]
+  )
+  const transactionCount = await mulsigwallet.transactionCount()
+  console.log(colors.green(`transactionCount: ${transactionCount}`))
+  const tx = await mulsigwallet.connect(owner).createTransaction(factoryContract.address, createBridgeData)
+  await tx.wait(1)
+  console.log(colors.green(`multisig created trx hash: ${tx.hash}`))
+  const createBridgetx = await mulsigwallet.connect(user).approveTransaction(transactionCount)
+  // const createBridgetx: ContractTransaction = await factoryContract
+  //   .connect(owner)
+  //   .createBridgeAssist(
+  //     type,
+  //     token,
+  //     DEFAULT_LIMIT_PER_SEND,
+  //     owner.address,
+  //     DEFAULT_FEE_SEND,
+  //     DEFAULT_FEE_FULFILL,
+  //     owner.address,
+  //     _relayers,
+  //     _relayers.length
+  //   )
+  await createBridgetx.wait()
   console.log(colors.green(`created bridge type of ${type} hash: ${createBridgetx.hash}`))
   if (type === BRIDGETYPE.MINT) {
     console.log(colors.yellow(`Trying to grant createdbrigde role for token...`))
@@ -129,14 +153,26 @@ async function createBridge(
   }
 }
 // use this to add bridge assist contract already deployed....
-async function addBridge(config: any, bridgeAddress: string, factoryContract: Contract) {
-  const { owner } = config
+async function addBridge(config: any, bridgeAddress: string, factoryContract: Contract, mulsigwallet: Contract, ) {
+  const { owner, user } = config
   if (!ethers.utils.isAddress(bridgeAddress))
     throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
   console.log(colors.yellow(`Adding bridge assist ${bridgeAddress} to factory...`))
-  const tx: ContractTransaction = await factoryContract
-    .connect(owner)
-    .addBridgeAssists([bridgeAddress])
+  const addBridgeData = factoryContract.interface.encodeFunctionData(
+    'addBridgeAssists',
+    [
+      [bridgeAddress]
+    ]
+  )
+  const transactionCount = await mulsigwallet.transactionCount()
+  console.log(colors.green(`transactionCount: ${transactionCount}`))
+  const _tx = await mulsigwallet.connect(owner).createTransaction(factoryContract.address, addBridgeData)
+  await _tx.wait(1)
+  console.log(colors.green(`multisig created trx hash: ${_tx.hash}`))
+  const tx = await mulsigwallet.connect(user).approveTransaction(transactionCount)
+  // const tx: ContractTransaction = await factoryContract
+  //   .connect(owner)
+  //   .addBridgeAssists([bridgeAddress])
   await tx.wait(1)
   console.log(colors.green(`Added bridge assist successfully. hash: ${tx.hash}`))
 }
@@ -144,15 +180,28 @@ async function addBridge(config: any, bridgeAddress: string, factoryContract: Co
 async function removeBridgeAssists(
   config: any,
   bridgeAddress: string,
-  factoryContract: Contract
+  factoryContract: Contract,
+  mulsigwallet: Contract
 ) {
-  const { owner } = config
+  const { owner, user } = config
   if (!ethers.utils.isAddress(bridgeAddress))
     throw new Error(`Bridge Assit address ${bridgeAddress} is not a valid`)
   console.log(colors.yellow(`Removing bridge assist ${bridgeAddress} from factory...`))
-  const tx: ContractTransaction = await factoryContract
-    .connect(owner)
-    .removeBridgeAssists([bridgeAddress])
+  const removeBridgeData = factoryContract.interface.encodeFunctionData(
+    'removeBridgeAssists',
+    [
+      [bridgeAddress]
+    ]
+  )
+  const transactionCount = await mulsigwallet.transactionCount()
+  console.log(colors.green(`transactionCount: ${transactionCount}`))
+  const _tx = await mulsigwallet.connect(owner).createTransaction(factoryContract.address, removeBridgeData)
+  await _tx.wait(1)
+  console.log(colors.green(`multisig created trx hash: ${_tx.hash}`))
+  const tx = await mulsigwallet.connect(user).approveTransaction(transactionCount)
+  // const tx: ContractTransaction = await factoryContract
+  //   .connect(owner)
+  //   .removeBridgeAssists([bridgeAddress])
   await tx.wait(1)
   console.log(colors.green(`Removed bridge assist successfully. hash: ${tx.hash}`))
 }
@@ -194,7 +243,7 @@ async function main() {
   const config = await init()
   console.log(`done....`)
 
-  const { factoryContract } = await initFactory(config)
+  const { factoryContract, mulsigwalletContract } = await initFactory(config)
 
   let running = true
 
@@ -226,7 +275,7 @@ async function main() {
           colors.bold.yellow('input relayer address(es): ')
         )
         try {
-          await createBridge(config, _token, type - 1, relayers, factoryContract)
+          await createBridge(config, _token, type - 1, relayers, factoryContract, mulsigwalletContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -240,7 +289,7 @@ async function main() {
         //   continue
         // }
         try {
-          await addBridge(config, choiceAdd, factoryContract)
+          await addBridge(config, choiceAdd, factoryContract, mulsigwalletContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -254,7 +303,7 @@ async function main() {
         //   continue
         // }
         try {
-          await removeBridgeAssists(config, choiceremove, factoryContract)
+          await removeBridgeAssists(config, choiceremove, factoryContract, mulsigwalletContract)
         } catch (error: any) {
           console.log(colors.red(`Error ${error.message}`))
         }
@@ -278,7 +327,7 @@ async function main() {
 }
 
 async function initFactory(config: any) {
-  const { factoryAbi, owner } = config
+  const { factoryAbi, owner, mulsigwalletAbi } = config
   let selected = false
   console.log(colors.bold.yellow('Input factory address: '))
   let factoryaddress = ''
@@ -290,10 +339,14 @@ async function initFactory(config: any) {
       selected = true
     }
   }
-
+  console.log(colors.yellow(`Getting Factory Contract...`))
   const factoryContract = await ethers.getContractAt(factoryAbi, factoryaddress)
+  console.log(colors.yellow(`Getting Multisig Wallet...`))
+  const mulsigwalletAddress = await factoryContract.MULTISIG_WALLET()
+  const mulsigwalletContract = await ethers.getContractAt(mulsigwalletAbi, mulsigwalletAddress)
 
   console.log(colors.green(`Factory Contract initiated ${factoryContract.address}`))
+  console.log(colors.green(`Multisigwallet Contract initiated ${mulsigwalletContract.address}`))
 
   console.log(colors.yellow(`getting creator role...`))
   const creatorRole: string = await factoryContract.CREATOR_ROLE()
@@ -309,7 +362,7 @@ async function initFactory(config: any) {
     await tx.wait(1)
     console.log(colors.green(`Granted ${owner.address} creator role. hash ${tx.hash}`))
   }
-  return { factoryContract, creatorRole }
+  return { factoryContract, creatorRole, mulsigwalletContract }
 }
 
 function initMessage() {
