@@ -71,6 +71,7 @@ export const universalRpc = (): RpcFunction => {
       celo_mainnet: ankr(chainTag),
       pulse_mainnet: ankr(chainTag),
       base_mainnet: ankr(chainTag),
+      bitlayer_mainnet: extraRpcs.bitlayer_mainnet[0],
 
       avax_testnet: ankr(chainTag),
       polygon_testnet: ankr(chainTag),
@@ -99,6 +100,7 @@ export const universalRpc = (): RpcFunction => {
       base_sepolia: extraRpcs.base_sepolia[0],
       eth_sepolia: extraRpcs.eth_sepolia[0],
       polygon_amoy: extraRpcs.polygon_amoy[0],
+      bitlayer_testnet: extraRpcs.bitlayer_testnet[0]
     } as any
     return a[chainTag]
   }

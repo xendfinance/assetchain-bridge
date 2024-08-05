@@ -12,7 +12,7 @@ export const XEND_CHAIN = '42421'
 
 export const config = defineConfig({
   DEBUG: IS_DEBUG,
-  chainIds: ['97', '421614', '42421', '11155111', '80002', '84532'],
+  chainIds: ['97', '421614', '42421', '11155111', '80002', '84532', '200810'],
   DEFAULT_CHAINID: IS_DEBUG ? '97' : '97',
   rpc: (chainTag) => {
     const uni = universalRpc()
@@ -93,6 +93,14 @@ export const contracts = defineContracts({
       'BridgeFactoryUpgradeable'
     ),
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '84532'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+  },
+  '200810': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '200810'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '200810'>(
       'BridgeAssistTransferUpgradeable'
     ),
   },
