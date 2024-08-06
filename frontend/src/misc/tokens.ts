@@ -7,7 +7,7 @@ import UsdtIcon from '@/components/base/icons/UsdtIcon.vue'
 import UsdcIcon from '@/components/base/icons/UsdcIcon.vue'
 import WethIcon from '@/components/base/icons/WethIcon.vue'
 import WntIcon from '@/components/base/icons/WntIcon.vue'
-import BitcoinIcon from '@/components/base/icons/BitcoinIcon.vue'
+import BitcoinIcon from '@/components/base/icons/BItcoinIcon.vue'
 
 
 export const tokensLabels: {

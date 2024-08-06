@@ -79,6 +79,7 @@ export const useToken = defineContractStore<
       '80002': 6,
       '84532': 6,
       '11155111': 6,
+      '200810': 6
     },
     tokens: genPerChainId(() => []),
     contractBalances: genPerChainId(() => BigNumber.from(0)),
