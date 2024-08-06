@@ -45,6 +45,7 @@ export const realTypes: Record<RealChainTag, Types> = {
   cmp_mainnet: 'mainnet',
   pulse_mainnet: 'mainnet',
   base_mainnet: 'mainnet',
+  bitlayer_mainnet: 'mainnet',
 
   rinkeby: 'testnet',
   ropsten: 'testnet',
@@ -64,7 +65,8 @@ export const realTypes: Record<RealChainTag, Types> = {
   arbitrum_sepolia: 'testnet',
   base_sepolia: 'testnet',
   eth_sepolia: 'testnet',
-  polygon_amoy: 'testnet'
+  polygon_amoy: 'testnet',
+  bitlayer_testnet: 'testnet'
 }
 export const realNames: Record<RealChainTag, string> = {
   localhost: 'Localhost',
@@ -82,6 +84,7 @@ export const realNames: Record<RealChainTag, string> = {
   cmp_mainnet: 'CMP Mainnet',
   pulse_mainnet: 'PulseChain Mainnet',
   base_mainnet: 'Base',
+  bitlayer_mainnet: 'Bitlayer Mainnet',
 
   rinkeby: 'Rinkeby',
   ropsten: 'Ropsten',
@@ -97,11 +100,12 @@ export const realNames: Record<RealChainTag, string> = {
   okex_testnet: 'OKExChain Testnet',
   cmp_testnet: 'CMP Testnet',
   pulse_testnet: 'PulseChain Testnet',
-  xend_testnet: 'XEND',
+  xend_testnet: 'Asset Chain Testnet',
   arbitrum_sepolia: 'Arbitrum Testnet',
   base_sepolia: 'Base Sepolia Testnet',
   eth_sepolia: 'Sepolia',
-  polygon_amoy: 'Amoy'
+  polygon_amoy: 'Amoy',
+  bitlayer_testnet: 'Bitlayer testnet'
 }
 export const realSymbols: Record<RealChainTag, string> = {
   localhost: 'LOC',
@@ -119,6 +123,7 @@ export const realSymbols: Record<RealChainTag, string> = {
   cmp_mainnet: 'CMP',
   pulse_mainnet: 'PLS',
   base_mainnet: 'ETH',
+  bitlayer_mainnet: 'BTC',
 
   rinkeby: 'ETH',
   ropsten: 'ETH',
@@ -138,7 +143,8 @@ export const realSymbols: Record<RealChainTag, string> = {
   arbitrum_sepolia: 'ETH',
   base_sepolia: 'ETH',
   eth_sepolia: 'ETH',
-  polygon_amoy: 'MATIC'
+  polygon_amoy: 'MATIC',
+  bitlayer_testnet: 'BTC'
 
 }
 
@@ -179,6 +185,7 @@ export const scanners: Record<RealChainTag, string> = {
   pulse_mainnet:
     'https://scan.mypinata.cloud/ipfs/bafybeih3olry3is4e4lzm7rus5l3h6zrphcal5a7ayfkhzm5oivjro2cp4/#/',
   base_mainnet: 'https://basescan.org/',
+  bitlayer_mainnet: 'https://www.btrscan.com/',
 
   rinkeby: 'https://rinkeby.etherscan.io/',
   ropsten: 'https://ropsten.etherscan.io/',
@@ -199,6 +206,7 @@ export const scanners: Record<RealChainTag, string> = {
   base_sepolia: 'https://sepolia.basescan.org/',
   eth_sepolia: 'https://ethereum-sepolia-rpc.publicnode.com/',
   polygon_amoy: 'https://polygon-amoy-bor-rpc.publicnode.com/',
+  bitlayer_testnet: 'https://testnet.btrscan.com/'
 }
 
 export function node(name: ChainTag): Node {
@@ -273,6 +281,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   cmp_mainnet: ['https://mainnet.block.caduceus.foundation'],
   pulse_mainnet: ['https://pulsechain.publicnode.com'],
   base_mainnet: ['https://base-rpc.publicnode.com'],
+  bitlayer_mainnet: ['https://rpc-bitlayer.rockx.com'],
 
   rinkeby: ['https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
   ropsten: ['https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
@@ -303,4 +312,5 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   base_sepolia: ['https://public.stackup.sh/api/v1/node/base-sepolia'],
   eth_sepolia: ['https://ethereum-sepolia-rpc.publicnode.com'],
   polygon_amoy: ['https://polygon-amoy-bor-rpc.publicnode.com'],
+  bitlayer_testnet: ['https://testnet-rpc.bitlayer.org']
 }

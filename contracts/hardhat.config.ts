@@ -28,7 +28,7 @@ const config: HardhatUserConfig = {
       deploy: ['deploy/localhost/'],
 
       initialBaseFeePerGas: 0,
-      gasPrice: 0,
+      gasPrice: 0
 
       // tags: ['fork'],
       // deploy: ['deploy/fork/'],
@@ -40,25 +40,31 @@ const config: HardhatUserConfig = {
       tags: ['testnet'],
       deploy: ['deploy/testnet/'],
       url: 'https://enugu-rpc.assetchain.org',
-      accounts: [process.env.PRIVATE_TEST!]
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!]
     },
     arbitrum_sepolia: {
       tags: ['testnet'],
       deploy: ['deploy/testnet/'],
       url: 'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
-      accounts: [process.env.PRIVATE_TEST!],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
     bsc_testnet: {
       tags: ['testnet'],
       deploy: ['deploy/testnet/'],
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
-      accounts: [process.env.PRIVATE_TEST!],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
     base_sepolia: {
       url: 'https://base-sepolia-rpc.publicnode.com',
       tags: ['testnet'],
       deploy: ['deploy/testnet/'],
-      accounts: [process.env.PRIVATE_TEST!],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
+    bitlayer_testnet: {
+      url: 'https://testnet-rpc.bitlayer.org',
+      tags: ['testnet'],
+      deploy: ['deploy/testnet/'],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
     // polygon_amoy: {
     //   tags: ['testnet'],

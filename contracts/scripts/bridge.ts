@@ -101,7 +101,7 @@ async function getUserTransactions(config: any, user: string, bridgeAssist: Cont
   for (let i = 0; i < ts.length; i++) {
     const t = ts[i]
     console.log(colors.green(`index ${i}`))
-    console.log(colors.green(`Amount ${t.amount.toNumber()}`))
+    console.log(colors.green(`Amount ${BigNumber.from(t.amount).toString()}`))
     console.log(colors.green(`toUser ${t.toUser}`))
     console.log(colors.green(`chain ${getChainName(t.toChain)}`))
     console.log(colors.green(`nonce ${t.nonce} `))
@@ -134,10 +134,10 @@ async function send(
   let allowance: BigNumber
   if (type !== BRIDGETYPE.MINT) {
     allowance = await tokenContract.allowance(owner.address, bridgeAssist.address)
-    console.log(colors.blue(`bridge assist allowance ${allowance.toNumber()}...`))
+    console.log(colors.blue(`bridge assist allowance ${BigNumber.from(allowance).toString()}...`))
   }
-
-  const amount = ethers.utils.parseUnits(_amount, decimals)
+  const a = BigNumber.from(+_amount)
+  const amount = ethers.utils.parseUnits(a.toString(), decimals)
 
   if (type !== BRIDGETYPE.MINT && amount.gt(allowance!)) {
     console.log(colors.yellow(`amount to be sent is greater than allowance`))
@@ -212,15 +212,18 @@ async function claim(
     }
   }
 
-  if (type === BRIDGETYPE.TRANSFER){
+  if (type === BRIDGETYPE.TRANSFER) {
     const decimals = await tokenContract.decimals()
     console.log(colors.green(`Token Decimals ${decimals}`))
     console.log(colors.yellow(`Getting bridge assist token balance...`))
     const balance = await tokenContract.balanceOf(bridgeAssist.address)
     console.log(colors.green(`Bridge Assit Token Balance ${balance}`))
-    if (+balance < +fultx.amount){
+    if (+balance < +fultx.amount) {
       console.log(colors.yellow(`Bridge assist does not have enough tokens. sending...`))
-      const tx: ContractTransaction = await tokenContract.transfer(bridgeAssist.address, fultx.amount)
+      const tx: ContractTransaction = await tokenContract.transfer(
+        bridgeAssist.address,
+        fultx.amount
+      )
       await tx.wait(1)
       console.log(colors.green(`Transfer of tokens done ${tx.hash}`))
     }
@@ -248,6 +251,10 @@ function getChainName(chain: string) {
       return 'Asset Chain'
     case 'evm.421614':
       return 'Arbitrium Sepolia'
+    case 'evm.200810':
+      return 'Bitlayer Testnet'
+    case 'evm.84532':
+      return 'Base Sepolia'
     default:
       return 'Unknown'
   }
@@ -285,7 +292,8 @@ function chainTypeMessage() {
   console.log(colors.blue('2:  ') + `BSC chain`)
   console.log(colors.blue('3:  ') + `Sepolia Chain`)
   console.log(colors.blue('4:  ') + `Base Sepolia Chain`)
-  console.log(colors.blue('5:  ') + `quit process`)
+  console.log(colors.blue('5:  ') + `BitLayer Testnet`)
+  console.log(colors.blue('6:  ') + `quit process`)
 }
 
 function bridgeTypeMessage() {
@@ -382,11 +390,14 @@ async function initBridgeAssit(config: any) {
 
       if (bridgeAssist) {
         const address = (tokenContract = await bridgeAssist.TOKEN())
+        console.log(address)
         if (tokenType === 'assetchain') {
+          console.log(address, type)
           tokenContract = await ethers.getContractAt(
             type === BRIDGETYPE.MINT ? bridgetokenAbi : tokenAbi,
             address
           )
+          console.log(address, 'sdjshdjk')
         } else if (tokenType === 'circle') {
           tokenContract = await ethers.getContractAt(
             type === BRIDGETYPE.MINT ? circletokenAbi : tokenAbi,
@@ -437,9 +448,9 @@ async function main() {
         const chainTypeChoice = readlineSync.question(colors.bold.yellow('Your choice: '))
         const type = _chainType(chainTypeChoice)
         if (!type) continue
-        if (type > 4) return (running = false)
+        if (type > 5) return (running = false)
         const chain =
-          type === 1 ? '42421' : type === 2 ? '97' : type === 3 ? '421614' : '84532'
+          type === 1 ? '42421' : type === 2 ? '97' : type === 3 ? '421614' : type === 4 ?  '84532' : '200810'
         try {
           await addChains(config, chain, bridge.bridgeAssist)
         } catch (error: any) {
@@ -452,9 +463,9 @@ async function main() {
         const chainType = readlineSync.question(colors.bold.yellow('Your choice: '))
         const _type = _chainType(chainType)
         if (!_type) continue
-        if (_type > 4) return (running = false)
+        if (_type > 5) return (running = false)
         const _chain =
-          _type === 1 ? '42421' : _type === 2 ? '97' : _type === 3 ? '421614' : '84532'
+          _type === 1 ? '42421' : _type === 2 ? '97' : _type === 3 ? '421614' : _type === 4 ?  '84532' : '200810'
         // const isAddress = ethers.utils.isAddress(choiceAdd)
         // if (!isAddress) {
         //   console.log(colors.red(`Invalid address ${choiceAdd}`))
@@ -485,7 +496,7 @@ async function main() {
         const _fromChain = readlineSync.question(colors.bold.yellow('Your choice: '))
         const _from_chain = _chainType(_fromChain)
         if (!_from_chain) continue
-        if (_from_chain > 4) return (running = false)
+        if (_from_chain > 5) return (running = false)
         const _chain_ =
           _from_chain === 1
             ? '42421'
@@ -493,7 +504,7 @@ async function main() {
             ? '97'
             : _from_chain === 3
             ? '421614'
-            : '84532'
+            : _from_chain === 4 ?  '84532' : '200810'
         console.log(colors.blue('enter amount to claim'))
         const _amounttoClaim = readlineSync.question(colors.bold.yellow('input amount: '))
         if (!isNumeric(_amounttoClaim)) {

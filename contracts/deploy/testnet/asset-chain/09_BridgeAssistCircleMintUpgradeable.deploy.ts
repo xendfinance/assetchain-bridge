@@ -18,26 +18,10 @@ const func: DeployFunction = async (hre) => {
     contract: 'BridgeAssistCircleMintUpgradeable',
     from: deployer.address,
     args: [],
-    proxy: {
-        owner: deployer.address,
-        proxyContract: 'OpenZeppelinTransparentProxy',
-        execute: {
-          methodName: 'initialize',
-          args: [
-            '0x39C6b75fAeAb6B54541BE34860AE6250263377e9',
-            100000000,
-            deployer.address,
-            0,
-            0,
-            deployer.address,
-            [deployer.address],
-            1
-          ],
-        },
-      },
     log: true,
   })
 }
 export default func
 
 func.tags = ['BridgeAssistCircleMintUpgradeable.deploy']
+func.dependencies = ['MultiSigWallet.deploy']

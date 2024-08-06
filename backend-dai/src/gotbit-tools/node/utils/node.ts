@@ -192,7 +192,7 @@ export const scanners: Record<RealChainTag, string> = {
   okex_testnet: 'https://www.oklink.com/en/okc-test/',
   cmp_testnet: 'https://galaxy.scan.caduceus.foundation/',
   pulse_testnet: 'https://scan.v4.testnet.pulsechain.com',
-  xend_testnet: 'https://testnet.xendrwachain.com/',
+  xend_testnet: 'https://enugu-rpc.assetchain.org/',
   arbitrum_sepolia: 'https://sepolia.arbiscan.io/',
   base_sepolia: 'https://public.stackup.sh/api/v1/node/base-sepolia',
   eth_sepolia: 'https://ethereum-sepolia-rpc.publicnode.com',

@@ -4,6 +4,7 @@ import { IS_DEBUG } from '@/gotbit.config'
 import BinanceIcon from '@/components/base/icons/BinanceIcon.vue'
 import ArbitumIcon from '@/components/base/icons/ArbitumIcon.vue'
 import XendIcon from '@/components/base/icons/XendIcon.vue'
+import BitlayerIcon from '@/components/base/icons/BitlayerIcon.vue'
 
 import EthereumIcon from '@/components/base/icons/EthereumIcon.vue'
 import AvaxIconVue from '@/components/base/icons/AvaxIcon.vue'
@@ -13,8 +14,8 @@ import PulseIconVue from '@/components/base/icons/PulseIconVue.vue'
 import BaseIconVue from '@/components/base/icons/BaseIconVue.vue'
 
 export const REAL_CHAIN_IDS: ChainId[] = IS_DEBUG
-  ? ['97', '421614', '42421', '11155111', '80002', '84532']
-  : ['97', '421614', '42421', '84532']
+  ? ['97', '421614', '42421', '11155111', '80002', '84532', '200810']
+  : ['97', '421614', '42421', '84532', '200810']
 
 export const chainsLabels: { value: ChainId; label: string; component: any }[] = IS_DEBUG
   ? [
@@ -28,6 +29,7 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       { value: '421614', label: 'Arbitrum', component: ArbitumIcon },
       { value: '42421', label: 'Asset Chain', component: XendIcon },
       { value: '97', label: 'BSC', component: BinanceIcon },
+      { value: '200810', label: 'Bitlayer', component: BitlayerIcon },
     ]
   : [
       // { value: '97', label: 'BSC', component: BinanceIcon },
@@ -37,4 +39,5 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       { value: '421614', label: 'Arbitrum', component: ArbitumIcon },
       { value: '42421', label: 'Asset Chain', component: XendIcon },
       { value: '97', label: 'BSC', component: BinanceIcon },
+      { value: '200810', label: 'Bitlayer', component: BitlayerIcon },
     ]

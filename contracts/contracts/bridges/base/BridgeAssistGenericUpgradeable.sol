@@ -436,19 +436,19 @@ abstract contract BridgeAssistGenericUpgradeable is
         emit LimitPerSendSet(limitPerSend_);
     }
 
-    /// @dev withdraw tokens from bridge
-    /// @param token_ token to withdraw
-    /// @param to the address the tokens will be sent
-    /// @param amount amount to withdraw
-    function withdraw(
-        IERC20Upgradeable token_,
-        address to,
-        uint256 amount
-    ) external onlyRole(MANAGER_ROLE) {
-        require(to != address(0), 'To: zero address');
-        require(amount != 0, 'Amount: zero');
-        SafeERC20Upgradeable.safeTransfer(token_, to, amount);
-    }
+    // /// @dev withdraw tokens from bridge
+    // /// @param token_ token to withdraw
+    // /// @param to the address the tokens will be sent
+    // /// @param amount amount to withdraw
+    // function withdraw(
+    //     IERC20Upgradeable token_,
+    //     address to,
+    //     uint256 amount
+    // ) external onlyRole(MANAGER_ROLE) {
+    //     require(to != address(0), 'To: zero address');
+    //     require(amount != 0, 'Amount: zero');
+    //     SafeERC20Upgradeable.safeTransfer(token_, to, amount);
+    // }
 
     /// @dev pausing the contract
     function pause() external whenNotPaused onlyRole(MANAGER_ROLE) {

@@ -7,7 +7,7 @@ import axios from 'axios'
 const baseURL = import.meta.env.VITE_BACKEND_LINK
 // const baseURL = 'http://localhost:3000'
 
-export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT' | 'aUSDC.e'
+export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT' | 'aUSDC.e' | 'WBTC'
 
 const getUrl = (symbol: Symbol) => {
   switch (symbol) {
@@ -23,6 +23,8 @@ const getUrl = (symbol: Symbol) => {
       return import.meta.env.VITE_BACKEND_LINK_WNT
     case 'aUSDC.e':
       return import.meta.env.VITE_BACKEND_LINK_AUSDCE
+    case 'WBTC':
+      return import.meta.env.VITE_BACKEND_LINK_WBTC
     default:
       return import.meta.env.VITE_BACKEND_LINK_USDT
   }

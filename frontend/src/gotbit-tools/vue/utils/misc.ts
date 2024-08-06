@@ -16,6 +16,7 @@ export const realChainIds = {
   cmp_mainnet: 256256,
   pulse_mainnet: 369,
   base_mainnet: 8453,
+  bitlayer_mainnet: 200901,
 
 
   rinkeby: 4,
@@ -36,7 +37,8 @@ export const realChainIds = {
   arbitrum_sepolia: 421614,
   base_sepolia: 84532,
   polygon_amoy: 80002,
-  eth_sepolia: 11155111
+  eth_sepolia: 11155111,
+  bitlayer_testnet: 200810
 }
 
 export const REMOTE_DEV_PREFIX = '10000'
