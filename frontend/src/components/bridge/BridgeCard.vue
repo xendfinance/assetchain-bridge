@@ -191,7 +191,7 @@ const web3 = useWeb3()
 // )
 
 const isNativeToken = computed(() => {
-  return 'RWA' === props.tokenSymbol
+  return 'RWA' === props.tokenSymbol || props.tokenSymbol === 'BTC'
 })
 const decimals = computed(() => token.decimals[web3.chainId])
 const decimalsTo = computed(() => token.decimals[unref(to) as ChainId])
@@ -248,7 +248,7 @@ watch(
       to.value = normalizedChainsLabels.value[1]?.value
     }
 
-    if (isNativeToken.value && from.value === '42421') toggle()
+    if ((isNativeToken.value && from.value === '42421') || (isNativeToken.value && from.value === '200810')) toggle()
 
     chainsTo.value = isNativeToken.value
       ? []
@@ -371,7 +371,7 @@ const isValidInput = computed(() => {
     const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
 
     return (
-      (Number(bridgeUI.inputAmount) >= 0.1 &&
+      (
         amount.gt(0) &&
         amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
@@ -393,7 +393,7 @@ const isValid = computed(() => {
     // if (allowance(from.value).lt(bridgeUI.inputAmount.toBigNumber()) && amount.gt(0))
     //   return true
     return (
-      (Number(bridgeUI.inputAmount) >= 0.1 &&
+      (
         amount.gt(0) &&
         amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&

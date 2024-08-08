@@ -174,7 +174,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             factory.assistAndTokenAddresses[web3.chainId].find(
               (item) =>
                 item.token ===
-                (token.symbol === 'RWA'
+                (token.symbol === 'RWA' || token.symbol === 'BTC'
                   ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
                   : _totoken.value)
             )?.bridgeAssist ?? ''
@@ -221,7 +221,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           //   token.symbol === 'RWA' && chainId === '42421'
           //     ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
           //     : token.tokenAddress
-          if (token.symbol === 'RWA' && chainId === '42421') {
+          if ((token.symbol === 'RWA' && chainId === '42421') || (token.symbol === 'BTC' && chainId === '200810')) {
             tokenAddr = DEFAULT_NATIVE_TOKEN_CONTRACT_2
           } else {
             const _token = token.tokens[chainId].find((t) => t.label === token.symbol)
@@ -288,7 +288,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         let tokenAddr = token.tokenAddress
         let fulfilledAt  = BigNumber.from(0)
         let bridgeAddress = null
-        if (token.symbol === 'RWA'){
+        if (token.symbol === 'RWA' || token.symbol === 'BTC'){
           tokenAddr = DEFAULT_NATIVE_TOKEN_CONTRACT_2
         }else {
           const _token = token.tokens[chainId].find(t => t.label === token.symbol)
