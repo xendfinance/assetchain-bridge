@@ -2,7 +2,6 @@ import readlineSync from 'readline-sync'
 import colors from 'colors'
 import { ethers } from 'hardhat'
 import * as CONTRACTS from '../contracts.json'
-import * as _CONTRACTS from '../dev/contracts.json'
 import * as ABI from './abi.json'
 import { BigNumber, Contract, ContractTransaction } from 'ethers'
 
@@ -41,7 +40,7 @@ async function init() {
     CONTRACTS['421614'][0].contracts.BridgeAssistTransferUpgradeable.abi
   const bridgeMintAbi = CONTRACTS['42421'][0].contracts.BridgeAssistMintUpgradeable.abi
   const bridgeNativeAbi =
-    _CONTRACTS['200810'][0].contracts.BridgeAssistNativeUpgradeable.abi
+    CONTRACTS['42421'][0].contracts.BridgeAssistNativeUpgradeable.abi
   const tokenAddress = contract[0].contracts.USDC.address // you can choose any token of your choose, USDC,USDT,DAI
   const tokenAbi = contract[0].contracts.USDC.abi
   const circletokenAbi = ABI.abi
@@ -118,7 +117,6 @@ async function send(
   tokenContract: Contract,
   tokenType: 'assetchain' | 'circle' | 'default'
 ) {
-  if (type === BRIDGETYPE.NATIVE) throw new Error('Sending is not supported in Native bridge type')
   const { owner, chainId } = config
   console.log(colors.yellow(`checking if to chain is supported...`))
   const isSupportedChain = await bridgeAssist.isSupportedChain(`evm.${toChain}`)
@@ -138,8 +136,8 @@ async function send(
     allowance = await tokenContract.allowance(owner.address, bridgeAssist.address)
     console.log(colors.blue(`bridge assist allowance ${BigNumber.from(allowance).toString()}...`))
   }
-  // const a = BigNumber.from(+_amount)
-  const amount = ethers.utils.parseUnits(_amount.toString(), decimals)
+  const a = BigNumber.from(+_amount)
+  const amount = ethers.utils.parseUnits(a.toString(), decimals)
 
   if (type !== BRIDGETYPE.MINT && amount.gt(allowance!)) {
     console.log(colors.yellow(`amount to be sent is greater than allowance`))
@@ -168,7 +166,7 @@ async function send(
   }
   const tx2: ContractTransaction = await bridgeAssist
     .connect(owner)
-    .send(ethers.utils.parseEther(_amount), owner.address, `evm.${toChain}`)
+    .send(amount, owner.address, `evm.${toChain}`)
   console.log(
     colors.green(
       `tokens sent to bridgeAssist ${bridgeAssist.address} ${getChainName(
@@ -367,7 +365,6 @@ async function initBridgeAssit(config: any) {
       let tokenContract: Contract | undefined = undefined
       let tokenName: string = ''
       let tokenType: 'assetchain' | 'circle' | 'default' = 'default'
-      let _address : string = ''
       switch (choice) {
         case 1:
           bridgeAssist = await ethers.getContractAt(bridgetransferAbi, bridgeAddress)
@@ -392,37 +389,29 @@ async function initBridgeAssit(config: any) {
       }
 
       if (bridgeAssist) {
-        if (type === BRIDGETYPE.NATIVE){
-          _address = '0x0000000000000000000000000000000000000001'
-        }else {
-          _address = (tokenContract = await bridgeAssist.TOKEN())
+        const address = (tokenContract = await bridgeAssist.TOKEN())
+        console.log(address)
+        if (tokenType === 'assetchain') {
+          console.log(address, type)
+          tokenContract = await ethers.getContractAt(
+            type === BRIDGETYPE.MINT ? bridgetokenAbi : tokenAbi,
+            address
+          )
+          console.log(address, 'sdjshdjk')
+        } else if (tokenType === 'circle') {
+          tokenContract = await ethers.getContractAt(
+            type === BRIDGETYPE.MINT ? circletokenAbi : tokenAbi,
+            address
+          )
+        } else {
+          tokenContract = await ethers.getContractAt(
+            type === BRIDGETYPE.MINT ? tokenAbi : tokenAbi,
+            address
+          )
         }
-        
-        console.log(_address)
-        if (type !== BRIDGETYPE.NATIVE){
-          if (tokenType === 'assetchain') {
-            console.log(_address, type)
-            tokenContract = await ethers.getContractAt(
-              type === BRIDGETYPE.MINT ? bridgetokenAbi : tokenAbi,
-              _address
-            )
-            console.log(_address, 'sdjshdjk')
-          } else if (tokenType === 'circle') {
-            tokenContract = await ethers.getContractAt(
-              type === BRIDGETYPE.MINT ? circletokenAbi : tokenAbi,
-              _address
-            )
-          } else {
-            tokenContract = await ethers.getContractAt(
-              type === BRIDGETYPE.MINT ? tokenAbi : tokenAbi,
-              _address
-            )
-          }
-          tokenName = await tokenContract.name()
-        }
-        
+        tokenName = await tokenContract.name()
       }
-      return { bridgeAssist, type, tokenContract, tokenName, tokenType, _address }
+      return { bridgeAssist, type, tokenContract, tokenName, tokenType }
     }
   }
 }
@@ -432,19 +421,13 @@ async function main() {
   console.log(`done....`)
 
   const bridge = await initBridgeAssit(config)
-  if (!bridge || !bridge.bridgeAssist)
+  if (!bridge || !bridge.bridgeAssist || !bridge.tokenContract)
     throw new Error(`Bridge was not initialised!`)
 
   console.log(colors.green(`Bridge Assist address ${bridge.bridgeAssist.address}`))
   console.log(colors.green(`Bridge type ${bridge.type}`))
-  if (bridge.tokenContract){
-    console.log(colors.green(`Bridge token address ${bridge.tokenContract.address}`))
-  }
-  if (bridge.tokenName){
-    console.log(colors.green(`token name ${bridge.tokenName}`))
-  }
-  
-  
+  console.log(colors.green(`Bridge token address ${bridge.tokenContract.address}`))
+  console.log(colors.green(`token name ${bridge.tokenName}`))
   if (bridge.type === BRIDGETYPE.MINT) {
     console.log(colors.green(`token type ${bridge.tokenType}`))
   }
@@ -490,10 +473,10 @@ async function main() {
         // }
         console.log(colors.blue('enter amount to send'))
         const _amount = readlineSync.question(colors.bold.yellow('input amount: '))
-        // if (!isNumeric(_amount)) {
-        //   console.log(colors.yellow(`invalid amount ${_amount}`))
-        //   continue
-        // }
+        if (!isNumeric(_amount)) {
+          console.log(colors.yellow(`invalid amount ${_amount}`))
+          continue
+        }
         try {
           await send(
             config,
@@ -501,7 +484,7 @@ async function main() {
             _chain,
             bridge.bridgeAssist,
             bridge.type!,
-            bridge.tokenContract!,
+            bridge.tokenContract,
             bridge.tokenType
           )
         } catch (error: any) {
@@ -552,7 +535,7 @@ async function main() {
             bridge.bridgeAssist,
             bridge.type!,
             [signature],
-            bridge.tokenContract!,
+            bridge.tokenContract,
             bridge.tokenType
           )
         } catch (error: any) {

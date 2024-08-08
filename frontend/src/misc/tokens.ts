@@ -71,8 +71,8 @@ export const tokensLabels: {
       component: UsdcIcon,
     },
     {
-      label: 'BTC',
-      value: 'BTC',
+      label: 'WBTC',
+      value: 'WBTC',
       component: BitcoinIcon,
     },
   ]
