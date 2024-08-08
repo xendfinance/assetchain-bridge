@@ -36,8 +36,8 @@
         </div>
       </div>
     </div>
-    <p v-if="symbol === 'RWA' || symbol === 'BTC'" :class="{
-      invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA') || (modelValue === '200810' && symbol !== 'BTC'),
+    <p v-if="symbol === 'RWA'" :class="{
+      invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA'),
     }" class="text-[14px] text-[#A0A0A0]">
       Total liquidity for a chain
       {{
@@ -61,8 +61,6 @@ import ArrowUpIcon from '@/components/gotbit-ui-kit/icons/ArrowUpIcon.vue'
 import SvgoThreeDots from '@/components/base/ThreeDots.vue'
 import { useBridgeRead } from '@/store/business/bridge'
 import { formatBigNums } from '@/misc/utils'
-import { useTokenRead } from '@/store/business/token'
-import { useToken } from '@/store/contracts/token'
 
 export interface SelectorProps {
   options: { value: ChainId; label: string; disabled: boolean }[]
@@ -82,7 +80,6 @@ const active = ref(false)
 const dropdown = ref<HTMLElement | any>(null)
 
 const bridgeRead = useBridgeRead()
-const token = useToken()
 const normalizedChainsLabels = computed(() =>
   chainsLabels.filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
 )
@@ -106,23 +103,8 @@ const selectedChain = computed(() => {
         emit('update:modelValue', chainsLabels[0].value)
         return chainsLabels[0]
       } else {
-        if (token.symbol === 'RWA'){
-          if (normalizedChainsLabels.value[0].value === '42421'){
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }
-        }else {
-          if (normalizedChainsLabels.value[0].value === '200810'){
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }
-        }
+        emit('update:modelValue', normalizedChainsLabels.value[0].value)
+        return normalizedChainsLabels.value[0]
       }
 
     } else {
@@ -130,26 +112,8 @@ const selectedChain = computed(() => {
         emit('update:modelValue', chainsLabels[1].value)
         return chainsLabels[1]
       }else {
-        if (token.symbol === 'RWA'){
-          if (normalizedChainsLabels.value[1].value === '42421'){
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }
-        }
-        else {
-          if (normalizedChainsLabels.value[1].value === '200810'){
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }
-        }
-        // emit('update:modelValue', normalizedChainsLabels.value[1].value)
-        // return normalizedChainsLabels.value[1]
+        emit('update:modelValue', normalizedChainsLabels.value[1].value)
+        return normalizedChainsLabels.value[1]
       }
       
     }

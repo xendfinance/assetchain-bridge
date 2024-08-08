@@ -27749,7 +27749,7 @@
           ]
         },
         "BridgeFactoryUpgradeable": {
-          "address": "0x937B7F1d54025e6123b4C57734def83DeEDF2Fc1",
+          "address": "0x2C168A9b20D48F7F7A3221558bC7D5E481BcDC48",
           "abi": [
             {
               "anonymous": false,
