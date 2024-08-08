@@ -353,16 +353,16 @@ async function initFactory(config: any) {
   const creatorRole: string = await factoryContract.CREATOR_ROLE()
   console.log(colors.green(`Creator role ${creatorRole}`))
   const hasRole: boolean = await factoryContract.hasRole(creatorRole, owner.address)
-  if (!hasRole) {
-    console.log(
-      colors.yellow(`${owner.address} doesn't have creator role. Granting role...`)
-    )
-    const tx: ContractTransaction = await factoryContract
-      .connect(owner)
-      .grantRole(creatorRole, owner.address)
-    await tx.wait(1)
-    console.log(colors.green(`Granted ${owner.address} creator role. hash ${tx.hash}`))
-  }
+  // if (!hasRole) {
+  //   console.log(
+  //     colors.yellow(`${owner.address} doesn't have creator role. Granting role...`)
+  //   )
+  //   const tx: ContractTransaction = await factoryContract
+  //     .connect(owner)
+  //     .grantRole(creatorRole, owner.address)
+  //   await tx.wait(1)
+  //   console.log(colors.green(`Granted ${owner.address} creator role. hash ${tx.hash}`))
+  // }
   return { factoryContract, creatorRole }
 }
 
