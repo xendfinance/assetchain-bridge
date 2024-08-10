@@ -116,7 +116,7 @@ const chosenToken = computed(() => {
 const addTokenIcons = (item: string) => tokensLabels.filter((t) => t.label === item)?.[0]
 
 const onSelect = async (tokenSymbol: string, tokenAddress: string) => {
-  const item = props.options.find((o) => o.label === tokenSymbol)
+  const item = token.tokens[web3.chainId].find((o) => o.label === tokenSymbol)
   if (!item) return
   if (item.disabled) return
   emit('update:modelValue', tokenSymbol)

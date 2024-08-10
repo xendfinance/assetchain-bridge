@@ -22,13 +22,13 @@
         <div class="w-[100px] hover:text-primary flex items-center gap-1 justify-center">
           <span class="inline lg:hidden">Amount</span>
           <GTooltip
-            :hint="fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10) : formatBigNums(claimAmount)"
+            :hint="fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10, token.symbol) : formatBigNums(claimAmount, token.symbol)"
             text
             position="right"
             class="text-[15px]"
           >
             <p class="text-[15px] whitespace-normal text-center">
-              <span> {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10) : formatBigNums(claimAmount) }} </span
+              <span> {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10, token.symbol) : formatBigNums(claimAmount, token.symbol) }} </span
               ><span>{{ ` ${token.symbol}` }}</span>
             </p>
           </GTooltip>
@@ -72,7 +72,7 @@
                 Amount
               </span>
               <span class="text-[15px] uppercase">
-                {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10) : formatBigNums(claimAmount) }} {{ token.symbol }}
+                {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10, token.symbol) : formatBigNums(claimAmount, token.symbol) }} {{ token.symbol }}
               </span>
             </div>
             <!-- </GTooltip> -->
@@ -109,7 +109,6 @@ import ArrowRight from '@/components/base/icons/ArrowRight.vue'
 import GButton from '@/components/gotbit-ui-kit/GButton.vue'
 import GTooltip from '@/components/gotbit-ui-kit/GTooltipCustom.vue'
 import { ChainId } from '@/gotbit-tools/vue/types'
-import { useTokenRead } from '@/store/business/token'
 
 import { chainsLabels } from '@/misc/chains'
 
@@ -185,6 +184,8 @@ const bridgeRead = useBridgeRead()
 const claimAmount = computed(
   () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
 )
+
+// console.log(props.amount, claimAmount, 'claim amount')
 
 function handleClick() {
   emit('claim', { claimAmount: claimAmount })

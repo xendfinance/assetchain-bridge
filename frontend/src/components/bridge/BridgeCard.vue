@@ -9,6 +9,7 @@
         title="From"
         subtitle="Source chain"
         :loading="bridgeLoading"
+        :factoryLoading="_loading"
       />
       <div class="flex items-center justify-between w-full lg:max-w-[48px] pt-6 lg:pt-16">
         <span class="font-semibold text-[20px] lg:hidden">To</span>
@@ -29,7 +30,8 @@
         subtitle="Destination chain"
         :loading="bridgeLoading"
         :symbol="symbol"
-        :contract-balance="balanceBridge(to)"    
+        :contract-balance="balanceBridge(to)"
+        :factoryLoading=" _loading "  
       />
     </div>
     <div class="mt-7 w-full">
@@ -40,8 +42,8 @@
           <GTooltip :hint="`${balanceToken(from)} ${token.symbol}`" text position="top">
             <span class="flex text-[11px] text-label-text">
               {{
-                formatBigNums(
-                  balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0
+                token.symbol === "BTC" && from === '200810' ? balanceToken(from) : formatBigNums(
+                  balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0, token.symbol
                 )
               }}
               {{ token.symbol }}
@@ -101,7 +103,7 @@
         >
           <span class="flex text-[11px] text-disabled-text">
             <!-- {{ !bridgeUI.inputAmount ? 0 : formatBigNums(balanceAfterReceive.toString() ?? 0) }} -->
-            {{ formatBigNums(balanceAfterReceive) }}
+            {{ formatBigNums(balanceAfterReceive, token.symbol) }}
             {{ token.symbol }}
           </span>
         </GTooltip>
@@ -162,6 +164,7 @@ import GTooltip from '@/components/gotbit-ui-kit/GTooltipCustom.vue'
 import { useToken } from '@/store/contracts/token'
 import LogoutButton from '@/components/base/LogoutButton.vue'
 import { useDebounceFn } from '@vueuse/core'
+import { useFactoryRead } from '@/store/business/factory'
 
 export interface ElementProps {
   tokenSymbol: string
@@ -179,6 +182,7 @@ const { login, wallet } = useWallet()
 const bridgeWrite = useBridgeWrite()
 const bridgeRead = useBridgeRead()
 const { loading: bridgeLoading } = useBridgeRead()
+const { loading: _loading } = useFactoryRead()
 
 const web3 = useWeb3()
 
@@ -191,7 +195,7 @@ const web3 = useWeb3()
 // )
 
 const isNativeToken = computed(() => {
-  return 'RWA' === props.tokenSymbol || props.tokenSymbol === 'BTC'
+  return ('RWA' === props.tokenSymbol && web3.chainId === '42421')
 })
 const decimals = computed(() => token.decimals[web3.chainId])
 const decimalsTo = computed(() => token.decimals[unref(to) as ChainId])
@@ -321,6 +325,8 @@ const balanceAfterReceive = computed(() => {
 })
 
 const hasAllowance = computed(() => {
+  if (!token || !token.symbol) return false
+  if ((token.symbol === "RWA" && from.value === '42421') || (token.symbol === "BTC" && from.value === '200810')) return true
   return allowance(bridgeUI.from)
 })
 
@@ -347,6 +353,8 @@ const allowanceLoading = ref(false)
 
 const checkAllowance = useDebounceFn(async () => {
   if (!login.value) return false
+  if (!token || !token.symbol) return false
+  if ((token.symbol === "RWA" && web3.chainId === '42421') || (token.symbol === "BTC" && web3.chainId === '200810')) return false
   allowanceLoading.value = true
   // console.log(wallet.value, bridgeUI, 'allowance')
   await token.hasAllowance(
@@ -438,7 +446,7 @@ const errorMessage = computed(() => {
   }
 })
 
-const toggle = () => {
+const toggle = async () => {
   const a = to.value
   console.log(a, 'a')
   to.value = from.value

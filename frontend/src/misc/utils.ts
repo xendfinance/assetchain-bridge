@@ -87,7 +87,7 @@ export const genPerChainId = <T>(content: () => T) => {
 //   }
 //   return '0'
 // }
-export const formatBigNums = (number: number | string) => {
+export const formatBigNums = (number: number | string, token: string) => {
   const num = number.toString()
   const decimalIndex = num.indexOf('.')
   const isDecimal = decimalIndex !== -1
@@ -100,6 +100,10 @@ export const formatBigNums = (number: number | string) => {
     decimalPart = num.slice(decimalIndex + 1, decimalIndex + 4)
   } else {
     floorNum = num
+  }
+
+  if (token && token === 'RWA' || token === 'BTC') {
+    decimalPart = decimalPart.padEnd(8, '0'); // Ensure 8 decimal places
   }
 
   let wholePath = floorNum.length % 3
@@ -172,7 +176,7 @@ export const getContract = (chainId: ChainId) => {
 
     return {
       anyBridgeAssist: anyBridgeAssistMint,
-      briggeAssistNative: BridgeAssistNative,
+      bridgeAssistNative: BridgeAssistNative,
       bridgeFactory: bridgeFactory,
       anyToken: anyToken,
     }
@@ -180,11 +184,15 @@ export const getContract = (chainId: ChainId) => {
     const { anyBridgeAssist } = useContracts(undefined, chainId)
     const { anyToken } = useContracts(undefined, chainId)
     const { bridgeFactory } = useContracts(undefined, chainId)
+    const { bridgeAssistNative } : any = useContracts(undefined, chainId)
+    
+    
     // anyBridgeAssist('').supportedChainList
     return {
       anyBridgeAssist: anyBridgeAssist,
       bridgeFactory: bridgeFactory,
       anyToken: anyToken,
+      bridgeAssistNative: bridgeAssistNative,
     }
   }
 }

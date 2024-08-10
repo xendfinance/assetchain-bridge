@@ -9,7 +9,7 @@
     <div id="selector" v-auto-animate class="card flex flex-col border bg-primary-bg rounded-lg duration-150" tabindex="0"
       :class="active ? 'border-primary-btn' : 'border-primary-border'">
       <div class="card__selector" ref="dropdown" @click="active = !active">
-        <div v-if="props.loading || !normalizedChainsLabels[0]?.label">
+        <div v-if="props.loading || props.factoryLoading || !normalizedChainsLabels[0]?.label">
           <SvgoThreeDots class="w-6 mx-[auto]" />
         </div>
         <div v-else class="flex items-center mr-1">
@@ -42,7 +42,7 @@
       Total liquidity for a chain
       {{
         contractBalance
-        ? `${formatBigNums(contractBalance)} ${props.symbol}`
+        ? `${formatBigNums(contractBalance, props.symbol!)} ${props.symbol}`
         : 'Loading...'
       }}
       <!-- ({{ chainsLabels.filter((o) => o.value === props.modelValue)[0]?.label }}) -->
@@ -73,6 +73,7 @@ export interface SelectorProps {
   mobile?: boolean
   contractBalance?: string
   symbol?: string
+  factoryLoading: boolean
 }
 
 const props = defineProps<SelectorProps>()
@@ -106,23 +107,8 @@ const selectedChain = computed(() => {
         emit('update:modelValue', chainsLabels[0].value)
         return chainsLabels[0]
       } else {
-        if (token.symbol === 'RWA'){
-          if (normalizedChainsLabels.value[0].value === '42421'){
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }
-        }else {
-          if (normalizedChainsLabels.value[0].value === '200810'){
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }
-        }
+        emit('update:modelValue', normalizedChainsLabels.value[0].value)
+        return normalizedChainsLabels.value[0]
       }
 
     } else {
@@ -130,33 +116,15 @@ const selectedChain = computed(() => {
         emit('update:modelValue', chainsLabels[1].value)
         return chainsLabels[1]
       }else {
-        if (token.symbol === 'RWA'){
-          if (normalizedChainsLabels.value[1].value === '42421'){
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }
-        }
-        else {
-          if (normalizedChainsLabels.value[1].value === '200810'){
-            emit('update:modelValue', normalizedChainsLabels.value[0].value)
-            return normalizedChainsLabels.value[0]
-          }else {
-            emit('update:modelValue', normalizedChainsLabels.value[1].value)
-            return normalizedChainsLabels.value[1]
-          }
-        }
-        // emit('update:modelValue', normalizedChainsLabels.value[1].value)
-        // return normalizedChainsLabels.value[1]
+        emit('update:modelValue', normalizedChainsLabels.value[1].value)
+        return normalizedChainsLabels.value[1]
       }
       
     }
   }
   return chain
 })
-// console.log(selectedChain, chainsLabels, normalizedChainsLabels, 'gb')
+// console.log(selectedChain, chainsLabels, normalizedChainsLabels, props.title,  'gb')
 </script>
 
 <style lang="scss" scoped>

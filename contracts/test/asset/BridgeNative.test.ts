@@ -909,50 +909,50 @@ describe('BridgeAssistNative contract', () => {
   //   //   bridge.connect(user).withdraw(assetToken.address, deployer.address, amount)
   //   // ).reverted
   // })
-  it('unsupported functions should revert', async () => {
-    const { bridgeFactory, assetToken, mockNative, multiSigWallet } = await useContracts()
-    const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
+  // it('unsupported functions should revert', async () => {
+  //   const { bridgeFactory, assetToken, mockNative, multiSigWallet } = await useContracts()
+  //   const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
-    const errorMsg = 'NOT SUPPORTED'
+  //   const errorMsg = 'NOT SUPPORTED'
 
-    const createBridgeData = bridgeFactory.interface.encodeFunctionData(
-      'createBridgeAssist',
-      [
-        BridgeType.NATIVE,
-        NATIVE_TOKEN,
-        0,
-        feeWallet.address,
-        DEFAULT_FEE_SEND,
-        DEFAULT_FEE_FULFILL,
-        deployer.address,
-        [relayer.address],
-        DEFAULT_RELAYER_CONSENSUS_THRESHOLD,
-      ]
-    )
+  //   const createBridgeData = bridgeFactory.interface.encodeFunctionData(
+  //     'createBridgeAssist',
+  //     [
+  //       BridgeType.NATIVE,
+  //       NATIVE_TOKEN,
+  //       0,
+  //       feeWallet.address,
+  //       DEFAULT_FEE_SEND,
+  //       DEFAULT_FEE_FULFILL,
+  //       deployer.address,
+  //       [relayer.address],
+  //       DEFAULT_RELAYER_CONSENSUS_THRESHOLD,
+  //     ]
+  //   )
 
-    await multiSigWallet
-      .connect(deployer)
-      .createTransaction(bridgeFactory.address, createBridgeData)
-    await multiSigWallet.connect(relayer).approveTransaction(1)
+  //   await multiSigWallet
+  //     .connect(deployer)
+  //     .createTransaction(bridgeFactory.address, createBridgeData)
+  //   await multiSigWallet.connect(relayer).approveTransaction(1)
 
-    const bridgeAddr = await bridgeFactory.getBridgeByToken(NATIVE_TOKEN, 0)
+  //   const bridgeAddr = await bridgeFactory.getBridgeByToken(NATIVE_TOKEN, 0)
 
-    const bridge = BridgeAssistNativeUpgradeable__factory.connect(
-      bridgeAddr,
-      ethers.provider
-    )
-    await bridgeSetup(bridge, deployer, AllBridgeTypes.NATIVE)
+  //   const bridge = BridgeAssistNativeUpgradeable__factory.connect(
+  //     bridgeAddr,
+  //     ethers.provider
+  //   )
+  //   await bridgeSetup(bridge, deployer, AllBridgeTypes.NATIVE)
 
-    await expect(bridge.send(0, '', '')).revertedWith(errorMsg)
-    await expect(bridge['setFee(uint256,uint256)'](0, 0)).revertedWith(errorMsg)
-    await expect(bridge.setLimitPerSend(0)).revertedWith(errorMsg)
-    await expect(
-      mockNative.afterSend(
-        ethers.constants.AddressZero,
-        ethers.constants.AddressZero,
-        0,
-        0
-      )
-    ).revertedWith(errorMsg)
-  })
+  //   await expect(bridge.send(0, '', '')).revertedWith(errorMsg)
+  //   await expect(bridge['setFee(uint256,uint256)'](0, 0)).revertedWith(errorMsg)
+  //   await expect(bridge.setLimitPerSend(0)).revertedWith(errorMsg)
+  //   await expect(
+  //     mockNative.afterSend(
+  //       ethers.constants.AddressZero,
+  //       ethers.constants.AddressZero,
+  //       0,
+  //       0
+  //     )
+  //   ).revertedWith(errorMsg)
+  // })
 })

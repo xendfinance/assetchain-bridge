@@ -103,6 +103,9 @@ export const contracts = defineContracts({
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '200810'>(
       'BridgeAssistTransferUpgradeable'
     ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '200810'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
   },
 })
 
