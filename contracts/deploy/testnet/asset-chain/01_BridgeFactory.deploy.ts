@@ -37,6 +37,15 @@ const func: DeployFunction = async (hre) => {
     nonce: nonce + 9,
   })
 
+  const bridgeCircle = ethers.utils.getContractAddress({
+    from: deployer.address,
+    nonce: nonce + 8,
+  })
+  const bridgeTransfer = ethers.utils.getContractAddress({
+    from: deployer.address,
+    nonce: nonce + 9,
+  })
+
   const mulsigwallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
   console.log(`future mint: ${bridgeMint}`);
   console.log(`future native: ${bridgeNative}`);
@@ -50,10 +59,10 @@ const func: DeployFunction = async (hre) => {
       execute: {
         methodName: 'initialize',
         args: [
-          ethers.constants.AddressZero,
+          bridgeTransfer,
           bridgeMint,
           bridgeNative,
-          ethers.constants.AddressZero,
+          bridgeCircle,
           mulsigwallet.address,
           deployer.address,
         ],

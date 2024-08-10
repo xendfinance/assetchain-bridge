@@ -25,14 +25,14 @@ async function init() {
   if (signers.length < 1) throw new Error(`Signers must be at least 2`)
   const contract = CONTRACTS[getIndex(chainId)]
   if (!contract) throw new Error(`Contract not deployed on network ${name} ${chainId}`)
-  const factoryAbi = _CONTRACTS['42421'][0].contracts.BridgeFactoryUpgradeable.abi
+  const factoryAbi = _CONTRACTS['200810'][0].contracts.BridgeFactoryUpgradeable.abi
 
   const tokenAddress = contract[0].contracts.USDC.address // you can choose any token of your choose, USDC,USDT,DAI
   const tokenAbi = contract[0].contracts.USDC.abi
   const tokenContract = await ethers.getContractAt(tokenAbi, tokenAddress)
   const bridgetokenAddress = CONTRACTS[42421][0].contracts.USDC.address // you can choose any token of your choose, USDC,USDT,DAI
   const bridgetokenAbi = CONTRACTS[42421][0].contracts.USDC.abi
-  const mulsigwalletAbi = _CONTRACTS['42421'][0].contracts.MultiSigWallet.abi
+  const mulsigwalletAbi = _CONTRACTS['200810'][0].contracts.MultiSigWallet.abi
   const owner = signers[0]
   const user = signers[1]
 
@@ -75,10 +75,10 @@ async function createBridge(
     throw new Error(
       `You can only create mint type bridge on assetchain with this script...`
     )
-  if (type === BRIDGETYPE.NATIVE && chainId !== 42421)
-    throw new Error(
-      `You can only create Native type bridge on assetchain with this script...`
-    )
+  // if (type === BRIDGETYPE.NATIVE && chainId !== 42421)
+  //   throw new Error(
+  //     `You can only create Native type bridge on assetchain with this script...`
+  //   )
   if (type === BRIDGETYPE.NATIVE && token !== NATIVE_TOKEN)
     throw new Error(`Token for native typ bridge must be ${NATIVE_TOKEN}...`)
   if (!ethers.utils.isAddress(token)) throw new Error(`Token ${token} is not a valid`)
@@ -91,7 +91,7 @@ async function createBridge(
     [
       type,
       token,
-      DEFAULT_LIMIT_PER_SEND,
+      type === BRIDGETYPE.NATIVE ? 0 : DEFAULT_LIMIT_PER_SEND,
       owner.address,
       DEFAULT_FEE_SEND,
       DEFAULT_FEE_FULFILL,
@@ -211,12 +211,12 @@ async function getFactoryBridgeAssists(config: any, factoryContract: Contract) {
   const bridgeLength: number = await factoryContract.getCreatedBridgesLength()
   console.log(colors.green(`bridges length ${bridgeLength}`))
   const bridges: { bridgeAssist: string; token: string }[] =
-    await factoryContract.getCreatedBridgesInfo(0, bridgeLength)
-
-  for (let b of bridges) {
-    console.log(colors.green(`Bridge Assist Address: ${b.bridgeAssist}`))
-    console.log(colors.green(`Token Address: ${b.token}`))
-  }
+    await factoryContract.getBridgeByToken('0x0000000000000000000000000000000000000001', 0)
+  console.log(bridges)
+  // for (let b of bridges) {
+  //   console.log(colors.green(`Bridge Assist Address: ${b.bridgeAssist}`))
+  //   console.log(colors.green(`Token Address: ${b.token}`))
+  // }
 }
 
 function getIndex(chainId: number) {

@@ -9,7 +9,7 @@
     <div id="selector" v-auto-animate class="card flex flex-col border bg-primary-bg rounded-lg duration-150" tabindex="0"
       :class="active ? 'border-primary-btn' : 'border-primary-border'">
       <div class="card__selector" ref="dropdown" @click="active = !active">
-        <div v-if="props.loading || !normalizedChainsLabels[0]?.label">
+        <div v-if="props.loading || props.factoryLoading || !normalizedChainsLabels[0]?.label">
           <SvgoThreeDots class="w-6 mx-[auto]" />
         </div>
         <div v-else class="flex items-center mr-1">
@@ -36,13 +36,13 @@
         </div>
       </div>
     </div>
-    <p v-if="symbol === 'RWA'" :class="{
-      invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA'),
+    <p v-if="symbol === 'RWA' || symbol === 'BTC'" :class="{
+      invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA') || (modelValue === '200810' && symbol !== 'BTC'),
     }" class="text-[14px] text-[#A0A0A0]">
       Total liquidity for a chain
       {{
         contractBalance
-        ? `${formatBigNums(contractBalance)} ${props.symbol}`
+        ? `${formatBigNums(contractBalance, props.symbol!)} ${props.symbol}`
         : 'Loading...'
       }}
       <!-- ({{ chainsLabels.filter((o) => o.value === props.modelValue)[0]?.label }}) -->
@@ -61,6 +61,8 @@ import ArrowUpIcon from '@/components/gotbit-ui-kit/icons/ArrowUpIcon.vue'
 import SvgoThreeDots from '@/components/base/ThreeDots.vue'
 import { useBridgeRead } from '@/store/business/bridge'
 import { formatBigNums } from '@/misc/utils'
+import { useTokenRead } from '@/store/business/token'
+import { useToken } from '@/store/contracts/token'
 
 export interface SelectorProps {
   options: { value: ChainId; label: string; disabled: boolean }[]
@@ -71,6 +73,7 @@ export interface SelectorProps {
   mobile?: boolean
   contractBalance?: string
   symbol?: string
+  factoryLoading: boolean
 }
 
 const props = defineProps<SelectorProps>()
@@ -80,6 +83,7 @@ const active = ref(false)
 const dropdown = ref<HTMLElement | any>(null)
 
 const bridgeRead = useBridgeRead()
+const token = useToken()
 const normalizedChainsLabels = computed(() =>
   chainsLabels.filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
 )
@@ -120,7 +124,7 @@ const selectedChain = computed(() => {
   }
   return chain
 })
-// console.log(selectedChain, chainsLabels, normalizedChainsLabels, 'gb')
+// console.log(selectedChain, chainsLabels, normalizedChainsLabels, props.title,  'gb')
 </script>
 
 <style lang="scss" scoped>

@@ -39,8 +39,8 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
         uint256 relayerConsensusThreshold_
     ) external initializer {
         require(token_ == _NATIVE, 'Invalid token');
-        require(limitPerSend_ == 0, 'Invalid limit per send');
-        require(feeSend_ == 0, 'Invalid fee send');
+        // require(limitPerSend_ == 0, 'Invalid limit per send');
+        // require(feeSend_ == 0, 'Invalid fee send');
 
         _initialize(
             token_,
@@ -60,7 +60,7 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
         uint256,
         uint256
     ) internal pure override {
-        revert('NOT SUPPORTED');
+        revert("NOT SUPPORTED");
     }
 
     function _afterFulfill(
@@ -97,19 +97,68 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
     //     require(success, 'Unable to send funds');
     // }
 
-    function setFee(uint256, uint256) external pure override {
-        revert('NOT SUPPORTED');
-    }
+    // function setFee(uint256, uint256) external pure override {
+    //     revert('NOT SUPPORTED');
+    // }
 
-    function setLimitPerSend(uint256) external pure override {
-        revert('NOT SUPPORTED');
-    }
+    // function setLimitPerSend(uint256) external pure override {
+    //     revert('NOT SUPPORTED');
+    // }
 
     function send(
-        uint256,
-        string memory,
-        string calldata
-    ) external pure override {
-        revert('NOT SUPPORTED');
+        uint256 amount,
+        string memory toUser,
+        string calldata toChain
+    ) external payable override {
+        require(msg.value != 0, 'Value sent = 0');
+        require(msg.value == amount, 'Value not Equal');
+        require(amount != 0, 'Amount = 0');
+        require(amount <= limitPerSend, 'Amount is more than limit');
+        require(bytes(toUser).length != 0, 'Field toUser is empty');
+        require(isSupportedChain(toChain), 'Chain is not supported');
+
+        uint256 exchangeRate = exchangeRateFrom[bytes32(bytes(toChain))];
+        require(
+            amount % exchangeRate == 0,
+            'Amount is not divisible by exchange rate'
+        );
+        // minimum amount to make sure satisfactory amount of fee is taken
+        require(
+            amount / exchangeRate >= FEE_DENOMINATOR,
+            'amount < fee denominator'
+        );
+
+        // the fee recipient eats the precision loss
+        uint256 currentFee = (amount * feeSend) /
+            FEE_DENOMINATOR /
+            exchangeRate;
+
+        transactions[msg.sender].push(
+            Transaction({
+                fromUser: msg.sender,
+                toUser: toUser,
+                amount: amount / exchangeRate - currentFee,
+                // No logic of the system relies on this timestamp,
+                // it's only needed for displaying on the frontend
+                timestamp: block.timestamp,
+                fromChain: CURRENT_CHAIN(),
+                toChain: toChain,
+                nonce: nonce++,
+                block: block.number
+            })
+        );
+
+        emit SentTokens(
+            msg.sender,
+            toUser,
+            CURRENT_CHAIN(),
+            toChain,
+            // amount emitted is different than amount in the struct
+            // because this is the amount that actually gets sent on this chain
+            // it doesn't matter that much anyways since you can always get
+            // the exchangeRate and do all the calculations yourself
+            (amount - currentFee),
+            exchangeRate
+        );
     }
 }
