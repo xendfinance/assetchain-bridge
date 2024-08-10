@@ -52,6 +52,9 @@ export const contracts = defineContracts({
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '97'>(
       'BridgeAssistTransferUpgradeable'
     ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '97'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
   },
   '42421': {
     anyBridgeAssistMint: addContractWithAddress<BridgeAssistMintUpgradeable, '42421'>(
@@ -71,6 +74,9 @@ export const contracts = defineContracts({
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '421614'>(
       'BridgeAssistTransferUpgradeable'
     ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '421614'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
   },
   '11155111': {
     bridgeFactory: addContractI<BridgeFactoryUpgradeable, '11155111'>(
@@ -78,6 +84,9 @@ export const contracts = defineContracts({
     ),
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '11155111'>(
       'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '11155111'>(
+      'BridgeAssistNativeUpgradeable'
     ),
   },
   '80002': {
@@ -87,6 +96,9 @@ export const contracts = defineContracts({
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '80002'>(
       'BridgeAssistTransferUpgradeable'
     ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '80002'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
   },
   '84532': {
     bridgeFactory: addContractI<BridgeFactoryUpgradeable, '84532'>(
@@ -94,6 +106,9 @@ export const contracts = defineContracts({
     ),
     anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '84532'>(
       'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '84532'>(
+      'BridgeAssistNativeUpgradeable'
     ),
   },
   '200810': {

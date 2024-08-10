@@ -14,7 +14,7 @@
     <span class="text-sm text-label-text">
       <!-- {{ formatBigNums(balanceTokenNumber(web3.chainId)).toString() }}  -->
       {{
-        formatBigNums(balanceToken(web3.chainId).toBigNumber(18).formatString(18) ?? 0)
+        formatBigNums(balanceToken(web3.chainId).toBigNumber(18).formatString(18) ?? 0, token.symbol)
       }}
       {{ symbol }}
     </span>
@@ -45,6 +45,7 @@ import { useToken } from '@/store/contracts/token'
 
 const { walletLabel, login } = useWallet()
 const web3 = useWeb3()
+const token = useToken()
 
 const { symbol, addresses, balanceToken, getCurrentSymbol } = useTokenRead()
 </script>
