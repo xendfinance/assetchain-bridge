@@ -286,6 +286,7 @@ export const useToken = defineContractStore<
       console.log('this.tokens', this.tokens)
     },
     async setToken(symbol, tokenAddress) {
+      console.log(symbol, tokenAddress, 'dhsjk')
       const web3 = useWeb3()
       const factory = useFactory()
       this.loading = true

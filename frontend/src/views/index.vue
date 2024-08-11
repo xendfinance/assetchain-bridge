@@ -85,17 +85,21 @@ const isNativeToken = computed(() =>
 //         .filter((t) => t.value !== DEFAULT_NATIVE_TOKEN_CONTRACT_2),
 // )
 
-const tokens = computed(() =>
-  isNativeToken.value
-    ? tokensRead.value[web3.chainId]
-      .filter((t) => t.label !== 'RWA' || t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2)
-    : tokensRead.value[web3.chainId]
-      .flat()
-      .filter((t) => t.value !== DEFAULT_NATIVE_TOKEN_CONTRACT_2),
-)
+// const tokens = computed(() =>
+//   isNativeToken.value
+//     ? tokensRead.value[web3.chainId]
+//       .filter((t) => t.label !== 'RWA' || t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2)
+//     : tokensRead.value[web3.chainId]
+//       .flat()
+//       .filter((t) => t.value !== DEFAULT_NATIVE_TOKEN_CONTRACT_2),
+// )
+
+// const tokens = computed(() => tokenStore.tokens[web3.chainId].filter(v => v.label !== 'USDC'))
+
+// console.log(isNativeToken, tokens, tokenStore.tokens[web3.chainId], 'dksdk')
 
 const options = computed(() => [
-  ...new Map(tokens.value.filter( v => v.label !== 'USDC').map((item) => [item.value, item])).values(),
+  ...new Map(tokenStore.tokens[web3.chainId].filter( v => v.label !== 'USDC').map((item) => [item.value, item])).values(),
 ])
 </script>
 

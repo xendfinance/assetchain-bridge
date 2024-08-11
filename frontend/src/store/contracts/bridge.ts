@@ -129,7 +129,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
       },
 
       async send(amount, to, tokenAddress) {
-        console.log(amount.toString(), `send amount`)
+        console.log(amount.toString(), `send amount`, to)
         const web3 = useWeb3()
         const factory = useFactory()
         // const { bridgeAssist } = useContracts(web3.signer!)

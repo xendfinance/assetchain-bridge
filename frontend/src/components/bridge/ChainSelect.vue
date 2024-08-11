@@ -9,7 +9,7 @@
     <div id="selector" v-auto-animate class="card flex flex-col border bg-primary-bg rounded-lg duration-150" tabindex="0"
       :class="active ? 'border-primary-btn' : 'border-primary-border'">
       <div class="card__selector" ref="dropdown" @click="active = !active">
-        <div v-if="props.loading || props.factoryLoading || !normalizedChainsLabels[0]?.label">
+        <div v-if="props.loading || props.factoryLoading || normalizedChainsLabels.length <= 0">
           <SvgoThreeDots class="w-6 mx-[auto]" />
         </div>
         <div v-else class="flex items-center mr-1">
@@ -36,14 +36,14 @@
         </div>
       </div>
     </div>
-    <p v-if="symbol === 'RWA' || symbol === 'BTC'" :class="{
+    <p :class="{
       invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA') || (modelValue === '200810' && symbol !== 'BTC'),
     }" class="text-[14px] text-[#A0A0A0]">
       Total liquidity for a chain
       {{
-        contractBalance
+        symbol === 'RWA' || symbol === 'BTC' ? contractBalance
         ? `${formatBigNums(contractBalance, props.symbol!)} ${props.symbol}`
-        : 'Loading...'
+        : 'Loading...' : ""
       }}
       <!-- ({{ chainsLabels.filter((o) => o.value === props.modelValue)[0]?.label }}) -->
       ({{ selectedChain?.label }})
@@ -99,32 +99,32 @@ const onSelect = async (value: string) => {
   active.value = false
 }
 
+
 const selectedChain = computed(() => {
-  const chain = normalizedChainsLabels.value.find(o => o.value === props.modelValue)
+  const chain = normalizedChainsLabels.value.find(n => n.value === props.modelValue)
   if (!chain) {
-    if (props.title && props.title.toLowerCase() === 'from') {
-      if (!normalizedChainsLabels.value[0]) {
-        emit('update:modelValue', chainsLabels[0].value)
-        return chainsLabels[0]
-      } else {
+    if (normalizedChainsLabels.value.length > 0) {
+      if (props.title && props.title.toLowerCase() === 'from') {
         emit('update:modelValue', normalizedChainsLabels.value[0].value)
         return normalizedChainsLabels.value[0]
-      }
-
-    } else {
-      if (!normalizedChainsLabels.value[1]) {
-        emit('update:modelValue', chainsLabels[1].value)
-        return chainsLabels[1]
-      }else {
+      } else {
         emit('update:modelValue', normalizedChainsLabels.value[1].value)
         return normalizedChainsLabels.value[1]
       }
-      
+    } else {
+      if (props.title && props.title.toLowerCase() === 'from') {
+        emit('update:modelValue', chainsLabels[0].value)
+        return chainsLabels[0]
+      } else {
+        emit('update:modelValue', chainsLabels[1].value)
+        return chainsLabels[1]
+      }
     }
+
   }
   return chain
 })
-// console.log(selectedChain, chainsLabels, normalizedChainsLabels, props.title,  'gb')
+
 </script>
 
 <style lang="scss" scoped>
