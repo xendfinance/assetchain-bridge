@@ -142,9 +142,9 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         // contract.anyBridgeAssist('').connect(web3.signer!).send()
         this.loading = true
         if (tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2 && web3.chainId === '200810'){
-          // const a : any = contract
+          const {bridgeAssistNative }: any  = contract
           const [tx] = await safeWrite(
-            contract.bridgeAssistNative(bridgeAssistAddress)
+            bridgeAssistNative(bridgeAssistAddress)
               .connect(web3.signer!)
               .send(amount, web3.wallet, 'evm.' + to.toString(), {value: amount})
           )
