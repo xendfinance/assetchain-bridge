@@ -134,7 +134,7 @@ export const useToken = defineContractStore<
     },
 
     async getBalances() {
-      console.log('getBalances', this.symbol)
+      // console.log('getBalances', this.symbol)
       const web3 = useWeb3()
 
       this.loading = true
@@ -283,10 +283,10 @@ export const useToken = defineContractStore<
           // console.log('this.tokens', chainId, this.tokens[chainId])
         }
       }
-      console.log('this.tokens', this.tokens)
+      // console.log('this.tokens', this.tokens)
     },
     async setToken(symbol, tokenAddress) {
-      console.log(symbol, tokenAddress, 'dhsjk')
+      // console.log(symbol, tokenAddress, 'dhsjk')
       const web3 = useWeb3()
       const factory = useFactory()
       this.loading = true
