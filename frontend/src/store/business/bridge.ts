@@ -202,9 +202,9 @@ const createAction = async (
       uiBridge.inputAmount = ''
     }
 
-    await bridge.upload()
+    bridge.upload()
     // await token.upload()
-    await token.setToken(token.symbol, token.tokenAddress)
+    token.setToken(token.symbol, token.tokenAddress)
     return
   } catch (error) {}
 }

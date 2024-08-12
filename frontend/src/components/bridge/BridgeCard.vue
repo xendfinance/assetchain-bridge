@@ -190,27 +190,21 @@ onMounted(() => {
 watch(
   [
     normalizedChainsLabels,
-    // token.symbol,
+    token.symbol,
     web3.chainId,
     // isNativeToken,
     // bridgeRead.supportedChains,
   ],
   () => {
     if (!from.value && !to.value) {
-      from.value =  normalizedChainsLabels.value[0]?.value
-      to.value =normalizedChainsLabels.value[1]?.value
+      from.value = normalizedChainsLabels.value[0]?.value
+      to.value = normalizedChainsLabels.value[1]?.value
     }
 
     if ((isNativeToken.value && from.value === '42421')) toggle()
 
     chainsTo.value = isNativeToken.value
-      ? unref(normalizedChainsLabels)
-        ?.filter((c) => c.value === '42421')
-        .map((c) => ({
-          value: c.value,
-          label: c.label,
-          disabled: false,
-        }))
+      ? []
       : // unref(normalizedChainsLabels)
       //     ?.filter((c) => c.value === '42421')
       //     .map((c) => ({
@@ -226,18 +220,16 @@ watch(
           disabled: from.value === c.value ? true : false,
         }))
     chainsFrom.value = isNativeToken.value
-      ? unref(normalizedChainsLabels)
-        ?.filter((c) => c.value === '421614')
-        .map((c) => ({
-          value: c.value,
-          label: c.label,
-          disabled: false,
-        }))
+      ? []
       : unref(normalizedChainsLabels)?.map((c) => ({
         value: c.value,
         label: c.label,
         disabled: false,
       }))
+    if (to.value === from.value) {
+      const _to = normalizedChainsLabels.value.filter(n => n.value !== from.value)
+      to.value = _to.length > 0 ? _to[0].value : chainsLabels[1].value
+    }
     bridgeUI.from = from.value
     bridgeUI.to = to.value
   }
@@ -402,7 +394,6 @@ const errorMessage = computed(() => {
 
 const toggle = async () => {
   const a = to.value
-  console.log(a, 'a')
   to.value = from.value
   from.value = a
 }
