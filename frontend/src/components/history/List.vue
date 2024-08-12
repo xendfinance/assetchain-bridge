@@ -210,8 +210,6 @@ const historyLength = computed(() =>
     : ITEM_PER_PAGE,
 )
 
-console.log(sortByDate().map(d => console.log(d.transaction)), 'history')
-
 const sortedItem = (idx: number) =>
   sortedHistory.value[(page.value - 1) * ITEM_PER_PAGE + idx - 1]
 

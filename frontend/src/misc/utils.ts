@@ -184,7 +184,7 @@ export const getContract = (chainId: ChainId) => {
     const { anyBridgeAssist } = useContracts(undefined, chainId)
     const { anyToken } = useContracts(undefined, chainId)
     const { bridgeFactory } = useContracts(undefined, chainId)
-    const { bridgeAssistNative } : any = useContracts(undefined, chainId)
+    const { bridgeAssistNative } = useContracts(undefined, chainId)
     
     
     // anyBridgeAssist('').supportedChainList

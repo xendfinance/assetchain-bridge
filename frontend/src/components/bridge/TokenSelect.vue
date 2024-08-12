@@ -118,7 +118,7 @@ const addTokenIcons = (item: string) => tokensLabels.filter((t) => t.label === i
 const onSelect = async (tokenSymbol: string, tokenAddress: string) => {
   const item = token.tokens[web3.chainId].find((o) => o.label === tokenSymbol)
   if (!item) return
-  if (item.disabled) return
+  // if (item.disabled) return
   emit('update:modelValue', tokenSymbol)
   await token.setToken(tokenSymbol, tokenAddress)
   await factory.getSupportedChains()

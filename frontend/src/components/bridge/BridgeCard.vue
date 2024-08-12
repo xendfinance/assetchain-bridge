@@ -1,38 +1,18 @@
 <template>
-  <BaseCard
-    class="bridge border-[1px] border-primary-border-card py-6 px-5 md:py-9 md:px-11"
-  >
+  <BaseCard class="bridge border-[1px] border-primary-border-card py-6 px-5 md:py-9 md:px-11">
     <div class="flex flex-col lg:flex-row items-center justify-between relative">
-      <ChainSelect
-        v-model="from"
-        :options="chainsFrom"
-        title="From"
-        subtitle="Source chain"
-        :loading="bridgeLoading"
-        :factoryLoading="_loading"
-      />
+      <ChainSelect v-model="from" :options="chainsFrom" title="From" subtitle="Source chain" :loading="bridgeLoading"
+        :factoryLoading="_loading" />
       <div class="flex items-center justify-between w-full lg:max-w-[48px] pt-6 lg:pt-16">
         <span class="font-semibold text-[20px] lg:hidden">To</span>
-        <ArrowRigth
-          v-if="isNativeToken"
-          class="text-primary-icon pl-2 rotate-90 lg:rotate-0"
-        />
+        <ArrowRigth v-if="isNativeToken" class="text-primary-icon pl-2 rotate-90 lg:rotate-0" />
         <button v-else @click="toggle" class="px-3">
           <SwitchIcon class="text-primary-icon hover:text-primary-text lg:rotate-90" />
         </button>
       </div>
 
-      <ChainSelect
-        mobile
-        v-model="to"
-        :options="chainsTo"
-        title="To"
-        subtitle="Destination chain"
-        :loading="bridgeLoading"
-        :symbol="symbol"
-        :contract-balance="balanceBridge(to)"
-        :factoryLoading=" _loading "  
-      />
+      <ChainSelect mobile v-model="to" :options="chainsTo" title="To" subtitle="Destination chain"
+        :loading="bridgeLoading" :symbol="symbol" :contract-balance="balanceBridge(to)" :factoryLoading="_loading" />
     </div>
     <div class="mt-7 w-full">
       <div class="flex items-center justify-between text-[11px] text-white">
@@ -52,22 +32,11 @@
         </div>
         <SvgoThreeDots v-else-if="token.loading" class="w-8" />
       </div>
-      <GInput
-        v-model="bridgeUI.inputAmount"
-        :placeholder="`0 ${token.symbol}`"
-        :is-valid="isValidInput"
-        :error="isValidInput"
-        :error-message="errorMessage"
-        :max-value="balanceToken(from)"
-        :disabled="!login"
-        class="mt-1"
-        :maxAmount="bridgeRead.limitPerSend(from)?.toString()"
-      />
-      <span
-        v-if="login"
-        class="mt-1 block text-[11px] text-disabled-text"
-        :class="{ 'opacity-0 md:opacity-100': !isValidInput }"
-      >
+      <GInput v-model="bridgeUI.inputAmount" :placeholder="`0 ${token.symbol}`" :is-valid="isValidInput"
+        :error="isValidInput" :error-message="errorMessage" :max-value="balanceToken(from)" :disabled="!login"
+        class="mt-1" :maxAmount="bridgeRead.limitPerSend(from)?.toString()" />
+      <span v-if="login" class="mt-1 block text-[11px] text-disabled-text"
+        :class="{ 'opacity-0 md:opacity-100': !isValidInput }">
         Fee: {{ isNaN(totalFees) ? 0 : totalFees }}
       </span>
     </div>
@@ -81,26 +50,17 @@
         :class="{
           'opacity-50 text-disabled-text': !login,
           '!text-primary-text': !!willReceive,
-        }"
-      >
+        }">
         {{ Number(willReceive) > 0 ? willReceive : 0 }}
 
         {{ token.symbol }}
       </div>
-      <div
-        v-if="login"
-        class="text-[11px] md:text-sm text-label-text text-end flex items-center"
-      >
+      <div v-if="login" class="text-[11px] md:text-sm text-label-text text-end flex items-center">
         <span class="md:hidden pr-1 text-[11px] text-label-text"> After receiving </span>
         <span class="hidden md:block pr-1 text-[11px] text-disabled-text">
           Balance after receiving
         </span>
-        <GTooltip
-          v-if="!token.loading"
-          :hint="`${balanceAfterReceive} ${token.symbol}`"
-          text
-          position="top"
-        >
+        <GTooltip v-if="!token.loading" :hint="`${balanceAfterReceive} ${token.symbol}`" text position="top">
           <span class="flex text-[11px] text-disabled-text">
             <!-- {{ !bridgeUI.inputAmount ? 0 : formatBigNums(balanceAfterReceive.toString() ?? 0) }} -->
             {{ formatBigNums(balanceAfterReceive, token.symbol) }}
@@ -111,26 +71,16 @@
       </div>
     </div>
     <div class="flex font-bold items-center justify-center md:justify-end mt-6">
-      <div
-        class="w-full flex flex-col md:flex-row gap-[10px] md:gap-5 md:items-center justify-between"
-        :class="{ 'md:!justify-end': !login }"
-      >
+      <div class="w-full flex flex-col md:flex-row gap-[10px] md:gap-5 md:items-center justify-between"
+        :class="{ 'md:!justify-end': !login }">
         <LogoutButton v-if="login" />
-        <GButton
-          v-if="login"
-          class="w-full max-w-[280px] md:max-w-[143px] h-[48px] self-center md:self-auto"
-          primary
+        <GButton v-if="login" class="w-full max-w-[280px] md:max-w-[143px] h-[48px] self-center md:self-auto" primary
           :disabled="!isValid || !bridgeUI.inputAmount || allowanceLoading"
-          @click="hasAllowance ? onTransfer() : onEnable()"
-        >
+          @click="hasAllowance ? onTransfer() : onEnable()">
           {{ allowanceLoading ? 'Loading...' : hasAllowance ? 'Transfer' : 'Approve' }}
         </GButton>
-        <GButton
-          v-else
-          class="w-full max-w-[280px] md:max-w-[194px] h-[48px] self-center md:self-auto"
-          primary
-          @click="dialogs.openDialog('connectDialog', {})"
-        >
+        <GButton v-else class="w-full max-w-[280px] md:max-w-[194px] h-[48px] self-center md:self-auto" primary
+          @click="dialogs.openDialog('connectDialog', {})">
           Connect Wallet
         </GButton>
       </div>
@@ -195,7 +145,7 @@ const web3 = useWeb3()
 // )
 
 const isNativeToken = computed(() => {
-  return ('RWA' === props.tokenSymbol && web3.chainId === '42421')
+  return ('RWA' === props.tokenSymbol)
 })
 const decimals = computed(() => token.decimals[web3.chainId])
 const decimalsTo = computed(() => token.decimals[unref(to) as ChainId])
@@ -222,7 +172,6 @@ onMounted(() => {
   }
 
   chainsTo.value = unref(normalizedChainsLabels)
-    // .filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
     .map((c) => ({
       value: c.value,
       label: c.label,
@@ -241,49 +190,54 @@ onMounted(() => {
 watch(
   [
     normalizedChainsLabels,
-    token.symbol,
+    // token.symbol,
     web3.chainId,
-    isNativeToken,
-    bridgeRead.supportedChains,
+    // isNativeToken,
+    // bridgeRead.supportedChains,
   ],
   () => {
     if (!from.value && !to.value) {
-      from.value = normalizedChainsLabels.value[0]?.value
-      to.value = normalizedChainsLabels.value[1]?.value
+      from.value =  normalizedChainsLabels.value[0]?.value
+      to.value =normalizedChainsLabels.value[1]?.value
     }
 
-    if ((isNativeToken.value && from.value === '42421') || (isNativeToken.value && from.value === '200810')) toggle()
+    if ((isNativeToken.value && from.value === '42421')) toggle()
 
     chainsTo.value = isNativeToken.value
-      ? []
-      : // unref(normalizedChainsLabels)
-        //     ?.filter((c) => c.value === '42421')
-        //     .map((c) => ({
-        //       value: c.value,
-        //       label: c.label,
-        //       disabled: false,
-        //     }))
-        unref(normalizedChainsLabels)
-          // .filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
-          .map((c) => ({
-            value: c.value,
-            label: c.label,
-            disabled: from.value === c.value ? true : false,
-          }))
-    chainsFrom.value = isNativeToken.value
       ? unref(normalizedChainsLabels)
-          ?.filter((c) => c.value === '421614')
-          .map((c) => ({
-            value: c.value,
-            label: c.label,
-            disabled: false,
-          }))
-      : unref(normalizedChainsLabels)?.map((c) => ({
+        ?.filter((c) => c.value === '42421')
+        .map((c) => ({
           value: c.value,
           label: c.label,
           disabled: false,
         }))
-
+      : // unref(normalizedChainsLabels)
+      //     ?.filter((c) => c.value === '42421')
+      //     .map((c) => ({
+      //       value: c.value,
+      //       label: c.label,
+      //       disabled: false,
+      //     }))
+      unref(normalizedChainsLabels)
+        // .filter((item) => unref(bridgeRead.supportedChains).includes(item.value))
+        .map((c) => ({
+          value: c.value,
+          label: c.label,
+          disabled: from.value === c.value ? true : false,
+        }))
+    chainsFrom.value = isNativeToken.value
+      ? unref(normalizedChainsLabels)
+        ?.filter((c) => c.value === '421614')
+        .map((c) => ({
+          value: c.value,
+          label: c.label,
+          disabled: false,
+        }))
+      : unref(normalizedChainsLabels)?.map((c) => ({
+        value: c.value,
+        label: c.label,
+        disabled: false,
+      }))
     bridgeUI.from = from.value
     bridgeUI.to = to.value
   }
@@ -300,7 +254,7 @@ const feeSend = computed(
 const totalFees = computed(
   () =>
     ((Number(bridgeUI.inputAmount) - feeSend.value) * bridgeRead.feeFulfill(to.value)) /
-      100 +
+    100 +
     feeSend.value
 )
 

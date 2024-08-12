@@ -10,8 +10,8 @@
         "
       />
     </div>
-
-    <span class="text-sm text-label-text">
+    <SvgoThreeDots v-if="token.loading" class="w-6 mx-[auto]" />
+    <span v-else class="text-sm text-label-text">
       <!-- {{ formatBigNums(balanceTokenNumber(web3.chainId)).toString() }}  -->
       {{
         formatBigNums(balanceToken(web3.chainId).toBigNumber(18).formatString(18) ?? 0, token.symbol)
@@ -42,6 +42,7 @@ import { useTokenRead } from '@/store/business/token'
 import { chainsLabels } from '@/misc/chains'
 import { formatBigNums } from '@/misc/utils'
 import { useToken } from '@/store/contracts/token'
+import SvgoThreeDots from '@/components/base/ThreeDots.vue'
 
 const { walletLabel, login } = useWallet()
 const web3 = useWeb3()
