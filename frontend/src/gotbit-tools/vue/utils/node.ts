@@ -288,7 +288,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   goerli: ['https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
   bsc_testnet: [
     // 'https://bsc-testnet-rpc.publicnode.com',
-    'https://bsctestapi.terminet.io/rpc',
+    // 'https://bsctestapi.terminet.io/rpc',
     'https://data-seed-prebsc-1-s1.binance.org:8545/',
     'https://data-seed-prebsc-2-s1.binance.org:8545/',
     'http://data-seed-prebsc-1-s2.binance.org:8545/',
@@ -309,7 +309,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   pulse_testnet: ['https://rpc.v4.testnet.pulsechain.com'],
   xend_testnet: ['https://enugu-rpc.assetchain.org/'],
   arbitrum_sepolia: ['https://endpoints.omniatech.io/v1/arbitrum/sepolia/public'],
-  base_sepolia: ['https://public.stackup.sh/api/v1/node/base-sepolia'],
+  base_sepolia: ['https://base-sepolia-rpc.publicnode.com'],
   eth_sepolia: ['https://ethereum-sepolia-rpc.publicnode.com'],
   polygon_amoy: ['https://polygon-amoy-bor-rpc.publicnode.com'],
   bitlayer_testnet: ['https://testnet-rpc.bitlayer.org']

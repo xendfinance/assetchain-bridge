@@ -99,7 +99,15 @@ const isNativeToken = computed(() =>
 // console.log(isNativeToken, tokens, tokenStore.tokens[web3.chainId], 'dksdk')
 
 const options = computed(() => [
-  ...new Map(tokenStore.tokens[web3.chainId].filter( v => v.label !== 'USDC').map((item) => [item.value, item])).values(),
+  ...new Map(tokenStore.tokens[web3.chainId].filter(v => {
+    if (v.label !== 'aUSDC.e') {
+      if (v.label === 'USDC'){
+        if (web3.chainId === '42421' || web3.chainId === '84532') return true
+        else return false
+      }else return true
+    }
+    return false
+  }).map((item) => [item.value, item])).values(),
 ])
 </script>
 
