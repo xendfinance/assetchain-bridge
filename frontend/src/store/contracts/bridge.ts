@@ -193,8 +193,10 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         this.loading = true
 
+        let symbol = token.symbol === 'USDC' && (web3.chainId === '42421' || web3.chainId === '84532') ? 'aUSDC.e' : token.symbol
+
         const signature = await getTokenSignature(
-          token.symbol as Symbol,
+          symbol as Symbol,
           fromBridgeAssistAddress.value,
           toBridgeAssistAddress.value,
           transaction.fromChain,
