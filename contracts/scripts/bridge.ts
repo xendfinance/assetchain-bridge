@@ -131,12 +131,12 @@ async function send(
   }
   let decimals: number
   if (type !== BRIDGETYPE.NATIVE) {
-    let decimals = await tokenContract.decimals()
+    decimals = await tokenContract.decimals()
     console.log(colors.blue(`token decimals ${decimals}...`))
   }
 
   let allowance: BigNumber
-  if (type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE) {
+  if ((type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE) || tokenType === 'circle') {
     allowance = await tokenContract.allowance(owner.address, bridgeAssist.address)
     console.log(
       colors.blue(`bridge assist allowance ${BigNumber.from(allowance).toString()}...`)
@@ -149,7 +149,7 @@ async function send(
     amount = ethers.utils.parseUnits(_amount.toString(), decimals!)
   }
 
-  if (type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE && amount.gt(allowance!)) {
+  if ((type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE && amount.gt(allowance!)) || (tokenType === 'circle' && amount.gt(allowance!))) {
     console.log(colors.yellow(`amount to be sent is greater than allowance`))
     console.log(colors.yellow(`approving tokens...`))
     let tx: ContractTransaction
@@ -179,7 +179,7 @@ async function send(
     const tx2: ContractTransaction = await bridgeAssist
       .connect(owner)
       .send(
-        ethers.utils.parseEther(_amount),
+        amount,
         owner.address,
         `evm.${toChain}`,
         type === BRIDGETYPE.NATIVE ? { value: amount } : undefined
@@ -194,16 +194,18 @@ async function send(
   }
 
   // console.log(amount.toString(), toChain, 'dks')
-  const tx2: ContractTransaction = await bridgeAssist
-    .connect(owner)
-    .send(ethers.utils.parseEther(_amount), owner.address, `evm.${toChain}`)
-  console.log(
-    colors.green(
-      `tokens sent to bridgeAssist ${bridgeAssist.address} ${getChainName(
-        `evm.${chainId}`
-      )} ${tx2.hash}`
+  else {
+    const tx2: ContractTransaction = await bridgeAssist
+      .connect(owner)
+      .send(amount, owner.address, `evm.${toChain}`)
+    console.log(
+      colors.green(
+        `tokens sent to bridgeAssist ${bridgeAssist.address} ${getChainName(
+          `evm.${chainId}`
+        )} ${tx2.hash}`
+      )
     )
-  )
+  }
 }
 
 async function claim(
