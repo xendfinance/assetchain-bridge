@@ -340,6 +340,7 @@ async function initFactory(config: any) {
     }
   }
   // let mulsigwalletContract= null
+
   console.log(colors.yellow(`Getting Factory Contract...`))
   const factoryContract = await ethers.getContractAt(factoryAbi, factoryaddress)
   console.log(colors.yellow(`Getting Multisig Wallet...`))
@@ -347,7 +348,7 @@ async function initFactory(config: any) {
   const mulsigwalletContract = await ethers.getContractAt(mulsigwalletAbi, mulsigwalletAddress)
 
   console.log(colors.green(`Factory Contract initiated ${factoryContract.address}`))
-  console.log(colors.green(`Multisigwallet Contract initiated ${mulsigwalletContract.address}`))
+  // console.log(colors.green(`Multisigwallet Contract initiated ${mulsigwalletContract.address}`))
 
   console.log(colors.yellow(`getting creator role...`))
   const creatorRole: string = await factoryContract.CREATOR_ROLE()
