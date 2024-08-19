@@ -5,7 +5,7 @@ import { useDialogs } from '@/store/ui/dialogs'
 
 import type { FulfillTx } from '@/api/types'
 import { ChainId } from '@/gotbit-tools/vue/types'
-import { ContractTransaction } from 'ethers'
+import { ContractTransaction, ethers } from 'ethers'
 
 import { claimDialog, Dialog, enableDialog, transferDialog } from '@/misc/dialogTexts'
 import { createWaiter, formatDialog } from '@/misc/formatDialog'
@@ -222,14 +222,15 @@ export const useBridgeWrite = () => {
       return bridge.histories
         .map((h) => {
           const decimals =
-            h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
-              ? 6
-              : token.decimals[h.transaction.toChain]
-
+            // h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
+            //   ? 6
+              token.decimals[web3.chainId]
+          // console.log(decimals)
           return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
-              amount: h.transaction.amount.formatNumber(decimals, 3),
+              // amount: h.transaction.amount.formatNumber(decimals, 3),
+              amount: +ethers.utils.formatUnits(h.transaction.amount, decimals),
               to: h.transaction.toChain as ChainId,
               from: h.transaction.fromChain as ChainId,
               fulfilled: h.fulfilled,
@@ -284,8 +285,8 @@ export const useBridgeWrite = () => {
 
     fulfill: (transaction: FulfillTx, amount: number, index: number) =>
       createAction(
-        formatDialog(claimDialog(`${amount} ${token.symbol}`), {
-          amount: `${amount} ${token.symbol}`,
+        formatDialog(claimDialog(`${ethers.utils.formatUnits(transaction.amount, token.decimals[web3.chainId])} ${token.symbol}`), {
+          amount: `${ethers.utils.formatUnits(transaction.amount, token.decimals[web3.chainId])} ${token.symbol}`,
         }),
         () => bridge.fulfill(transaction, index)
       ),

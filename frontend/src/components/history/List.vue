@@ -220,7 +220,7 @@ const tokenAddress = (toChain: ChainId) => {
 }
 
 watch(symbol, () => {
-  console.log('TOOOOOOOOken', symbol.value)
+  // console.log('TOOOOOOOOken', symbol.value)
   page.value = 1
   bridge.upload()
 })

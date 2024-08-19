@@ -120,7 +120,7 @@ export const useToken = defineContractStore<
       this.loading = true
       await this.getTokens()
       if (web3.login) {
-        console.log('upload token balances')
+        // console.log('upload token balances')
         await this.getBalances()
       }
       this.loading = false
@@ -297,7 +297,7 @@ export const useToken = defineContractStore<
         for (const c of REAL_CHAIN_IDS) {
           if (factory.assistAndTokenAddresses[c].find((a) => a.token === tokenAddress)) {
             chainId = c
-            console.log(chainId, 'setToken')
+            // console.log(chainId, 'setToken')
             break
           }
         }
@@ -315,7 +315,7 @@ export const useToken = defineContractStore<
       } else {
         const dataSymbol = await safeRead(contract.anyToken(tokenAddress).symbol(), 'RWA')
         this.symbol = dataSymbol
-        console.log(dataSymbol, 'symbol')
+        // console.log(dataSymbol, 'symbol')
         await this.setDecimals(this.symbol)
       }
       await this.getBalances()
