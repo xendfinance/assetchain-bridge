@@ -179,6 +179,7 @@ abstract contract BridgeAssistGenericUpgradeable is
         string memory toUser, // marked as memory to prevent "stack too deep"
         string calldata toChain
     ) external payable virtual whenNotPaused {
+        require(msg.value == 0, 'Can not send native token contract');
         require(amount != 0, 'Amount = 0');
         require(amount <= limitPerSend, 'Amount is more than limit');
         require(bytes(toUser).length != 0, 'Field toUser is empty');
