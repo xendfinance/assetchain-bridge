@@ -142,8 +142,8 @@ abstract contract BridgeAssistGenericUpgradeable is
         require(relayerConsensusThreshold_ != 0, '0-of-N');
         require(relayerConsensusThreshold_ <= relayers_.length, 'N-of-N');
 
-        for (uint256 i = 0; i < relayers_.length; ) {
-            for (uint256 j = 0; j < relayers_.length; ) {
+        for (uint256 i; i < relayers_.length; ) {
+            for (uint256 j; j < relayers_.length; ) {
                 require(
                     i == j || relayers_[i] != relayers_[j],
                     'Duplicate relayers'
@@ -252,7 +252,7 @@ abstract contract BridgeAssistGenericUpgradeable is
         require(signatures.length == relayers.length, 'Bad signatures length');
 
         bytes32 hashedData = _hashTransaction(transaction);
-        uint256 relayerConsensus = 0;
+        uint256 relayerConsensus;
 
         for (uint256 i = 0; i < signatures.length; ) {
             if (signatures[i].length == 0) {
@@ -571,7 +571,7 @@ abstract contract BridgeAssistGenericUpgradeable is
     function _toString(
         bytes32 source
     ) internal pure returns (string memory result) {
-        uint8 length = 0;
+        uint8 length;
         while (source[length] != 0 && length < 32) {
             length++;
         }

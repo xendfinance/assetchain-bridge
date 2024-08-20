@@ -123,7 +123,7 @@ contract BridgedAssetChainToken is ERC20, AccessControl {
     function disableLockStage() external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(isLockActive, 'Lock stage is not active');
 
-        isLockActive = false;
+        delete isLockActive;
         emit BlacklistStageDisabled();
     }
 
