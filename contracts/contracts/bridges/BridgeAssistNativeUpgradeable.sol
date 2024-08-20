@@ -76,35 +76,6 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
         require(success2, 'Send funds error: user');
     }
 
-    /// @dev set fee for fulfill
-    /// @param feeFulfill_ fee for fulfill as numerator over FEE_DENOMINATOR
-    function setFee(uint256 feeFulfill_) external onlyRole(MANAGER_ROLE) {
-        require(feeFulfill != feeFulfill_, 'Fee numerator repeats');
-        require(feeFulfill_ < FEE_DENOMINATOR, 'Fee is too high');
-
-        feeFulfill = feeFulfill_;
-        emit FeeFulfillSet(feeFulfill_);
-    }
-
-    // /// @dev withdraw native tokens from bridge
-    // /// @param to the address the tokens will be sent
-    // /// @param amount amount to withdraw
-    // function withdrawNative(address to, uint256 amount) external onlyRole(MANAGER_ROLE) {
-    //     require(to != address(0), 'To: zero address');
-    //     require(amount != 0, 'Amount: zero');
-
-    //     (bool success, ) = to.call{value: amount}('');
-    //     require(success, 'Unable to send funds');
-    // }
-
-    // function setFee(uint256, uint256) external pure override {
-    //     revert('NOT SUPPORTED');
-    // }
-
-    // function setLimitPerSend(uint256) external pure override {
-    //     revert('NOT SUPPORTED');
-    // }
-
     function send(
         uint256 amount,
         string memory toUser,
@@ -112,7 +83,6 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
     ) external payable override {
         require(msg.value != 0, 'Value sent = 0');
         require(msg.value == amount, 'Value not Equal');
-        require(amount != 0, 'Amount = 0');
         require(amount <= limitPerSend, 'Amount is more than limit');
         require(bytes(toUser).length != 0, 'Field toUser is empty');
         require(isSupportedChain(toChain), 'Chain is not supported');
@@ -133,6 +103,12 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
             FEE_DENOMINATOR /
             exchangeRate;
 
+        if (currentFee > 0){
+            uint256 feeAmount = currentFee * exchangeRate;
+            (bool success, ) = feeWallet.call{value: feeAmount}("");
+            require(success, "Fee transfer failed");
+        }
+
         transactions[msg.sender].push(
             Transaction({
                 fromUser: msg.sender,
@@ -147,6 +123,7 @@ contract BridgeAssistNativeUpgradeable is BridgeAssistGenericUpgradeable {
                 block: block.number
             })
         );
+
 
         emit SentTokens(
             msg.sender,

@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import {BridgeAssistGenericUpgradeable} from './base/BridgeAssistGenericUpgradeable.sol';
 import {ICircleToken} from '../interfaces/ICircleToken.sol';
+import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 
 /// @title BridgeAssistMintUpgradeable
 /// @author gotbit
@@ -55,8 +56,7 @@ contract BridgeAssistCircleMintUpgradeable is BridgeAssistGenericUpgradeable {
         uint256 fee
     ) internal override {
         ICircleToken token_ = ICircleToken(token);
-        bool success = token_.transferFrom(user, address(this), amount);
-        require(success, "Bridge Assist: Transfer Failed");
+        token_.safeTransferFrom(user, address(this), amount);
         token_.burn(amount);
         if (fee != 0) {
             token_.mint(feeWallet, fee);

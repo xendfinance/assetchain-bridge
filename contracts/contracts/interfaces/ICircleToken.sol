@@ -12,4 +12,7 @@ interface ICircleToken {
     function burn(uint256 amount) external;
 
     function transferFrom(address from, address to, uint amount) external returns (bool);
+
+    function safeTransferFrom(address from, address to, uint amount) external returns (bool);
+    
 }

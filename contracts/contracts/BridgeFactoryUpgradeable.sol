@@ -50,7 +50,6 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address bridgeCircle
     );
 
-    using BridgeFactoryErrors for *;
 
     modifier onlyMultisig() {
         if (msg.sender != MULTISIG_WALLET) revert BridgeFactoryErrors.NotMultiSigWallet();
