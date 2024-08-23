@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.18;
 
-import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {IBridgeAssist} from '../../interfaces/IBridgeAssist.sol';
 
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
@@ -9,7 +8,6 @@ import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/security/
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 
 import {ECDSAUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
-import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 import {EnumerableSetUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 
@@ -436,20 +434,6 @@ abstract contract BridgeAssistGenericUpgradeable is
         limitPerSend = limitPerSend_;
         emit LimitPerSendSet(limitPerSend_);
     }
-
-    // /// @dev withdraw tokens from bridge
-    // /// @param token_ token to withdraw
-    // /// @param to the address the tokens will be sent
-    // /// @param amount amount to withdraw
-    // function withdraw(
-    //     IERC20Upgradeable token_,
-    //     address to,
-    //     uint256 amount
-    // ) external onlyRole(MANAGER_ROLE) {
-    //     require(to != address(0), 'To: zero address');
-    //     require(amount != 0, 'Amount: zero');
-    //     SafeERC20Upgradeable.safeTransfer(token_, to, amount);
-    // }
 
     /// @dev pausing the contract
     function pause() external whenNotPaused onlyRole(MANAGER_ROLE) {

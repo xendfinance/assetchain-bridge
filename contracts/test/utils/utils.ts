@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
   BridgedAssetChainToken__factory,
@@ -7,12 +7,14 @@ import {
   BridgeAssistMintUpgradeable,
   BridgeAssistNativeUpgradeable,
   Token__factory,
+  BridgeAssistCircleMintUpgradeable,
 } from '@/typechain'
 
 export enum AllBridgeTypes {
   DEFAULT,
   MINT,
   NATIVE,
+  CIRCLEMINTBURN,
 }
 
 export async function disableInitializer(contract: string) {
@@ -29,9 +31,11 @@ export async function bridgeSetup(
   bridge:
     | BridgeAssistTransferUpgradeable
     | BridgeAssistNativeUpgradeable
-    | BridgeAssistMintUpgradeable,
+    | BridgeAssistMintUpgradeable
+    | BridgeAssistCircleMintUpgradeable,
   deployer: SignerWithAddress,
-  bridgeType: AllBridgeTypes
+  bridgeType: AllBridgeTypes,
+  circleToken?: Contract
 ) {
   const managerRole = await bridge.MANAGER_ROLE()
   await bridge.connect(deployer).grantRole(managerRole, deployer.address)
@@ -45,6 +49,11 @@ export async function bridgeSetup(
       to: bridge.address,
       value: ethers.utils.parseEther('4000'), // Sends exactly 1.0 ether
     })
+  } else if (bridgeType === AllBridgeTypes.CIRCLEMINTBURN && circleToken) {
+    await circleToken.mint(deployer.address, '500_000'.toBigNumber())
+    console.log(await circleToken.balanceOf(deployer.address), await circleToken.balanceOf(bridge.address), `balance Before`)
+    await circleToken.transfer(bridge.address, '1000'.toBigNumber())
+    console.log(await circleToken.balanceOf(deployer.address), await circleToken.balanceOf(bridge.address), 'balance After')
   } else {
     const token = BridgedAssetChainToken__factory.connect(
       await bridge.TOKEN(),

@@ -6,7 +6,7 @@ import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/acce
 
 import {ClonesUpgradeable} from '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import {EnumerableSetUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
-import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
+// import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 import {BridgeFactoryErrors} from './utils/errors/BridgeFactoryErrors.sol';
 
 /**

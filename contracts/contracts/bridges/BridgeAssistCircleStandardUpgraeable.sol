@@ -56,7 +56,10 @@ contract BridgeAssistCircleMintUpgradeable is BridgeAssistGenericUpgradeable {
         uint256 fee
     ) internal override {
         ICircleToken token_ = ICircleToken(token);
-        token_.safeTransferFrom(user, address(this), amount);
+        uint256 balanceBefore = token_.balanceOf(address(this));
+        SafeERC20Upgradeable.safeTransferFrom(token_, user, address(this), amount);
+        uint256 balanceAfter = token_.balanceOf(address(this));
+        require(balanceAfter - balanceBefore == amount, 'bad token');
         token_.burn(amount);
         if (fee != 0) {
             token_.mint(feeWallet, fee);
