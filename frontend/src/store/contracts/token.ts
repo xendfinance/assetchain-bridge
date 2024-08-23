@@ -187,7 +187,6 @@ export const useToken = defineContractStore<
     async getTokens() {
       const factory = useFactory()
       await factory.upload()
-
       for (const chainId of REAL_CHAIN_IDS) {
         this.tokens[chainId] = []
         const contract = getContract(chainId)
@@ -286,7 +285,7 @@ export const useToken = defineContractStore<
       // console.log('this.tokens', this.tokens)
     },
     async setToken(symbol, tokenAddress) {
-      // console.log(symbol, tokenAddress, 'dhsjk')
+      console.log(symbol, tokenAddress, 'dhsjk')
       const web3 = useWeb3()
       const factory = useFactory()
       this.loading = true

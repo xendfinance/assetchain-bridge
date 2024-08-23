@@ -13,7 +13,7 @@ export const config = defineConfig({
 
     switch (chainTag) {
       case 'arbitrum_sepolia':
-        return 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia'
+        return 'https://arbitrum-sepolia.blockpi.network/v1/rpc/public'
       case 'xend_testnet':
         return 'https://enugu-rpc.assetchain.org/'
       case 'bsc_testnet':
