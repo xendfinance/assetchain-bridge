@@ -13,9 +13,14 @@ import PulseChainIcon from '@/components/base/icons/IconPulseChain.vue'
 import PulseIconVue from '@/components/base/icons/PulseIconVue.vue'
 import BaseIconVue from '@/components/base/icons/BaseIconVue.vue'
 
-export const REAL_CHAIN_IDS: ChainId[] = IS_DEBUG
-  ? ['97', '421614', '42421', '11155111', '80002', '84532', '200810']
-  : ['97', '421614', '42421', '84532', '200810']
+// export const REAL_CHAIN_IDS: ChainId[] = IS_DEBUG
+//   ? ['97', '421614', '42421', '11155111', '80002', '84532', '200810']
+//   // : ['97', '421614', '42421', '84532', '200810']
+//   : [ '42421', '84532', '200810']
+
+  export const REAL_CHAIN_IDS: ChainId[] = IS_DEBUG
+  ? ['42421', '84532', '200810', '421614']
+  : ['42421', '84532', '200810', '421614']
 
 export const chainsLabels: { value: ChainId; label: string; component: any }[] = IS_DEBUG
   ? [
