@@ -94,21 +94,21 @@ const dropdown = ref<HTMLElement | any>(null)
 
 const chosenToken = computed(() => {
   if (!props.modelValue) {
-    const _c = token.tokens[web3.chainId][0]
+    const _c = props.options[0]
     if (_c){
       onSelect(_c.label, _c.value)
     }
-    return _c ? _c : props.options[0]
+    return _c ? _c : token.tokens[web3.chainId]?.[0]
   }
   
-  const _c = token.tokens[web3.chainId].find(o => o.label === props.modelValue)
+  const _c = props.options.find(o => o.label === props.modelValue)
   if (!_c) {
-    const firstToken = token.tokens[web3.chainId][0]
+    const firstToken = props.options[0]
     if (firstToken){
       onSelect(firstToken.label, firstToken.value)
     }
     
-    return firstToken ? firstToken : props.options[0]
+    return firstToken ? firstToken : token.tokens[web3.chainId]?.[0]
   }
   return _c
 })
