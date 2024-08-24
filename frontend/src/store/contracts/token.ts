@@ -282,7 +282,7 @@ export const useToken = defineContractStore<
           // console.log('this.tokens', chainId, this.tokens[chainId])
         }
       }
-      // console.log('this.tokens', this.tokens)
+      console.log('this.tokens', this.tokens)
     },
     async setToken(symbol, tokenAddress) {
       console.log(symbol, tokenAddress, 'dhsjk')

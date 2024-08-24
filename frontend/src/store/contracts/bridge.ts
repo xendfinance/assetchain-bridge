@@ -141,16 +141,19 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           )?.bridgeAssist ?? ''
         // contract.anyBridgeAssist('').connect(web3.signer!).send()
         this.loading = true
-        if (tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2 && web3.chainId === '200810'){
-          const {bridgeAssistNative }: any  = contract
+        if (
+          tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2 &&
+          web3.chainId === '200810'
+        ) {
+          const { bridgeAssistNative }: any = contract
           const [tx] = await safeWrite(
             bridgeAssistNative(bridgeAssistAddress)
               .connect(web3.signer!)
-              .send(amount, web3.wallet, 'evm.' + to.toString(), {value: amount})
+              .send(amount, web3.wallet, 'evm.' + to.toString(), { value: amount })
           )
           this.loading = false
           return tx
-        }else {
+        } else {
           const [tx] = await safeWrite(
             contract
               .anyBridgeAssist(bridgeAssistAddress)
@@ -168,7 +171,9 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         // const { bridgeAssist } = useContracts(web3.signer!)
         const token = useToken()
         const contract = getContract(web3.chainId)
-        const _fromtoken = token.tokens[transaction.fromChain.slice(4) as ChainId].find(t => t.label === token.symbol)
+        const _fromtoken = token.tokens[transaction.fromChain.slice(4) as ChainId].find(
+          (t) => t.label === token.symbol
+        )
         if (!_fromtoken) throw new Error(`From Token Error: Something went wrong`)
         const fromBridgeAssistAddress = computed(
           () =>
@@ -177,7 +182,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             ].find((item) => item.token === _fromtoken.value)?.bridgeAssist ?? ''
         )
 
-        const _totoken = token.tokens[web3.chainId].find(t => t.label === token.symbol)
+        const _totoken = token.tokens[web3.chainId].find((t) => t.label === token.symbol)
         if (!_totoken) throw new Error(`To Token Error: Something went wrong`)
 
         const toBridgeAssistAddress = computed(
@@ -185,7 +190,8 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             factory.assistAndTokenAddresses[web3.chainId].find(
               (item) =>
                 item.token ===
-                ((token.symbol === 'RWA' && web3.chainId === '42421') || (token.symbol === 'BTC' && web3.chainId === '200810')
+                ((token.symbol === 'RWA' && web3.chainId === '42421') ||
+                (token.symbol === 'BTC' && web3.chainId === '200810')
                   ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
                   : _totoken.value)
             )?.bridgeAssist ?? ''
@@ -193,7 +199,11 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         this.loading = true
 
-        let symbol = token.symbol === 'USDC' && (web3.chainId === '42421' || web3.chainId === '84532') ? 'aUSDC.e' : token.symbol
+        let symbol =
+          token.symbol === 'USDC' &&
+          (web3.chainId === '42421' || web3.chainId === '84532')
+            ? 'aUSDC.e'
+            : token.symbol
 
         const signature = await getTokenSignature(
           symbol as Symbol,
@@ -233,12 +243,18 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           //   token.symbol === 'RWA' && chainId === '42421'
           //     ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
           //     : token.tokenAddress
-          if ((token.symbol === 'RWA' && chainId === '42421') || (token.symbol === 'BTC' && chainId === '200810')) {
+          if (
+            (token.symbol === 'RWA' && chainId === '42421') ||
+            (token.symbol === 'BTC' && chainId === '200810')
+          ) {
             tokenAddr = DEFAULT_NATIVE_TOKEN_CONTRACT_2
           } else {
-            const _token = token.tokens[chainId].find((t) => t.label === token.symbol)
-            if (_token) {
-              tokenAddr = _token.value
+            const tokens = token.tokens[chainId]
+            if (tokens) {
+              const _token = tokens.find((t) => t.label === token.symbol)
+              if (_token) {
+                tokenAddr = _token.value
+              }
             }
           }
 
@@ -298,16 +314,23 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         const { assistAndTokenAddresses } = useFactory()
         let tokenAddr = token.tokenAddress
-        let fulfilledAt  = BigNumber.from(0)
+        let fulfilledAt = BigNumber.from(0)
         let bridgeAddress = null
-        if ((token.symbol === 'RWA' && chainId === '42421') || (token.symbol === 'BTC' && chainId === '200810')){
+        if (
+          (token.symbol === 'RWA' && chainId === '42421') ||
+          (token.symbol === 'BTC' && chainId === '200810')
+        ) {
           tokenAddr = DEFAULT_NATIVE_TOKEN_CONTRACT_2
-          const assist = assistAndTokenAddresses[chainId].find(i => i.token === tokenAddr)
+          const assist = assistAndTokenAddresses[chainId].find(
+            (i) => i.token === tokenAddr
+          )
           if (assist) bridgeAddress = assist.bridgeAssist
-        }else {
-          const _token = token.tokens[chainId].find(t => t.label === token.symbol)
-          if (_token){
-            const assist = assistAndTokenAddresses[chainId].find(i => i.token === _token.value)
+        } else {
+          const _token = token.tokens[chainId].find((t) => t.label === token.symbol)
+          if (_token) {
+            const assist = assistAndTokenAddresses[chainId].find(
+              (i) => i.token === _token.value
+            )
             if (assist) bridgeAddress = assist.bridgeAssist
           }
         }
@@ -317,8 +340,8 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         //   (item) => item.token === tokenAddr
         // )?.bridgeAssist
         const contract = getContract(chainId)
-        
-        if (bridgeAddress){
+
+        if (bridgeAddress) {
           fulfilledAt = await safeRead(
             contract
               .anyBridgeAssist(bridgeAddress)
@@ -339,7 +362,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const signedTransactions = []
         for (const transaction of transactions) {
           const hashedTx = hashTx(transaction)
-          
+
           signedTransactions.push({
             transaction: extractTransaction(transaction),
             fulfillTransaction: extractFulfillTransaction(transaction),
