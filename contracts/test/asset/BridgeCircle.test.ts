@@ -74,7 +74,9 @@ describe('BridgeAssistCircleStandard contract', () => {
     const factory = new ethers.ContractFactory(ABI.abi, CIRCLETOKENBYTECODE, deployer)
     circleToken = await factory.deploy()
 
-    circleToken.deployed()
+    await circleToken.deployed()
+
+    console.log('hjhghhg')
 
     await circleToken.initialize(
       'TEST USDC',
@@ -86,7 +88,8 @@ describe('BridgeAssistCircleStandard contract', () => {
       deployer.address,
       deployer.address
     )
-    await circleToken.initializeV2('USDC')
+    console.log('high')
+    // await circleToken.initializeV2('USDC')
     console.log(await circleToken.decimals())
   })
   it('constructor requires', async function () {
