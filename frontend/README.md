@@ -32,6 +32,8 @@ VITE_BACKEND_LINK_USDT=https://bridge-testnet-api-usdt.assetchain.org
 VITE_BACKEND_LINK_USDC=https://bridge-testnet-api-usdc.assetchain.org
 VITE_BACKEND_LINK_WNT=https://bridge-testnet-api-wnt.assetchain.org
 VITE_BACKEND_LINK_WETH=https://bridge-testnet-api-weth.assetchain.org
+VITE_BACKEND_LINK_WBTC=https://bridge-testnet-api-wbtc.assetchain.org
+VITE_BACKEND_LINK_AUSDCE=https://bridge-testnet-api-ausdce.assetchain.org
 VITE_PROD=false
 VITE_DEBUG=true
 ```

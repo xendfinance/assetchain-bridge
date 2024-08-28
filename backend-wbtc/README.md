@@ -1,4 +1,4 @@
-# Asset Chain Bridge backend for DAI
+# Asset Chain Bridge backend for BTC
 
 ## Description
 
@@ -41,7 +41,9 @@ Endpoint `/transactions` receiving the user's address from the frontend at the m
 Endpoint `/sign` receiving as input the parameters 
   `fromChain: string`,
   `fromUser: string`,
-  `index: string`
+  `index: string`,
+  `toBridgeAssistAddress: string`,
+  `fromBridgeAddress: string`
 finds the required transaction on the source network, checks that the required number of confirmation blocks has passed and if the check has passed, signs it and returns it to the user.
 
 ### Contracts
@@ -65,7 +67,9 @@ user - address
 params:
 fromChain - source chain (evm.1)
 fromUser - sender address
-index - tx index
+index - transaction index
+toBridgeAssistAddress - Destination chain Bridge Assist Contract address
+fromBridgeAddress - Source chain Bridge Assist Contract address
 
 /health - check server health
 
@@ -93,12 +97,8 @@ You can see more details about gotbit-tools in /frontend/src/gotbit-tools/README
 
 ### Security
 
-Вo not show the private key used to sign transactions to anyone.
+Do not show the private key used to sign transactions to anyone.
 If an intruder gets this key, he can sign a fake transaction with it and withdraw all the money from your bridge.
-
-### Scheme
-
-![alt text](https://github.com/gotbitlabs/creo-bridge/blob/main/bridge_scheme.jpg?raw=true)
 
 
 
