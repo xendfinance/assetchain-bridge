@@ -93,10 +93,14 @@ export const useFactory = defineContractStore<
 
       const token = useToken()
 
+      const chainIds = token.symbol === 'USDC' ? REAL_CHAIN_IDS.filter(c => c !== '421614') : REAL_CHAIN_IDS
+
       const res = await Promise.all(
-        REAL_CHAIN_IDS.map(async (id) => {
+        chainIds.map(async (id) => {
+          const _token = token.tokens[id].find( t => t.label === token.symbol)
+          if (!_token) return 
           const bridgeAddress = this.assistAndTokenAddresses[id].find(
-            (item) => item.token === token.tokenAddress
+            (item) => item.token === _token.value
           )?.bridgeAssist
 
           if (bridgeAddress) {

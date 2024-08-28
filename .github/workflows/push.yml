@@ -1,0 +1,90 @@
+name: Deploy to Server
+
+on:
+  push:
+    paths:
+      - 'backend**/**' 
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn
+
+      - name: Configure OpenVPN
+        run: |
+          echo "${{ secrets.ASSETCHAIN_STAGING_VPN_CONFIG }}" > ~/config.ovpn.encoded
+          echo "${{ secrets.ASSETCHAIN_STAGING_VPN_AUTH }}" > ~/auth.txt.encoded
+          sudo base64 -d ~/config.ovpn.encoded > config.ovpn
+          sudo base64 -d ~/auth.txt.encoded > auth.txt
+          sudo cp config.ovpn /etc/openvpn/
+          sudo cp auth.txt /etc/openvpn/
+        
+      - name: Connect to OpenVPN
+        run: |
+          sudo openvpn  --config /etc/openvpn/config.ovpn --auth-user-pass /etc/openvpn/auth.txt &
+          sudo ps aux | grep openvpn
+          sleep 6
+
+      - name: Ping
+        run: |
+          ping -c 6 bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }}
+
+      - name: Setup SSH
+        run: |
+          echo "${{ secrets.ASSETCHAIN_SSH_PRIVATE_KEY }}" > id_rsa
+          chmod -R 600 id_rsa
+         
+      - name: Deploy Backend
+        if: contains(github.event.commits.*.modified, 'backend/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend ausdce
+        if: contains(github.event.commits.*.modified, 'backend-ausdce/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-ausdce && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend dai
+        if: contains(github.event.commits.*.modified, 'backend-dai/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend usdc
+        if: contains(github.event.commits.*.modified, 'backend-usdc/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-usdc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend usdt
+        if: contains(github.event.commits.*.modified, 'backend-usdt/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-usdt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend wbtc
+        if: contains(github.event.commits.*.modified, 'backend-wbtc/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-wbtc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend weth
+        if: contains(github.event.commits.*.modified, 'backend-weth/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-weth && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+      - name: Deploy Backend wnt
+        if: contains(github.event.commits.*.modified, 'backend-wnt/')
+        run: |
+           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@bridge00.${{ secrets.ASSETCHAIN_STAGING_DNS_NAME }} "cd /var/www/backend-wnt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+
+
+      - name: Clear Credentials
+        if: always()
+        run: |
+          sudo rm ~/config.ovpn.encoded ~/auth.txt.encoded /etc/openvpn/config.ovpn /etc/openvpn/auth.txt 2>/dev/null

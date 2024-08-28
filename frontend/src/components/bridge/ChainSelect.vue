@@ -39,11 +39,11 @@
     <p :class="{
       invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA') || (modelValue === '200810' && symbol !== 'BTC'),
     }" class="text-[14px] text-[#A0A0A0]">
-      Total liquidity for a chain
+      Total liquidity
       {{
-        symbol === 'RWA' || symbol === 'BTC' ? contractBalance
+        contractBalance
         ? `${formatBigNums(contractBalance, props.symbol!)} ${props.symbol}`
-        : 'Loading...' : ""
+        : 'Loading...'
       }}
       <!-- ({{ chainsLabels.filter((o) => o.value === props.modelValue)[0]?.label }}) -->
       ({{ selectedChain?.label }})
