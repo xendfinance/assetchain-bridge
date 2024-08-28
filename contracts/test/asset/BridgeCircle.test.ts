@@ -67,34 +67,34 @@ const CHAIN_ID = 31337
 const nearChain = 'NEAR'
 
 describe('BridgeAssistCircleStandard contract', () => {
-  let circleToken: Contract
+  // let circleToken: Contract
   beforeEach(async () => {
     const [deployer] = await ethers.getSigners()
     await deploy()
-    const factory = new ethers.ContractFactory(ABI.abi, CIRCLETOKENBYTECODE, deployer)
-    circleToken = await factory.deploy()
+    // const factory = new ethers.ContractFactory(ABI.abi, CIRCLETOKENBYTECODE, deployer)
+    // circleToken = await factory.deploy()
 
-    await circleToken.deployed()
+    // await circleToken.deployed()
 
-    console.log('hjhghhg')
+    // console.log('hjhghhg')
 
-    await circleToken.initialize(
-      'TEST USDC',
-      'USDC',
-      'USD',
-      6,
-      deployer.address,
-      deployer.address,
-      deployer.address,
-      deployer.address
-    )
-    console.log('high')
-    // await circleToken.initializeV2('USDC')
-    console.log(await circleToken.decimals())
+    // await circleToken.initialize(
+    //   'TEST USDC',
+    //   'USDC',
+    //   'USD',
+    //   6,
+    //   deployer.address,
+    //   deployer.address,
+    //   deployer.address,
+    //   deployer.address
+    // )
+    // console.log('high')
+    // // await circleToken.initializeV2('USDC')
+    // console.log(await circleToken.decimals())
   })
   it('constructor requires', async function () {
     const [deployer, relayer, , feeWallet, bridgeCreator] = await ethers.getSigners()
-    const { bridgeFactory, multiSigWallet } = await useContracts()
+    const { bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const zero = ethers.constants.AddressZero
 
     const tokenZeroData = bridgeFactory.interface.encodeFunctionData(
@@ -286,11 +286,11 @@ describe('BridgeAssistCircleStandard contract', () => {
     await expect(multiSigWallet.connect(relayer).approveTransaction(10)).reverted
   })
   it('Re-initialize should revert', async () => {
-    const { bridgeMint } = await useContracts()
+    const { bridgeCircle, circleToken } = await useContracts()
     const [deployer, relayer, , feeWallet, bridgeCreator] = await ethers.getSigners()
 
     await expect(
-      bridgeMint
+      bridgeCircle
         .connect(deployer)
         .initialize(
           circleToken.address,
@@ -305,7 +305,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     ).revertedWith('Initializable: contract is already initialized')
   })
   it('should send tokens', async () => {
-    const {  bridgeFactory, multiSigWallet } = await useContracts()
+    const {  bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
     const createBridgeData = bridgeFactory.interface.encodeFunctionData(
@@ -396,7 +396,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     expect(await bridgeCircle.nonce()).eq(1)
   })
   it('should fulfill tokens from bridgeMint preventing double-spend', async () => {
-    const {  bridgeFactory, multiSigWallet } = await useContracts()
+    const {  bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
     const createBridgeData = bridgeFactory.interface.encodeFunctionData(
@@ -481,7 +481,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     )
   })
   it('multiple users test', async () => {
-    const {  bridgeFactory, multiSigWallet } = await useContracts()
+    const {  bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator, user1, user2] =
       await ethers.getSigners()
 
@@ -566,7 +566,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     expect(await circleToken.balanceOf(user.address)).eq(tx.amount)
   })
   it('should take proper fee on fulfill and prevent double-spend', async () => {
-    const { bridgeFactory, multiSigWallet } = await useContracts()
+    const { bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
     const createBridgeData = bridgeFactory.interface.encodeFunctionData(
@@ -631,7 +631,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     )
   })
   it('should not send over the limit', async () => {
-    const { bridgeFactory, multiSigWallet } = await useContracts()
+    const { bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
     const createBridgeData = bridgeFactory.interface.encodeFunctionData(
@@ -675,7 +675,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     ).revertedWith(ERROR.Limit)
   })
   it('should withdraw, pause, set chains, set parameters, set relayers and prevent using incorrect values', async () => {
-    const { bridgeFactory, multiSigWallet } = await useContracts()
+    const { bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
     const createBridgeData = bridgeFactory.interface.encodeFunctionData(
@@ -835,7 +835,7 @@ describe('BridgeAssistCircleStandard contract', () => {
     expect(await bridgeCircle.getRelayers()).to.deep.eq([deployer.address])
   })
   it('the signature from bridgeDefault is invalid on other bridgeDefault', async () => {
-    const { bridgeFactory, multiSigWallet } = await useContracts()
+    const { bridgeFactory, multiSigWallet, circleToken } = await useContracts()
     const [deployer, relayer, user, feeWallet, bridgeCreator] = await ethers.getSigners()
 
     const createBridgeData1 = bridgeFactory.interface.encodeFunctionData(
