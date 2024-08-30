@@ -30,7 +30,6 @@ describe('BridgedAssetChainToken contract', () => {
           SYMBOL,
           DECIMALS,
           TOTAL_SUPPLY,
-          deployer.address,
           false,
           ORIGINAL_TOKEN,
           ORIGINAL_CHAIN_ID,
@@ -45,7 +44,6 @@ describe('BridgedAssetChainToken contract', () => {
           '',
           DECIMALS,
           TOTAL_SUPPLY,
-          deployer.address,
           false,
           ORIGINAL_TOKEN,
           ORIGINAL_CHAIN_ID,
@@ -60,22 +58,6 @@ describe('BridgedAssetChainToken contract', () => {
           SYMBOL,
           DECIMALS,
           TOTAL_SUPPLY,
-          ethers.constants.AddressZero,
-          false,
-          ORIGINAL_TOKEN,
-          ORIGINAL_CHAIN_ID,
-          ethers.constants.AddressZero
-        )
-    ).revertedWith('Owner: zero address')
-    await expect(
-      assetTokenFactory
-        .connect(deployer)
-        .deploy(
-          NAME,
-          SYMBOL,
-          DECIMALS,
-          TOTAL_SUPPLY,
-          deployer.address,
           false,
           ethers.constants.AddressZero,
           ORIGINAL_CHAIN_ID,
@@ -90,7 +72,6 @@ describe('BridgedAssetChainToken contract', () => {
           SYMBOL,
           DECIMALS,
           TOTAL_SUPPLY,
-          deployer.address,
           false,
           ORIGINAL_TOKEN,
           0,
@@ -109,7 +90,10 @@ describe('BridgedAssetChainToken contract', () => {
       TOTAL_SUPPLY.mul(BigNumber.from(10).pow(DECIMALS))
     )
     expect(
-      await assetToken.hasRole(await assetToken.DEFAULT_ADMIN_ROLE(), deployer.address)
+      await assetToken.hasRole(
+        await assetToken.DEFAULT_ADMIN_ROLE(),
+        multiSigWallet.address
+      )
     ).true
 
     expect(await assetToken.balanceOf(deployer.address)).eq(
@@ -121,7 +105,7 @@ describe('BridgedAssetChainToken contract', () => {
     expect(await assetToken.MULTISIG_WALLET()).eq(multiSigWallet.address)
   })
   it('mint/burn', async () => {
-    const { assetToken } = await useContracts()
+    const { assetToken, multiSigWallet } = await useContracts()
     const [deployer, user] = await ethers.getSigners()
 
     const minterRole = await assetToken.MINTER_ROLE()
@@ -133,8 +117,24 @@ describe('BridgedAssetChainToken contract', () => {
     await expect(assetToken.connect(user).mint(user.address, 100)).reverted
     await expect(assetToken.connect(user).burn(deployer.address, 100)).reverted
 
-    await assetToken.connect(deployer).grantRole(minterRole, deployer.address)
-    await assetToken.connect(deployer).grantRole(burnerRole, deployer.address)
+    const mintGrantRole = assetToken.interface.encodeFunctionData('grantRole', [
+      minterRole,
+      deployer.address,
+    ])
+    const burnGrantRole = assetToken.interface.encodeFunctionData('grantRole', [
+      burnerRole,
+      deployer.address,
+    ])
+
+    await multiSigWallet
+      .connect(deployer)
+      .createTransaction(assetToken.address, mintGrantRole)
+    await multiSigWallet
+      .connect(deployer)
+      .createTransaction(assetToken.address, burnGrantRole)
+
+    await multiSigWallet.connect(user).approveTransaction(1)
+    await multiSigWallet.connect(user).approveTransaction(2)
     await assetToken.connect(deployer).mint(user.address, userBalance)
     expect(await assetToken.balanceOf(user.address)).eq(userBalance * 2)
     await assetToken.connect(deployer).burn(user.address, userBalance)
@@ -151,7 +151,6 @@ describe('BridgedAssetChainToken contract', () => {
       SYMBOL,
       DECIMALS,
       TOTAL_SUPPLY,
-      deployer.address,
       true,
       ORIGINAL_TOKEN,
       ORIGINAL_CHAIN_ID,
@@ -159,7 +158,6 @@ describe('BridgedAssetChainToken contract', () => {
     )
 
     expect(await token.isLockActive()).true
-
 
     // Test transferring tokens while locked
     await token.connect(deployer).transfer(user.address, 500)
@@ -171,20 +169,19 @@ describe('BridgedAssetChainToken contract', () => {
     ])
 
     // Submit, confirm, and execute the blacklist transaction
-    await multiSigWallet
-      .connect(deployer)
-      .createTransaction(token.address, blacklistData)
+    await multiSigWallet.connect(deployer).createTransaction(token.address, blacklistData)
 
     await multiSigWallet.connect(user2).approveTransaction(1)
 
-    await expect(
-      token.connect(deployer).transfer(user.address, 100)
-    ).to.be.revertedWith('Transfer is not allowed')
+    await expect(token.connect(deployer).transfer(user.address, 100)).to.be.revertedWith(
+      'Transfer is not allowed'
+    )
 
     // Create transaction data for setBlacklisted (remove from blacklist)
-    const removeBlacklistData = token.interface.encodeFunctionData(
-      'setBlacklisted', [user.address, false]
-    )
+    const removeBlacklistData = token.interface.encodeFunctionData('setBlacklisted', [
+      user.address,
+      false,
+    ])
 
     // Submit, confirm, and execute the remove from blacklist transaction
     await multiSigWallet
@@ -196,10 +193,16 @@ describe('BridgedAssetChainToken contract', () => {
 
     expect(await token.balanceOf(user.address)).eq(1000)
 
-    await expect(token.connect(user).disableLockStage()).reverted
-    await token.connect(deployer).disableLockStage()
+    await expect(token.connect(user).disableLockStage()).revertedWith(`Caller is not the multisig wallet`)
+
+    const disableLockStageDate = token.interface.encodeFunctionData('disableLockStage')
+
+    await multiSigWallet
+      .connect(deployer)
+      .createTransaction(token.address, disableLockStageDate)
+    await multiSigWallet.connect(user).approveTransaction(3)
+    // await token.connect(deployer).disableLockStage()
 
     expect(await token.isLockActive()).false
-
   })
 })

@@ -8,6 +8,7 @@ import {
   BridgeAssistNativeUpgradeable,
   Token__factory,
   BridgeAssistCircleMintUpgradeable,
+  MultiSigWallet,
 } from '@/typechain'
 
 export enum AllBridgeTypes {
@@ -35,7 +36,9 @@ export async function bridgeSetup(
     | BridgeAssistCircleMintUpgradeable,
   deployer: SignerWithAddress,
   bridgeType: AllBridgeTypes,
-  circleToken?: Contract
+  circleToken?: Contract,
+  mulsigwallet?: MultiSigWallet,
+  user?: SignerWithAddress
 ) {
   const managerRole = await bridge.MANAGER_ROLE()
   await bridge.connect(deployer).grantRole(managerRole, deployer.address)
@@ -59,11 +62,28 @@ export async function bridgeSetup(
       await bridge.TOKEN(),
       ethers.provider
     )
-
     const minterRole = await token.MINTER_ROLE()
     const burnerRole = await token.BURNER_ROLE()
-    await token.connect(deployer).grantRole(minterRole, bridge.address)
-    await token.connect(deployer).grantRole(burnerRole, bridge.address)
+    const mintGrantRole = token.interface.encodeFunctionData('grantRole', [
+      minterRole,
+      bridge.address,
+    ])
+    const burnGrantRole = token.interface.encodeFunctionData('grantRole', [
+      burnerRole,
+      bridge.address,
+    ])
+    const initialTransactionCount = await mulsigwallet!.transactionCount()
+    await mulsigwallet!
+      .connect(deployer)
+      .createTransaction(token.address, mintGrantRole)
+    await mulsigwallet!
+      .connect(deployer)
+      .createTransaction(token.address, burnGrantRole)
+
+    await mulsigwallet!.connect(user!).approveTransaction(initialTransactionCount)
+    await mulsigwallet!.connect(user!).approveTransaction(initialTransactionCount.add(1))
+    // await token.connect(deployer).grantRole(minterRole, bridge.address)
+    // await token.connect(deployer).grantRole(burnerRole, bridge.address)
   }
 }
 

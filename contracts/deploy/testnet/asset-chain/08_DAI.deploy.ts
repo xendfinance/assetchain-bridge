@@ -36,7 +36,6 @@ const func: DeployFunction = async (hre) => {
       params.symbol,
       params.decimals,
       BigNumber.from(params.totalSupply),
-      deployer.address,
       params.isLockActive,
       params.tokenOriginal,
       params.chainIdOriginal,
