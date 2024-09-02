@@ -1,5 +1,13 @@
 # Asset Chain Bridge frontend
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+  - [Contracts](#contracts)
+- [Setup](#setup)
+- [Running project](#running-project)
+
 ## Getting Started
 
 Recommended Node version is 18.18.0.

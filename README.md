@@ -2,6 +2,11 @@
 
 This is Multichain token bridge that facilitates token transfers between different blockchain networks (including non evm chains)
 
+## Table of Contents
+
+- [Contract Overview](#contract-overview)
+- [Environmental Setup](#environmental-setup)
+
 ## Contract Overview
 
 - **BridgeAssistGenericUpgradeable**: this employs a relayer system for transaction verification, uses OpenZeppelin’s access control and security features, and allows for fee management and configurable transaction limits. The contract includes functionality to add or remove supported chains, manage relayers and their consensus threshold, and emit events for key actions. Additionally, it features pausability for emergency stops and requires implementation of post-send and post-fulfill actions in derived contracts.

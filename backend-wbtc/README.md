@@ -4,6 +4,15 @@
 
 Bridge is a decentralized application that consists of front-end, back-end, and smart contracts on every blockchain network used in the Bridge. 
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+  - [Contracts](#contracts)
+  - [Confirmations blocks](#confirmations-blocks)
+  - [Endpoints](#endpoints)
+  - [Backend structure](#backend-structure)
+  - [SecurityBackend structure](#security)
 
 ## Getting Started
 
