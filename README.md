@@ -6,6 +6,9 @@ This is Multichain token bridge that facilitates token transfers between differe
 
 - [Contract Overview](#contract-overview)
 - [Environmental Setup](#environmental-setup)
+- [Contributing](https://github.com/xendfinance/nodesale#contributing)
+- [License](https://github.com/xendfinance/assetchain-bridge#license)
+- [Support](https://github.com/xendfinance/assetchain-bridge#support)
 
 ## Contract Overview
 
@@ -40,3 +43,18 @@ cd frontend
 
 3. backend
 for each of the token backend (e.g backend_usdt). navigate to the folder and Follow the instructions in the README.md file to set up it environment
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/xendfinance/assetchain-bridge/CONTRIBUTING.md) for contribution and pull request protocol. We expect contributors to follow our guide when submitting code or comments.
+
+## License
+
+[![License: GPL v3.0](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For questions or suggestions, just say Hi on [Telegram](https://t.me/xendfinancedevs).<br/>
+We're always glad to help.
