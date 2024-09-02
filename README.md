@@ -6,7 +6,7 @@ This is Multichain token bridge that facilitates token transfers between differe
 
 - [Contract Overview](#contract-overview)
 - [Environmental Setup](#environmental-setup)
-- [Contributing](https://github.com/xendfinance/nodesale#contributing)
+- [Contributing](https://github.com/xendfinance/assetchain-bridge#contributing)
 - [License](https://github.com/xendfinance/assetchain-bridge#license)
 - [Support](https://github.com/xendfinance/assetchain-bridge#support)
 
