@@ -49,11 +49,11 @@ const links = ref([
     link: 'https://www.linkedin.com/company/theassetchain',
     img: 'Linkedin.svg',
   },
-  {
-    name: 'Testnet Leaderboard',
-    link: 'https://leaderboard.assetchain.org',
-    img: 'change.svg',
-  },
+  // {
+  //   name: 'Testnet Leaderboard',
+  //   link: 'https://leaderboard.assetchain.org',
+  //   img: 'change.svg',
+  // },
   // {
   //   name: 'reddit',
   //   link: 'http://www.reddit.com/r/XendFinance/',
@@ -73,6 +73,11 @@ const links = ref([
     name: 'discord',
     link: 'https://discord.gg/Bd2RSPcy',
     img: 'Discord.svg',
+  },
+  {
+    name: 'Audit',
+    link: 'https://drive.google.com/file/d/1_cfCQNldq8xzmlsVJV26rP_0DDEpRcpk/',
+    img: 'vidma.png',
   },
 ])
 </script>
