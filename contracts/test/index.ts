@@ -26,7 +26,7 @@ export const useContracts = async () => {
     bridgeNative: await ethers.getContract<BridgeAssistNativeUpgradeable>('BridgeAssistNativeUpgradeable'),
     mockNative: await ethers.getContract<MockNativeBridge>('MockNativeBridge'),
     multiSigWallet: await ethers.getContract<MultiSigWallet>('MultiSigWallet'),
-    bridgeCircle: await ethers.getContract<BridgeAssistCircleMintUpgradeable>('BridgeAssistCircleMintUpgradeable')
+    bridgeCircle: await ethers.getContract<BridgeAssistCircleMintUpgradeable>('BridgeAssistCircleMintUpgradeable'),
   }
 }
 

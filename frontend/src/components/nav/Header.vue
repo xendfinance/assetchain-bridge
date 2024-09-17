@@ -10,7 +10,7 @@
         <div class="flex gap-9">
           <a target="__blank__" href="https://leaderboard.assetchain.org">
             <div class="flex items-center my-auto pt-3 w-full h-full">
-            <span class="text-base h-full">Testnet Leaderboard</span>
+            <span class="text-base h-full">Leaderboard</span>
           </div>
           </a>
           <div v-if="!login" class="hidden md:block justify-self-end">

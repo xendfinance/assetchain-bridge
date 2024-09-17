@@ -25,7 +25,6 @@ const func: DeployFunction = async (hre) => {
       'ASTKN',
       18,
       BigNumber.from(10).pow(9),
-      deployer.address,
       false,
       ORIGINAL_TOKEN,
       ORIGINAL_CHAIN_ID,

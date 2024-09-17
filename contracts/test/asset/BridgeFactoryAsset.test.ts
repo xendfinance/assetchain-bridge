@@ -85,7 +85,7 @@ describe('BridgeFactory contract (asset chain)', () => {
           )
       ).revertedWith(BridgeFactoryErrors.ZeroAddress)
     })
-    it('Initializer should not revert if implementation is zero address', async () => {
+    it('Initializer should revert if implementation is zero address', async () => {
       const { bridgeMint, bridgeNative, multiSigWallet } = await useContracts()
       const [deployer] = await ethers.getSigners()
 
@@ -106,10 +106,11 @@ describe('BridgeFactory contract (asset chain)', () => {
             multiSigWallet.address,
             deployer.address
           )
-      ).not.reverted
+      ).revertedWith(BridgeFactoryErrors.ZeroAddress)
     })
-    it('Creating bridge type with zero implementation should revert', async () => {
+    it('Creating bridge type with wrong multsig should revert', async () => {
       const [deployer, user] = await ethers.getSigners()
+      const { bridgeMint, bridgeNative, bridgeCircle, bridgeDefault } = await useContracts()
 
       const bridgeFactoryFactory: BridgeFactoryUpgradeable__factory =
         await ethers.getContractFactory('BridgeFactoryUpgradeable', deployer)
@@ -132,10 +133,10 @@ describe('BridgeFactory contract (asset chain)', () => {
       await bridgeFactory
         .connect(deployer)
         .initialize(
-          ethers.constants.AddressZero,
-          ethers.constants.AddressZero,
-          ethers.constants.AddressZero,
-          ethers.constants.AddressZero,
+          bridgeDefault.address,
+          bridgeMint.address,
+          bridgeNative.address,
+          bridgeCircle.address,
           multiSigWallet.address,
           deployer.address
         )

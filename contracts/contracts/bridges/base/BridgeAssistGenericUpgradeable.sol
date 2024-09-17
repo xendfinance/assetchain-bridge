@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.18;
 
-import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {IBridgeAssist} from '../../interfaces/IBridgeAssist.sol';
 
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
@@ -9,7 +8,6 @@ import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/security/
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 
 import {ECDSAUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
-import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 import {EnumerableSetUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 
@@ -64,8 +62,7 @@ abstract contract BridgeAssistGenericUpgradeable is
     uint256 public nonce;
 
     mapping(address => Transaction[]) public transactions;
-    mapping(string => mapping(string => mapping(uint256 => uint256)))
-        public fulfilledAt;
+    mapping(string => mapping(string => mapping(uint256 => uint256))) public fulfilledAt;
     mapping(bytes32 => uint256) public exchangeRateFrom;
 
     EnumerableSetUpgradeable.Bytes32Set private availableChainsToSend;
@@ -142,12 +139,9 @@ abstract contract BridgeAssistGenericUpgradeable is
         require(relayerConsensusThreshold_ != 0, '0-of-N');
         require(relayerConsensusThreshold_ <= relayers_.length, 'N-of-N');
 
-        for (uint256 i = 0; i < relayers_.length; ) {
-            for (uint256 j = 0; j < relayers_.length; ) {
-                require(
-                    i == j || relayers_[i] != relayers_[j],
-                    'Duplicate relayers'
-                );
+        for (uint256 i; i < relayers_.length; ) {
+            for (uint256 j; j < relayers_.length; ) {
+                require(i == j || relayers_[i] != relayers_[j], 'Duplicate relayers');
                 unchecked {
                     ++j;
                 }
@@ -179,26 +173,19 @@ abstract contract BridgeAssistGenericUpgradeable is
         string memory toUser, // marked as memory to prevent "stack too deep"
         string calldata toChain
     ) external payable virtual whenNotPaused {
+        require(msg.value == 0, 'Can not send native token contract');
         require(amount != 0, 'Amount = 0');
         require(amount <= limitPerSend, 'Amount is more than limit');
         require(bytes(toUser).length != 0, 'Field toUser is empty');
         require(isSupportedChain(toChain), 'Chain is not supported');
 
         uint256 exchangeRate = exchangeRateFrom[bytes32(bytes(toChain))];
-        require(
-            amount % exchangeRate == 0,
-            'Amount is not divisible by exchange rate'
-        );
+        require(amount % exchangeRate == 0, 'Amount is not divisible by exchange rate');
         // minimum amount to make sure satisfactory amount of fee is taken
-        require(
-            amount / exchangeRate >= FEE_DENOMINATOR,
-            'amount < fee denominator'
-        );
+        require(amount / exchangeRate >= FEE_DENOMINATOR, 'amount < fee denominator');
 
         // the fee recipient eats the precision loss
-        uint256 currentFee = (amount * feeSend) /
-            FEE_DENOMINATOR /
-            exchangeRate;
+        uint256 currentFee = (amount * feeSend) / FEE_DENOMINATOR / exchangeRate;
 
         transactions[msg.sender].push(
             Transaction({
@@ -239,22 +226,18 @@ abstract contract BridgeAssistGenericUpgradeable is
         FulfillTx calldata transaction,
         bytes[] calldata signatures
     ) external virtual whenNotPaused {
+        require(isSupportedChain(transaction.fromChain), 'Not supported fromChain');
         require(
-            isSupportedChain(transaction.fromChain),
-            'Not supported fromChain'
-        );
-        require(
-            fulfilledAt[transaction.fromChain][transaction.fromUser][
-                transaction.nonce
-            ] == 0,
+            fulfilledAt[transaction.fromChain][transaction.fromUser][transaction.nonce] ==
+                0,
             'Signature already fulfilled'
         );
         require(signatures.length == relayers.length, 'Bad signatures length');
 
         bytes32 hashedData = _hashTransaction(transaction);
-        uint256 relayerConsensus = 0;
+        uint256 relayerConsensus;
 
-        for (uint256 i = 0; i < signatures.length; ) {
+        for (uint256 i; i < signatures.length; ) {
             if (signatures[i].length == 0) {
                 unchecked {
                     ++i;
@@ -275,18 +258,13 @@ abstract contract BridgeAssistGenericUpgradeable is
             }
         }
 
-        require(
-            relayerConsensus >= relayerConsensusThreshold,
-            'Not enough relayers'
-        );
+        require(relayerConsensus >= relayerConsensusThreshold, 'Not enough relayers');
 
         fulfilledAt[transaction.fromChain][transaction.fromUser][
             transaction.nonce
         ] = block.number;
 
-        uint256 exchangeRate = exchangeRateFrom[
-            bytes32(bytes(transaction.fromChain))
-        ];
+        uint256 exchangeRate = exchangeRateFrom[bytes32(bytes(transaction.fromChain))];
         uint256 amount = transaction.amount * exchangeRate;
         uint256 currentFee = (amount * feeFulfill) / FEE_DENOMINATOR;
 
@@ -356,12 +334,9 @@ abstract contract BridgeAssistGenericUpgradeable is
         require(relayerConsensusThreshold_ != 0, '0-of-N');
         require(relayerConsensusThreshold_ <= relayers_.length, 'N-of-N');
 
-        for (uint256 i = 0; i < relayers_.length; ) {
-            for (uint256 j = 0; j < relayers_.length; ) {
-                require(
-                    i == j || relayers_[i] != relayers_[j],
-                    'Duplicate relayers'
-                );
+        for (uint256 i; i < relayers_.length; ) {
+            for (uint256 j; j < relayers_.length; ) {
+                require(i == j || relayers_[i] != relayers_[j], 'Duplicate relayers');
                 unchecked {
                     ++j;
                 }
@@ -381,14 +356,17 @@ abstract contract BridgeAssistGenericUpgradeable is
 
     /// @dev remove chains from the whitelist
     /// @param chains chains to remove
-    function removeChains(
-        string[] calldata chains
-    ) external onlyRole(MANAGER_ROLE) {
+    function removeChains(string[] calldata chains) external onlyRole(MANAGER_ROLE) {
         for (uint256 i; i < chains.length; ) {
+            bytes32 chainKey = bytes32(bytes(chains[i]));
             require(
-                availableChainsToSend.remove(bytes32(bytes(chains[i]))),
+                availableChainsToSend.remove(chainKey),
                 'Chain is not in the list yet'
             );
+
+            // Delete the exchange rate associated with the removed chain
+            delete exchangeRateFrom[chainKey];
+
             emit ChainRemoved(chains[i]);
 
             unchecked {
@@ -400,11 +378,10 @@ abstract contract BridgeAssistGenericUpgradeable is
     /// @dev set fees for send and fulfill
     /// @param feeSend_ fee for send as numerator over FEE_DENOMINATOR
     /// @param feeFulfill_ fee for fulfill as numerator over FEE_DENOMINATOR
-    function setFee(uint256 feeSend_, uint256 feeFulfill_)
-        external
-        virtual
-        onlyRole(MANAGER_ROLE)
-    {
+    function setFee(
+        uint256 feeSend_,
+        uint256 feeFulfill_
+    ) external virtual onlyRole(MANAGER_ROLE) {
         require(
             feeSend != feeSend_ || feeFulfill != feeFulfill_,
             'Fee numerator repeats'
@@ -430,25 +407,13 @@ abstract contract BridgeAssistGenericUpgradeable is
 
     /// @dev sets the maximum amount of tokens that can be sent in one transaction
     /// @param limitPerSend_ limit value
-    function setLimitPerSend(uint256 limitPerSend_) external virtual onlyRole(MANAGER_ROLE) {
+    function setLimitPerSend(
+        uint256 limitPerSend_
+    ) external virtual onlyRole(MANAGER_ROLE) {
         require(limitPerSend != limitPerSend_, 'Limit per send repeats');
         limitPerSend = limitPerSend_;
         emit LimitPerSendSet(limitPerSend_);
     }
-
-    // /// @dev withdraw tokens from bridge
-    // /// @param token_ token to withdraw
-    // /// @param to the address the tokens will be sent
-    // /// @param amount amount to withdraw
-    // function withdraw(
-    //     IERC20Upgradeable token_,
-    //     address to,
-    //     uint256 amount
-    // ) external onlyRole(MANAGER_ROLE) {
-    //     require(to != address(0), 'To: zero address');
-    //     require(amount != 0, 'Amount: zero');
-    //     SafeERC20Upgradeable.safeTransfer(token_, to, amount);
-    // }
 
     /// @dev pausing the contract
     function pause() external whenNotPaused onlyRole(MANAGER_ROLE) {
@@ -486,11 +451,9 @@ abstract contract BridgeAssistGenericUpgradeable is
     ///   from the current chain
     /// @param user sender address
     /// @return list of transactions
-    function getUserTransactions(address user)
-        external
-        view
-        returns (Transaction[] memory)
-    {
+    function getUserTransactions(
+        address user
+    ) external view returns (Transaction[] memory) {
         return transactions[user];
     }
 
@@ -521,9 +484,7 @@ abstract contract BridgeAssistGenericUpgradeable is
     /// @dev getting if chain is supported
     /// @param chain chain name
     /// @return is chain supported
-    function isSupportedChain(
-        string calldata chain
-    ) public view returns (bool) {
+    function isSupportedChain(string calldata chain) public view returns (bool) {
         return availableChainsToSend.contains(bytes32(bytes(chain)));
     }
 
@@ -568,10 +529,8 @@ abstract contract BridgeAssistGenericUpgradeable is
     /// @dev converts a null-terminated 32-byte string to a variable length string
     /// @param source null-terminated 32-byte string
     /// @return result a variable length null-terminated string
-    function _toString(
-        bytes32 source
-    ) internal pure returns (string memory result) {
-        uint8 length = 0;
+    function _toString(bytes32 source) internal pure returns (string memory result) {
+        uint8 length;
         while (source[length] != 0 && length < 32) {
             length++;
         }
@@ -586,7 +545,12 @@ abstract contract BridgeAssistGenericUpgradeable is
         }
     }
 
-    function _afterSend(address token, address user, uint256 amount, uint256 fee) internal virtual;
+    function _afterSend(
+        address token,
+        address user,
+        uint256 amount,
+        uint256 fee
+    ) internal virtual;
 
     function _afterFulfill(address user, uint256 amount, uint256 fee) internal virtual;
 

@@ -6,7 +6,7 @@ import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/acce
 
 import {ClonesUpgradeable} from '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import {EnumerableSetUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
-import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
+// import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 import {BridgeFactoryErrors} from './utils/errors/BridgeFactoryErrors.sol';
 
 /**
@@ -42,13 +42,14 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     event BridgeAssistCreated(address indexed bridgeAssist, address indexed token);
     event BridgeAssistAdded(address indexed bridgeAssist, address indexed token);
     event BridgeAssistRemoved(address indexed bridgeAssist, address indexed token);
+    // once the indexed params surpase 3. there is compilation error. So, the indexed was removed
     event BridgeAssistImplementationsSet(
-        address indexed bridgeTransfer,
-        address indexed bridgeMint,
-        address indexed bridgeNative
+        address bridgeTransfer,
+        address bridgeMint,
+        address bridgeNative,
+        address bridgeCircle
     );
 
-    using BridgeFactoryErrors for *;
 
     modifier onlyMultisig() {
         if (msg.sender != MULTISIG_WALLET) revert BridgeFactoryErrors.NotMultiSigWallet();
@@ -76,19 +77,36 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address multisigWalletAddress_,
         address owner
     ) external initializer {
+        // Ensure that owner and multisig wallet addresses are not zero
         if (owner == address(0)) revert BridgeFactoryErrors.ZeroAddress();
-        if (multisigWalletAddress_ == address(0)) revert BridgeFactoryErrors.ZeroAddress();
+        if (multisigWalletAddress_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
 
+        // Ensure that all implementation addresses are not zero
+        if (bridgeAssistTransferImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+        if (bridgeAssistMintImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+        if (bridgeAssistNativeImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+        if (bridgeAssistCircleMintBurnImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+
+        // Set the implementation addresses
         bridgeAssistImplementation[
             BridgeType.TRANSFER
         ] = bridgeAssistTransferImplementation_;
         bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
         bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
-        bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN] = bridgeAssistCircleMintBurnImplementation_;
+        bridgeAssistImplementation[
+            BridgeType.CIRCLEMINTBURN
+        ] = bridgeAssistCircleMintBurnImplementation_;
+
+        // Set the multisig wallet address
         MULTISIG_WALLET = multisigWalletAddress_;
 
+        // Grant the admin role to the owner
         _grantRole(DEFAULT_ADMIN_ROLE, owner);
-        
     }
 
     /**
@@ -116,7 +134,8 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         uint256 relayerConsensusThreshold
     ) external onlyMultisig returns (address bridge) {
         address implementation = bridgeAssistImplementation[bridgeType];
-        if (implementation == address(0)) revert BridgeFactoryErrors.BridgeTypeInvalidImplementation();
+        if (implementation == address(0))
+            revert BridgeFactoryErrors.BridgeTypeInvalidImplementation();
 
         bridge = ClonesUpgradeable.clone(implementation);
         IBridgeAssist(bridge).initialize(
@@ -144,11 +163,13 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     function addBridgeAssists(address[] memory bridges) external onlyMultisig {
         uint256 length = bridges.length;
         if (length == 0) revert BridgeFactoryErrors.ZeroLengthArray();
-        if (length > ADD_REMOVE_LIMIT_PER_TIME) revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
+        if (length > ADD_REMOVE_LIMIT_PER_TIME)
+            revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
 
-        for (uint256 i = 0; i < length; ) {
+        for (uint256 i; i < length; ) {
             if (bridges[i] == address(0)) revert BridgeFactoryErrors.BridgeZeroAddress(i);
-            if (!_createdBridges.add(bridges[i])) revert BridgeFactoryErrors.BridgeDuplicate(i);
+            if (!_createdBridges.add(bridges[i]))
+                revert BridgeFactoryErrors.BridgeDuplicate(i);
 
             address token = IBridgeAssist(bridges[i]).TOKEN();
             if (token == address(0)) revert BridgeFactoryErrors.TokenZeroAddress(i);
@@ -169,10 +190,12 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     function removeBridgeAssists(address[] memory bridges) external onlyMultisig {
         uint256 length = bridges.length;
         if (length == 0) revert BridgeFactoryErrors.ZeroLengthArray();
-        if (length > ADD_REMOVE_LIMIT_PER_TIME) revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
+        if (length > ADD_REMOVE_LIMIT_PER_TIME)
+            revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
 
-        for (uint256 i = 0; i < length; ) {
-            if (!_createdBridges.remove(bridges[i])) revert BridgeFactoryErrors.BridgeNotFound(i);
+        for (uint256 i; i < length; ) {
+            if (!_createdBridges.remove(bridges[i]))
+                revert BridgeFactoryErrors.BridgeNotFound(i);
 
             address token = IBridgeAssist(bridges[i]).TOKEN();
             _bridgesByToken[token].remove(bridges[i]);
@@ -201,13 +224,13 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     ) external onlyMultisig {
         if (
             bridgeAssistTransferImplementation_ ==
-                bridgeAssistImplementation[BridgeType.TRANSFER] &&
+            bridgeAssistImplementation[BridgeType.TRANSFER] &&
             bridgeAssistMintImplementation_ ==
-                bridgeAssistImplementation[BridgeType.MINT] &&
+            bridgeAssistImplementation[BridgeType.MINT] &&
             bridgeAssistNativeImplementation_ ==
-                bridgeAssistImplementation[BridgeType.NATIVE] &&
+            bridgeAssistImplementation[BridgeType.NATIVE] &&
             bridgeAssistCircleMintBurnImplementation_ ==
-                bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN]
+            bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN]
         ) revert BridgeFactoryErrors.DuplicateImplementations();
 
         bridgeAssistImplementation[
@@ -215,12 +238,15 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         ] = bridgeAssistTransferImplementation_;
         bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
         bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
-        bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN] = bridgeAssistCircleMintBurnImplementation_;
+        bridgeAssistImplementation[
+            BridgeType.CIRCLEMINTBURN
+        ] = bridgeAssistCircleMintBurnImplementation_;
 
         emit BridgeAssistImplementationsSet(
             bridgeAssistTransferImplementation_,
             bridgeAssistMintImplementation_,
-            bridgeAssistNativeImplementation_
+            bridgeAssistNativeImplementation_,
+            bridgeAssistCircleMintBurnImplementation_
         );
     }
 
@@ -237,11 +263,12 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         uint256 limit
     ) external view returns (BridgeAssistInfo[] memory) {
         if (limit == 0) revert BridgeFactoryErrors.ZeroLengthArray();
-        if (offset + limit > _createdBridges.length()) revert BridgeFactoryErrors.InvalidOffsetLimit();
+        if (offset + limit > _createdBridges.length())
+            revert BridgeFactoryErrors.InvalidOffsetLimit();
 
         BridgeAssistInfo[] memory bridgesInfo = new BridgeAssistInfo[](limit);
 
-        for (uint256 i = 0; i < limit; ) {
+        for (uint256 i; i < limit; ) {
             address bridge = _createdBridges.at(i + offset);
             bridgesInfo[i] = BridgeAssistInfo({
                 bridgeAssist: bridge,
@@ -290,13 +317,15 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         uint256 offset,
         uint256 limit
     ) external view returns (address[] memory) {
-        if (_bridgesByToken[token].length() == 0) revert BridgeFactoryErrors.NoBridgesByToken();
+        if (_bridgesByToken[token].length() == 0)
+            revert BridgeFactoryErrors.NoBridgesByToken();
         if (limit == 0) revert BridgeFactoryErrors.ZeroLengthArray();
-        if (offset + limit > _bridgesByToken[token].length()) revert BridgeFactoryErrors.InvalidOffsetLimit();
+        if (offset + limit > _bridgesByToken[token].length())
+            revert BridgeFactoryErrors.InvalidOffsetLimit();
 
         address[] memory bridges = new address[](limit);
 
-        for (uint256 i = 0; i < limit; ) {
+        for (uint256 i; i < limit; ) {
             bridges[i] = _bridgesByToken[token].at(i + offset);
 
             unchecked {
@@ -319,8 +348,10 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address token,
         uint256 index
     ) external view returns (address) {
-        if (_bridgesByToken[token].length() == 0) revert BridgeFactoryErrors.NoBridgesByToken();
-        if (index >= _bridgesByToken[token].length()) revert BridgeFactoryErrors.InvalidIndex();
+        if (_bridgesByToken[token].length() == 0)
+            revert BridgeFactoryErrors.NoBridgesByToken();
+        if (index >= _bridgesByToken[token].length())
+            revert BridgeFactoryErrors.InvalidIndex();
 
         return _bridgesByToken[token].at(index);
     }

@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
   BridgedAssetChainToken__factory,
@@ -7,12 +7,15 @@ import {
   BridgeAssistMintUpgradeable,
   BridgeAssistNativeUpgradeable,
   Token__factory,
+  BridgeAssistCircleMintUpgradeable,
+  MultiSigWallet,
 } from '@/typechain'
 
 export enum AllBridgeTypes {
   DEFAULT,
   MINT,
   NATIVE,
+  CIRCLEMINTBURN,
 }
 
 export async function disableInitializer(contract: string) {
@@ -29,9 +32,13 @@ export async function bridgeSetup(
   bridge:
     | BridgeAssistTransferUpgradeable
     | BridgeAssistNativeUpgradeable
-    | BridgeAssistMintUpgradeable,
+    | BridgeAssistMintUpgradeable
+    | BridgeAssistCircleMintUpgradeable,
   deployer: SignerWithAddress,
-  bridgeType: AllBridgeTypes
+  bridgeType: AllBridgeTypes,
+  circleToken?: Contract,
+  mulsigwallet?: MultiSigWallet,
+  user?: SignerWithAddress
 ) {
   const managerRole = await bridge.MANAGER_ROLE()
   await bridge.connect(deployer).grantRole(managerRole, deployer.address)
@@ -45,16 +52,38 @@ export async function bridgeSetup(
       to: bridge.address,
       value: ethers.utils.parseEther('4000'), // Sends exactly 1.0 ether
     })
+  } else if (bridgeType === AllBridgeTypes.CIRCLEMINTBURN && circleToken) {
+    await circleToken.mint(deployer.address, '500_000'.toBigNumber())
+    console.log(await circleToken.balanceOf(deployer.address), await circleToken.balanceOf(bridge.address), `balance Before`)
+    await circleToken.transfer(bridge.address, '1000'.toBigNumber())
+    console.log(await circleToken.balanceOf(deployer.address), await circleToken.balanceOf(bridge.address), 'balance After')
   } else {
     const token = BridgedAssetChainToken__factory.connect(
       await bridge.TOKEN(),
       ethers.provider
     )
-
     const minterRole = await token.MINTER_ROLE()
     const burnerRole = await token.BURNER_ROLE()
-    await token.connect(deployer).grantRole(minterRole, bridge.address)
-    await token.connect(deployer).grantRole(burnerRole, bridge.address)
+    const mintGrantRole = token.interface.encodeFunctionData('grantRole', [
+      minterRole,
+      bridge.address,
+    ])
+    const burnGrantRole = token.interface.encodeFunctionData('grantRole', [
+      burnerRole,
+      bridge.address,
+    ])
+    const initialTransactionCount = await mulsigwallet!.transactionCount()
+    await mulsigwallet!
+      .connect(deployer)
+      .createTransaction(token.address, mintGrantRole)
+    await mulsigwallet!
+      .connect(deployer)
+      .createTransaction(token.address, burnGrantRole)
+
+    await mulsigwallet!.connect(user!).approveTransaction(initialTransactionCount)
+    await mulsigwallet!.connect(user!).approveTransaction(initialTransactionCount.add(1))
+    // await token.connect(deployer).grantRole(minterRole, bridge.address)
+    // await token.connect(deployer).grantRole(burnerRole, bridge.address)
   }
 }
 
