@@ -7,7 +7,7 @@
 			target="_blank" 
 			class="flex items-center justify-center md:gap-1 text-nowrap text-white"
 		>
-			<img :src="`/socials/${item.img}`" />
+			<img :src="`/socials/${item.img}`" width="25px" />
 			<p class="hidden md:block capitalize text-[15px] ">
 				{{ item.name }}
 			</p>

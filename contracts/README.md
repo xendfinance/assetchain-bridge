@@ -1,5 +1,24 @@
 # Xend Multitoken Bridge
 
+## Table of Contents
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Technologies Used](#technologies-used)
+- [Tests](#tests)
+- [Contracts](#contracts)
+- [Deploy](#deploy)
+  - [Mainnet Deploy](#mainnet-deploy)
+  - [Testnet Deploy](#testnet-deploy)
+- [Deployments](#deployments)
+- [Verify](#verify)
+- [Setup](#setup)
+- [Test Coverage](#test-coverage)
+- [Technical Requirements](#technical-requirements)
+- [Implementation Details](#implementation-details)
+  - [Audit scope](#audit-scope)
+  - [Architecture](#architecture)
+- [Scripts](#scripts)
+
 ## Getting Started
 
 Recommended Node version is 16.0.0. and higher

@@ -30,38 +30,38 @@ import Social from '@/components/nav/Social.vue'
 
 const links = ref([
   {
-    name: 'facebook',
-    link: 'http://web.facebook.com/XendFinance',
-    img: 'Facebook.svg',
+    name: 'medium',
+    link: 'http://medium.com/xendfinance',
+    img: 'medium.png',
   },
   {
     name: 'telegram',
-    link: 'https://t.me/XendFinanceDevs',
+    link: 'https://t.me/AssetChainBuilders',
     img: 'Telegram.svg',
   },
   {
     name: 'youtube',
-    link: 'https://www.youtube.com/channel/UCcR2lTpYwCws-axra4AAO8Q/featured',
+    link: 'https://www.youtube.com/@AssetChain',
     img: 'Youtube.svg',
   },
-  // {
-  //   name: 'linkedin',
-  //   link: 'https://www.linkedin.com/company/chaingpt',
-  //   img: 'Linkedin.svg',
-  // },
+  {
+    name: 'linkedin',
+    link: 'https://www.linkedin.com/company/theassetchain',
+    img: 'Linkedin.svg',
+  },
   {
     name: 'Testnet Leaderboard',
     link: 'https://leaderboard.assetchain.org',
     img: 'change.svg',
   },
-  {
-    name: 'reddit',
-    link: 'http://www.reddit.com/r/XendFinance/',
-    img: 'Reddit.svg',
-  },
+  // {
+  //   name: 'reddit',
+  //   link: 'http://www.reddit.com/r/XendFinance/',
+  //   img: 'Reddit.svg',
+  // },
   {
     name: 'twitter',
-    link: 'http://twitter.com/xendfinance',
+    link: 'https://x.com/rwaassetchain',
     img: 'Twitter.svg',
   },
   {
@@ -71,7 +71,7 @@ const links = ref([
   },
   {
     name: 'discord',
-    link: 'https://discord.gg/QGHb7jp2GV',
+    link: 'https://discord.gg/Bd2RSPcy',
     img: 'Discord.svg',
   },
 ])
