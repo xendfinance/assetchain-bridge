@@ -22,7 +22,7 @@ autoroutes(app, {
 
 if (!process.env.TEST)
   app.listen(config.port, () => {
-    console.log(`Server started on port ${config.port}`)
+    console.log(`Server started on port number ${config.port}`)
     console.log(`DEBUG=${process.env.DEBUG}`)
   })
 
