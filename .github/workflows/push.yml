@@ -34,10 +34,6 @@ jobs:
           sudo ps aux | grep openvpn
           sleep 6
 
-      - name: Ping
-        run: |
-          ping -c 6 ${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}
-
       - name: Setup SSH
         run: |
           echo "${{ secrets.ASSETCHAIN_SSH_PRIVATE_KEY }}" > id_rsa
