@@ -213,12 +213,18 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
           transaction.fromUser,
           index
         )
+        let _signatures = []
         if (!signature) throw new Error('Signature Error: Something went wrong')
+        if (typeof signature === 'string'){
+          _signatures = [signature]
+        }else {
+          _signatures = [...signature]
+        }
         const [tx] = await safeWrite(
           contract
             .anyBridgeAssist(toBridgeAssistAddress.value)
             .connect(web3.signer!)
-            .fulfill(transaction, [signature])
+            .fulfill(transaction, [..._signatures])
         )
 
         // console.log(transaction, [signature])

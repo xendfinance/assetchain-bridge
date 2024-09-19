@@ -133,10 +133,10 @@ if (!config.DEBUG) {
   console.gotbit.group = (...data: any[]) => null
   console.gotbit.groupEnd = () => null
 
-  console.log = (message?: any, ...optionalParams: any[]) => null
-  console.error = (message?: any, ...optionalParams: any[]) => null
-  console.warn = (...data: any[]) => null
-  console.table = (tabularData: any, properties?: ReadonlyArray<string>) => null
-  console.group = (...data: any[]) => null
-  console.groupEnd = () => null
+  // console.log = (message?: any, ...optionalParams: any[]) => null
+  // console.error = (message?: any, ...optionalParams: any[]) => null
+  // console.warn = (...data: any[]) => null
+  // console.table = (tabularData: any, properties?: ReadonlyArray<string>) => null
+  // console.group = (...data: any[]) => null
+  // console.groupEnd = () => null
 }
