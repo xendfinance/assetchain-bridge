@@ -83,9 +83,9 @@ export async function getTokenSignature(
   fromChain: string,
   fromUser: string,
   index: number
-): Promise<string> {
+): Promise<string | string[]> {
   const [response, error] = await safe(
-    axiosClientToken(symbol).get<{ signature: string }>(SIGN, {
+    axiosClientToken(symbol).get<{ signature: string | string[] }>(SIGN, {
       params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },
     })
   )

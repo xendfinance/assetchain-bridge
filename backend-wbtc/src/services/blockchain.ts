@@ -4,25 +4,29 @@ import { config } from '@/gotbit.config'
 import { ChainId } from '@/gotbit-tools/node/types'
 import CONFIRMATIONS from '../confirmations.json'
 import { FulfillTxContract, TransactionContract } from '@/types'
-import { EIP712DOMAIN_NAME, EIP712DOMAIN_VERSION, eip712Transaction } from '@/utils/constant'
-
-
+import {
+  EIP712DOMAIN_NAME,
+  EIP712DOMAIN_VERSION,
+  eip712Transaction,
+} from '@/utils/constant'
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
-const getWallet = () => {
-  return process.env.DEBUG
-    ? new Wallet(process.env.PRIVATE_KEY, getProvider(config.DEFAULT_CHAINID))
-    : new Wallet(process.env.PRIVATE_KEY, getProvider(config.DEFAULT_CHAINID))
+const getWallet = (signerIndex: number) => {
+  if (signerIndex === 0) {
+    return new Wallet(process.env.PRIVATE_KEY, getProvider(config.DEFAULT_CHAINID))
+  }
+  return new Wallet(process.env.PRIVATE_KEY2!, getProvider(config.DEFAULT_CHAINID))
 }
-
 
 async function signHashedTransaction(
   transaction: FulfillTxContract,
   chainId: string,
-  contractAddress: string
+  contractAddress: string,
+  signerIndex: number
 ) {
-  const wallet = getWallet()
+  const wallet = getWallet(signerIndex)
+  console.log(wallet.address, 'addess', signerIndex)
   const domain = {
     name: EIP712DOMAIN_NAME,
     version: EIP712DOMAIN_VERSION,
@@ -36,7 +40,6 @@ async function signHashedTransaction(
   const sign = await wallet._signTypedData(domain, types, transaction)
   return sign
 }
-
 
 const extractFulfillTransaction = (tx: TransactionContract) => {
   return {
@@ -64,19 +67,16 @@ export const signTransaction = async (
   }
   const provider = getProvider(fromChain.slice(4) as ChainId)
   const currentBlock = await safeRead(provider.getBlockNumber(), 0)
-  if (
-    currentBlock === 0 ||
-    tx.block.gt(currentBlock)
-  )
+  if (currentBlock === 0 || tx.block.gt(currentBlock))
     throw Error('waiting for confirmations')
   if (tx.toChain.startsWith('evm.')) {
     const chainId = tx.toChain.replace('evm.', '')
     const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
-    return await signHashedTransaction(
-      extractFulfillTransaction(tx),
-      chainId,
-      bridgeAssist(toBridgeAddress).address
-    )
+    const signature1 = await signHashedTransaction(extractFulfillTransaction(tx), chainId,  bridgeAssist(toBridgeAddress).address, 0)
+    const signature2 = await signHashedTransaction(extractFulfillTransaction(tx), chainId,  bridgeAssist(toBridgeAddress).address, 1)
+    console.log(signature1, signature2)
+    return [signature1, signature2]
+    
   } else {
     throw Error('bad contract params')
   }

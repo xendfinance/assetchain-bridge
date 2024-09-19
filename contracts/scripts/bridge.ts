@@ -109,6 +109,35 @@ async function getUserTransactions(config: any, user: string, bridgeAssist: Cont
   }
 }
 
+async function getRelayers(config: any, bridgeAssist: Contract) {
+  const relayers: string[] = await bridgeAssist.getRelayers()
+  if (relayers.length <= 0) {
+    console.log(colors.yellow(`No Relayers set`))
+    return
+  }
+  for (let i = 0; i < relayers.length; i++) {
+    console.log(colors.green(`index ${i}`))
+    console.log(colors.green(`address ${relayers[i]}`))
+  }
+}
+
+async function setRelayers(config: any, _addresses: string, bridgeAssist: Contract) {
+  const { owner } = config
+  const addresses = _addresses.split(',')
+  addresses.forEach((a) => {
+    if (!ethers.utils.isAddress(a)) {
+      throw new Error(`${a} is not a valid address`)
+    }
+  })
+  console.log(colors.yellow(`${addresses}, addresses`))
+  console.log(colors.yellow(`Setting relayers`))
+  const tx: ContractTransaction = await bridgeAssist
+    .connect(owner)
+    .setRelayers(addresses, addresses.length)
+  await tx.wait(1)
+  console.log(colors.green(`Done!`))
+}
+
 async function send(
   config: any,
   _amount: string,
@@ -136,7 +165,10 @@ async function send(
   }
 
   let allowance: BigNumber
-  if ((type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE) || tokenType === 'circle') {
+  if (
+    (type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE) ||
+    tokenType === 'circle'
+  ) {
     allowance = await tokenContract.allowance(owner.address, bridgeAssist.address)
     console.log(
       colors.blue(`bridge assist allowance ${BigNumber.from(allowance).toString()}...`)
@@ -149,7 +181,10 @@ async function send(
     amount = ethers.utils.parseUnits(_amount.toString(), decimals!)
   }
 
-  if ((type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE && amount.gt(allowance!)) || (tokenType === 'circle' && amount.gt(allowance!))) {
+  if (
+    (type !== BRIDGETYPE.MINT && type !== BRIDGETYPE.NATIVE && amount.gt(allowance!)) ||
+    (tokenType === 'circle' && amount.gt(allowance!))
+  ) {
     console.log(colors.yellow(`amount to be sent is greater than allowance`))
     console.log(colors.yellow(`approving tokens...`))
     let tx: ContractTransaction
@@ -316,7 +351,9 @@ function initMessage() {
   console.log(colors.blue('2: ') + `send a token to another chain`)
   console.log(colors.blue('3: ') + `claim token from another chain`)
   console.log(colors.blue('4: ') + `get user transactions`)
-  console.log(colors.blue('5: ') + `quit process`)
+  console.log(colors.blue('5: ') + `set relayers`)
+  console.log(colors.blue('6: ') + `get relayers`)
+  console.log(colors.blue('7: ') + `quit process`)
 }
 function chainTypeMessage() {
   console.log(colors.blue('system: ') + `Select Chain`)
@@ -614,6 +651,22 @@ async function main() {
         }
         break
       case 5:
+        console.log(colors.blue('Enter relayer addresses, seperate multiple addresses with comma (0xTDHD...dud, 0xSHSsd74..euidsF)'))
+        const _addresses = readlineSync.question(colors.bold.yellow('input address: '))
+        try {
+          await setRelayers(config, _addresses, bridge.bridgeAssist)
+        } catch (error: any) {
+          console.log(colors.red(`Error ${error.message}`))
+        }
+        break
+      case 6:
+        try {
+          await getRelayers(config, bridge.bridgeAssist)
+        } catch (error: any) {
+          console.log(colors.red(`Error ${error.message}`))
+        }
+        break
+      case 7:
         running = false
         console.log(colors.yellow('Exiting...'))
         break
