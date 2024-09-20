@@ -70,42 +70,42 @@ jobs:
       - name: Deploy Backend
         if: steps.filter.outputs.backend == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend ausdce
         if: steps.filter.outputs.backend-ausdce == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-ausdce && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-ausdce && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend dai
         if: steps.filter.outputs.backend-dai == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}"cd /var/www/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}"cd /var/www/bridge.assetchain.org/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend usdc
         if: steps.filter.outputs.backend-usdc == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-usdc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-usdc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend usdt
         if: steps.filter.outputs.backend-usdt == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-usdt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-usdt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend wbtc
         if: steps.filter.outputs.backend-wbtc == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-wbtc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-wbtc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend weth
         if: steps.filter.outputs.backend-weth == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-weth && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-weth && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend wnt
         if: steps.filter.outputs.backend-wnt == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-wnt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-wnt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Clear Credentials
         if: always()
