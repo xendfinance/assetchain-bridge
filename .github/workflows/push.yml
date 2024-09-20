@@ -2,17 +2,46 @@ name: Deploy to Server
 
 on:
   push:
-    paths:
-      - 'backend**/**' 
     branches:
       - staging
+    paths:
+      - 'backend/**'
+      - 'backend-ausdce/**'
+      - 'backend-dai/**'
+      - 'backend-usdc/**'
+      - 'backend-usdt/**'
+      - 'backend-wbtc/**'
+      - 'backend-weth/**'
+      - 'backend-wnt/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Filter Changed Files
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            backend-ausdce:
+              - 'backend-ausdce/**'
+            backend-dai:
+              - 'backend-dai/**'
+            backend-usdc:
+              - 'backend-usdc/**'
+            backend-usdt:
+              - 'backend-usdt/**'
+            backend-wbtc:
+              - 'backend-wbtc/**'
+            backend-weth:
+              - 'backend-weth/**'
+            backend-wnt:
+              - 'backend-wnt/**'
 
       - name: Install OpenVPN
         run: |
@@ -23,64 +52,79 @@ jobs:
         run: |
           echo "${{ secrets.ASSETCHAIN_STAGING_VPN_CONFIG }}" > ~/config.ovpn.encoded
           echo "${{ secrets.ASSETCHAIN_STAGING_VPN_AUTH }}" > ~/auth.txt.encoded
-          sudo base64 -d ~/config.ovpn.encoded > config.ovpn
-          sudo base64 -d ~/auth.txt.encoded > auth.txt
-          sudo cp config.ovpn /etc/openvpn/
-          sudo cp auth.txt /etc/openvpn/
-        
+          base64 -d ~/config.ovpn.encoded > config.ovpn
+          base64 -d ~/auth.txt.encoded > auth.txt
+          sudo mv config.ovpn /etc/openvpn/
+          sudo mv auth.txt /etc/openvpn/
+
       - name: Connect to OpenVPN
         run: |
-          sudo openvpn  --config /etc/openvpn/config.ovpn --auth-user-pass /etc/openvpn/auth.txt &
-          sudo ps aux | grep openvpn
-          sleep 6
+          sudo openvpn --config /etc/openvpn/config.ovpn --auth-user-pass /etc/openvpn/auth.txt &
+          sleep 10
 
       - name: Setup SSH
         run: |
           echo "${{ secrets.ASSETCHAIN_SSH_PRIVATE_KEY }}" > id_rsa
-          chmod -R 600 id_rsa
-         
+          chmod 600 id_rsa
+
       - name: Deploy Backend
-        if: contains(join(github.event.commits.*.modified, ','), 'backend/')
+        if: steps.filter.outputs.backend == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend ausdce
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-ausdce/')
+        if: steps.filter.outputs.backend-ausdce == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-ausdce && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-ausdce && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend dai
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-dai/')
+        if: steps.filter.outputs.backend-dai == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend usdc
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-usdc/')
+        if: steps.filter.outputs.backend-usdc == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-usdc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-usdc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend usdt
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-usdt/')
+        if: steps.filter.outputs.backend-usdt == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-usdt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-usdt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend wbtc
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-wbtc/')
+        if: steps.filter.outputs.backend-wbtc == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-wbtc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-wbtc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend weth
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-weth/')
+        if: steps.filter.outputs.backend-weth == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-weth && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-weth && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend wnt
-        if: contains(join(github.event.commits.*.modified, ','), 'backend-wnt/')
+        if: steps.filter.outputs.backend-wnt == 'true'
         run: |
-           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/backend-wnt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js && exit"
-
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p "${{ secrets.STAGING_SSH_PORT }}" \
+          "${{ secrets.DEPLOY_USER }}"@"${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}" \
+          "cd /var/www/backend-wnt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Clear Credentials
         if: always()
         run: |
-          sudo rm ~/config.ovpn.encoded ~/auth.txt.encoded /etc/openvpn/config.ovpn /etc/openvpn/auth.txt 2>/dev/null
+          sudo rm -f /etc/openvpn/config.ovpn /etc/openvpn/auth.txt
+          rm -f ~/config.ovpn.encoded ~/auth.txt.encoded id_rsa
