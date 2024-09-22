@@ -139,47 +139,49 @@ export const useToken = defineContractStore<
 
       this.loading = true
       if (this.tokenAddress)
-        for (const chainId of REAL_CHAIN_IDS) {
-          // const { token } = useContracts(undefined, chainId)
-          const contract = getContract(chainId)
-          const factory = useFactory()
-          const tokenAddr =
-            (this.symbol === 'RWA' && chainId === '42421') ||
-            (this.symbol === 'BTC' && chainId === '200810')
-              ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
-              : this.tokenAddress
-          const bridgeAssistAddress =
-            factory.assistAndTokenAddresses[chainId]?.find(
-              (item) => item.token === tokenAddr
-            )?.bridgeAssist ?? ''
-          if (
-            (this.symbol === 'RWA' && chainId === '42421') ||
-            (this.symbol === 'BTC' && chainId === '200810')
-          ) {
-            const provider = getProvider(chainId)
-            this.balances[chainId] = await provider.getBalance(web3.wallet)
-            this.contractBalances[chainId] = await provider.getBalance(
-              bridgeAssistAddress
-            )
-          } else {
-            const token = this.tokens[chainId].find((t) => t.label === this.symbol)
-            if (!token) {
-              this.balances[chainId] = BigNumber.from(0)
-              this.contractBalances[chainId] = BigNumber.from(0)
-            } else {
-              this.balances[chainId] = await safeRead(
-                contract.anyToken(token.value).balanceOf(web3.wallet),
-                '0'.toBigNumber()
+        await Promise.all(
+          REAL_CHAIN_IDS.map(async (chainId) => {
+            const contract = getContract(chainId)
+            const factory = useFactory()
+            const tokenAddr =
+              (this.symbol === 'RWA' && chainId === '42421') ||
+              (this.symbol === 'BTC' && chainId === '200810')
+                ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
+                : this.tokenAddress
+            const bridgeAssistAddress =
+              factory.assistAndTokenAddresses[chainId]?.find(
+                (item) => item.token === tokenAddr
+              )?.bridgeAssist ?? ''
+            if (
+              (this.symbol === 'RWA' && chainId === '42421') ||
+              (this.symbol === 'BTC' && chainId === '200810')
+            ) {
+              const provider = getProvider(chainId)
+              this.balances[chainId] = await provider.getBalance(web3.wallet)
+              this.contractBalances[chainId] = await provider.getBalance(
+                bridgeAssistAddress
               )
-              if (bridgeAssistAddress) {
-                this.contractBalances[chainId] = await safeRead(
-                  contract.anyToken(token.value).balanceOf(bridgeAssistAddress),
+            } else {
+              const token = this.tokens[chainId].find((t) => t.label === this.symbol)
+              if (!token) {
+                this.balances[chainId] = BigNumber.from(0)
+                this.contractBalances[chainId] = BigNumber.from(0)
+              } else {
+                this.balances[chainId] = await safeRead(
+                  contract.anyToken(token.value).balanceOf(web3.wallet),
                   '0'.toBigNumber()
                 )
+                if (bridgeAssistAddress) {
+                  this.contractBalances[chainId] = await safeRead(
+                    contract.anyToken(token.value).balanceOf(bridgeAssistAddress),
+                    '0'.toBigNumber()
+                  )
+                }
               }
             }
-          }
-        }
+          })
+        )
+
       // console.log(this.balances, 'lkkj')
       this.loading = false
     },
@@ -187,103 +189,66 @@ export const useToken = defineContractStore<
     async getTokens() {
       const factory = useFactory()
       await factory.upload()
-      for (const chainId of REAL_CHAIN_IDS) {
+
+      const tokenPromises = REAL_CHAIN_IDS.map(async (chainId) => {
         this.tokens[chainId] = []
         const contract = getContract(chainId)
         const assists = factory.assistAndTokenAddresses[chainId]
-        for (let item of assists) {
-          // console.log(item.token, item.bridgeAssist, 'TOKEN', chainId)
+
+        const chainPromises = assists.map(async (item) => {
           if (item.token) {
             let symbol = 'RWA'
             let decimals = 6
 
+            // Handle native tokens
             if (item.token === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
               if (chainId === '42421') {
-                // console.log(chainId, 'sjkdjkd')
                 symbol = 'RWA'
                 decimals = 18
-              }
-              else{
+              } else {
                 symbol = 'BTC'
                 decimals = 18
               }
             } else {
-              // console.log(item.token, chainId)
+              // Fetch symbol and decimals for non-native tokens
               symbol = await safeRead(contract.anyToken(item.token).symbol(), 'RWA')
               decimals = await safeRead(contract.anyToken(item.token).decimals(), 6)
-              // console.log(symbol, chainId, decimals, item.token)
             }
 
+            // Update token info (symbol and decimals)
             this.cSymbol[item.token] = symbol
-
             this.cDecimals[chainId] = {
               ...this.cDecimals[chainId],
-              ...{ [symbol]: decimals },
+              [symbol]: decimals,
             }
             this.cAddresses[chainId] = {
               ...this.cAddresses[chainId],
-              ...{ [symbol]: item.token },
+              [symbol]: item.token,
             }
-            // this.tDecimals[chainId] = decimals
 
+            // Add token if it's not already in the list for the current chain
             const foundToken = this.tokens[chainId].find((t) => t.label === symbol)
-
-            if (!foundToken)
+            if (!foundToken) {
               this.tokens[chainId].push({
                 value: item.token,
                 label: symbol,
                 disabled: false,
               })
+            }
           }
-          // factory.assistAndTokenAddresses[chainId]?.map(async (item) => {
-          //   console.log(item.token, item.bridgeAssist, 'TOKEN', chainId)
-          //   if (item.token) {
-          //     let symbol = 'RWA'
-          //     let decimals = 6
+        })
 
-          //     if (item.token === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
-          //       if (chainId === '42421') {
-          //         symbol = 'RWA'
-          //         decimals = 18
-          //       }
-          //       {
-          //         symbol = 'BTC'
-          //         decimals = 18
-          //       }
-          //     } else {
-          //       console.log(item.token, chainId, )
-          //       symbol = await safeRead(contract.anyToken(item.token).symbol(), 'RWA')
-          //       decimals = await safeRead(contract.anyToken(item.token).decimals(), 6)
-          //       console.log(symbol, chainId, decimals, item.token)
-          //     }
+        // Wait for all tokens to be processed for the current chain
+        await Promise.all(chainPromises)
+      })
 
-          //     this.cSymbol[item.token] = symbol
+      // Wait for all chains to finish processing
+      await Promise.all(tokenPromises)
 
-          //     this.cDecimals[chainId] = {
-          //       ...this.cDecimals[chainId],
-          //       ...{ [symbol]: decimals },
-          //     }
-          //     this.cAddresses[chainId] = {
-          //       ...this.cAddresses[chainId],
-          //       ...{ [symbol]: item.token },
-          //     }
-          //     // this.tDecimals[chainId] = decimals
-
-          //     const foundToken = this.tokens[chainId].find((t) => t.label === symbol)
-
-          //     if (!foundToken)
-          //       this.tokens[chainId].push({
-          //         value: item.token,
-          //         label: symbol,
-          //         disabled: false,
-          //       })
-          //   }
-          // })
-          // console.log('this.tokens', chainId, this.tokens[chainId])
-        }
-      }
-      // console.log('this.tokens', this.tokens)
+      // Optional: log final tokens structure
+      // console.log('this.tokens', this.tokens);
     },
+
     async setToken(symbol, tokenAddress) {
       console.log(symbol, tokenAddress, 'dhsjk')
       const web3 = useWeb3()
@@ -332,23 +297,25 @@ export const useToken = defineContractStore<
     //   }
     // },
     async setDecimals(symbol: string) {
-      for (const chainID of REAL_CHAIN_IDS) {
-        const _contract = getContract(chainID as ChainId)
-        const token = this.tokens[chainID].find((t) => t.label === symbol)
-        if (!token) {
-          this.decimals[chainID] = 18
-        } else {
-          if (token.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
+      await Promise.all(
+        REAL_CHAIN_IDS.map(async (chainID) => {
+          const _contract = getContract(chainID as ChainId)
+          const token = this.tokens[chainID].find((t) => t.label === symbol)
+          if (!token) {
             this.decimals[chainID] = 18
           } else {
-            const dataDecimals = await safeRead(
-              _contract.anyToken(token.value).decimals(),
-              18
-            )
-            this.decimals[chainID] = dataDecimals
+            if (token.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
+              this.decimals[chainID] = 18
+            } else {
+              const dataDecimals = await safeRead(
+                _contract.anyToken(token.value).decimals(),
+                18
+              )
+              this.decimals[chainID] = dataDecimals
+            }
           }
-        }
-      }
+        })
+      )
     },
 
     async approveIf(signer, amount, chainId, tokenAddress) {
@@ -381,7 +348,7 @@ export const useToken = defineContractStore<
     },
 
     async hasAllowance(owner, chainId, amount, tokenAddress) {
-      if(tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) return true
+      if (tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) return true
       const factory = useFactory()
       const _token = this.tokens[chainId].find((t) => t.label === this.symbol)
       const bridgeAssist = factory.assistAndTokenAddresses[chainId]?.find(

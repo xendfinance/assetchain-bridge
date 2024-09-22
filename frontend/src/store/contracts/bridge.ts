@@ -104,27 +104,51 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const factory = useFactory()
         const token = useToken()
 
-        for (const chainId of REAL_CHAIN_IDS as ChainId[]) {
-          const bridgeAssistAddress =
-            factory.assistAndTokenAddresses[chainId].find(
-              (item) => item.token === token.tokenAddress
-            )?.bridgeAssist ?? ''
-          const contract = getContract(chainId)
+        await Promise.all(
+          REAL_CHAIN_IDS.map(async (chainId) => {
+            const bridgeAssistAddress =
+              factory.assistAndTokenAddresses[chainId].find(
+                (item) => item.token === token.tokenAddress
+              )?.bridgeAssist ?? ''
+            const contract = getContract(chainId)
 
-          if (!bridgeAssistAddress) {
-            this.feeFulfill[chainId] = BigNumber.from(0)
-            this.feeSend[chainId] = BigNumber.from(0)
-          } else {
-            this.feeFulfill[chainId] = await safeRead(
-              contract.anyBridgeAssist(bridgeAssistAddress).feeFulfill(),
-              this.feeFulfill[chainId]
-            )
-            this.feeSend[chainId] = await safeRead(
-              contract.anyBridgeAssist(bridgeAssistAddress).feeSend(),
-              this.feeSend[chainId]
-            )
-          }
-        }
+            if (!bridgeAssistAddress) {
+              this.feeFulfill[chainId] = BigNumber.from(0)
+              this.feeSend[chainId] = BigNumber.from(0)
+            } else {
+              this.feeFulfill[chainId] = await safeRead(
+                contract.anyBridgeAssist(bridgeAssistAddress).feeFulfill(),
+                this.feeFulfill[chainId]
+              )
+              this.feeSend[chainId] = await safeRead(
+                contract.anyBridgeAssist(bridgeAssistAddress).feeSend(),
+                this.feeSend[chainId]
+              )
+            }
+          })
+        )
+
+        // for (const chainId of REAL_CHAIN_IDS as ChainId[]) {
+        //   const bridgeAssistAddress =
+        //     factory.assistAndTokenAddresses[chainId].find(
+        //       (item) => item.token === token.tokenAddress
+        //     )?.bridgeAssist ?? ''
+        //   const contract = getContract(chainId)
+
+        //   if (!bridgeAssistAddress) {
+        //     this.feeFulfill[chainId] = BigNumber.from(0)
+        //     this.feeSend[chainId] = BigNumber.from(0)
+        //   } else {
+        //     this.feeFulfill[chainId] = await safeRead(
+        //       contract.anyBridgeAssist(bridgeAssistAddress).feeFulfill(),
+        //       this.feeFulfill[chainId]
+        //     )
+        //     this.feeSend[chainId] = await safeRead(
+        //       contract.anyBridgeAssist(bridgeAssistAddress).feeSend(),
+        //       this.feeSend[chainId]
+        //     )
+        //   }
+        // }
         // console.log('getFees result', this.feeFulfill, this.feeSend)
       },
 
@@ -215,9 +239,9 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         )
         let _signatures = []
         if (!signature) throw new Error('Signature Error: Something went wrong')
-        if (typeof signature === 'string'){
+        if (typeof signature === 'string') {
           _signatures = [signature]
-        }else {
+        } else {
           _signatures = [...signature]
         }
         const [tx] = await safeWrite(
@@ -242,8 +266,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         const token = useToken()
 
-        for (const chainId of supportedChains as ChainId[]) {
-          // const { bridgeAssist } = useContracts(undefined, chainId)
+        await Promise.all((supportedChains as ChainId[]).map(async chainId => {
           let tokenAddr = token.tokenAddress
           // const tokenAddr =
           //   token.symbol === 'RWA' && chainId === '42421'
@@ -277,7 +300,44 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
               )
             )
           }
-        }
+        }))
+
+        // for (const chainId of supportedChains as ChainId[]) {
+        //   // const { bridgeAssist } = useContracts(undefined, chainId)
+        //   let tokenAddr = token.tokenAddress
+        //   // const tokenAddr =
+        //   //   token.symbol === 'RWA' && chainId === '42421'
+        //   //     ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
+        //   //     : token.tokenAddress
+        //   if (
+        //     (token.symbol === 'RWA' && chainId === '42421') ||
+        //     (token.symbol === 'BTC' && chainId === '200810')
+        //   ) {
+        //     tokenAddr = DEFAULT_NATIVE_TOKEN_CONTRACT_2
+        //   } else {
+        //     const tokens = token.tokens[chainId]
+        //     if (tokens) {
+        //       const _token = tokens.find((t) => t.label === token.symbol)
+        //       if (_token) {
+        //         tokenAddr = _token.value
+        //       }
+        //     }
+        //   }
+
+        //   const bridgeAddress = assistAndTokenAddresses[chainId].find(
+        //     (item) => item.token === tokenAddr
+        //   )?.bridgeAssist
+
+        //   const contract = getContract(chainId)
+        //   if (bridgeAddress) {
+        //     transactions = transactions.concat(
+        //       await safeRead(
+        //         contract.anyBridgeAssist(bridgeAddress).getUserTransactions(web3.wallet),
+        //         []
+        //       )
+        //     )
+        //   }
+        // }
         // console.log('dddddddddd', transactions)
         return transactions
       },
@@ -292,7 +352,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
 
         let symbol = ''
 
-        for (const transaction of transactions) {
+        await Promise.all(transactions.map(async transaction => {
           const hashedTx = hashTx(transaction)
           // const contract = getContract(fromChain)
           // if (bridgeAddress) {
@@ -309,7 +369,26 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             txBlock: fulfillInfo.txBlock,
             confirmations: fulfillInfo.confirmations,
           }
-        }
+        }))
+
+        // for (const transaction of transactions) {
+        //   const hashedTx = hashTx(transaction)
+        //   // const contract = getContract(fromChain)
+        //   // if (bridgeAddress) {
+        //   //   const tokenAddress = await safeRead(
+        //   //     contract.anyBridgeAssist(bridgeAddress).TOKEN(),
+        //   //     '',
+        //   //   )
+        //   //   symbol = await safeRead(contract.anyToken(tokenAddress).symbol(), '')
+        //   // }
+
+        //   const fulfillInfo = await this.fulfilledInfo(transaction)
+        //   fulfilled[hashedTx] = fulfillInfo.isFulfilled
+        //   claimInfo[hashedTx] = {
+        //     txBlock: fulfillInfo.txBlock,
+        //     confirmations: fulfillInfo.confirmations,
+        //   }
+        // }
 
         return [transactions, fulfilled, claimInfo, symbol]
       },

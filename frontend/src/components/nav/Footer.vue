@@ -71,7 +71,7 @@ const links = ref([
   },
   {
     name: 'discord',
-    link: 'https://discord.gg/Bd2RSPcy',
+    link: 'https://discord.gg/wvvtY8Wk6M',
     img: 'Discord.svg',
   },
   {
