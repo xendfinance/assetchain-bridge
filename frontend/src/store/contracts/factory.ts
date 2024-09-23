@@ -63,29 +63,43 @@ export const useFactory = defineContractStore<
     },
 
     async upload() {
-      for (const chainId of REAL_CHAIN_IDS) {
-        const contract = getContract(chainId)
-        const assistsLength = await contract.bridgeFactory.getCreatedBridgesLength()
-        this.bridgesLength[chainId] = assistsLength
-        if (assistsLength.toNumber()) {
-          const assists = await contract.bridgeFactory.getCreatedBridgesInfo(
-            0,
-            assistsLength
-          )
+      await Promise.all(
+        REAL_CHAIN_IDS.map(async (chainId) => {
+          const contract = getContract(chainId)
+          const assistsLength = await contract.bridgeFactory.getCreatedBridgesLength()
+          this.bridgesLength[chainId] = assistsLength
+          if (assistsLength.toNumber()) {
+            const assists = await contract.bridgeFactory.getCreatedBridgesInfo(
+              0,
+              assistsLength
+            )
+            this.assistAndTokenAddresses[chainId] = assists
+          }
+        })
+      )
+      // for (const chainId of REAL_CHAIN_IDS) {
+      //   const contract = getContract(chainId)
+      //   const assistsLength = await contract.bridgeFactory.getCreatedBridgesLength()
+      //   this.bridgesLength[chainId] = assistsLength
+      //   if (assistsLength.toNumber()) {
+      //     const assists = await contract.bridgeFactory.getCreatedBridgesInfo(
+      //       0,
+      //       assistsLength
+      //     )
 
-          // console.log(assists, 'assists getCreatedBridgesInfo for ', chainId)
-          // console.log(
-          //   Object.values(assists).map((v) => ({
-          //     bridgeAssist: v.bridgeAssist,
-          //     token: v.token,
-          //   })),
-          //   'keys'
-          // )
+      //     // console.log(assists, 'assists getCreatedBridgesInfo for ', chainId)
+      //     // console.log(
+      //     //   Object.values(assists).map((v) => ({
+      //     //     bridgeAssist: v.bridgeAssist,
+      //     //     token: v.token,
+      //     //   })),
+      //     //   'keys'
+      //     // )
 
-          this.assistAndTokenAddresses[chainId] = assists
-          // this.bridgeAssistAddress[chainId] = assists[0]
-        }
-      }
+      //     this.assistAndTokenAddresses[chainId] = assists
+      //     // this.bridgeAssistAddress[chainId] = assists[0]
+      //   }
+      // }
     },
 
     async getSupportedChains() {
@@ -93,12 +107,15 @@ export const useFactory = defineContractStore<
 
       const token = useToken()
 
-      const chainIds = token.symbol === 'USDC' ? REAL_CHAIN_IDS.filter(c => c !== '421614') : REAL_CHAIN_IDS
+      const chainIds =
+        token.symbol === 'USDC'
+          ? REAL_CHAIN_IDS.filter((c) => c !== '421614')
+          : REAL_CHAIN_IDS
 
       const res = await Promise.all(
         chainIds.map(async (id) => {
-          const _token = token.tokens[id].find( t => t.label === token.symbol)
-          if (!_token) return 
+          const _token = token.tokens[id].find((t) => t.label === token.symbol)
+          if (!_token) return
           const bridgeAddress = this.assistAndTokenAddresses[id].find(
             (item) => item.token === _token.value
           )?.bridgeAssist

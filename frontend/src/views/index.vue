@@ -63,40 +63,9 @@ const token = ref<string>('USDT')
 const web3 = useWeb3()
 const tokenStore = useToken()
 
-const nativeToken = computed(() =>
-  tokenStore.tokens[web3.chainId].filter(
-    (t) => t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2,
-  ),
-)
 
-const isNativeToken = computed(() =>
-  nativeToken.value && nativeToken.value.length
-    ? nativeToken.value[0].label === tokenStore.symbol
-    : false,
-)
 
-// const tokens = computed(() =>
-//   isNativeToken.value
-//     ? REAL_CHAIN_IDS.map((chain) => tokensRead.value[chain])
-//         .flat()
-//         .filter((t) => t.label !== 'RWA' || t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2)
-//     : REAL_CHAIN_IDS.map((chain) => tokensRead.value[chain])
-//         .flat()
-//         .filter((t) => t.value !== DEFAULT_NATIVE_TOKEN_CONTRACT_2),
-// )
 
-// const tokens = computed(() =>
-//   isNativeToken.value
-//     ? tokensRead.value[web3.chainId]
-//       .filter((t) => t.label !== 'RWA' || t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2)
-//     : tokensRead.value[web3.chainId]
-//       .flat()
-//       .filter((t) => t.value !== DEFAULT_NATIVE_TOKEN_CONTRACT_2),
-// )
-
-// const tokens = computed(() => tokenStore.tokens[web3.chainId].filter(v => v.label !== 'USDC'))
-
-// console.log(isNativeToken, tokens, tokenStore.tokens[web3.chainId], 'dksdk')
 
 const options = computed(() => [
   ...new Map(tokenStore.tokens[web3.chainId] ? tokenStore.tokens[web3.chainId].filter(v => {
