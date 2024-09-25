@@ -31,7 +31,26 @@
     "bridgetoken:xend": "hardhat --network xend_testnet run scripts/assetChainBridgeToken.ts",
     "factory:bitlayer_testnet": "hardhat --network bitlayer_testnet run scripts/factory.ts",
     "deploy:bitlayer_testnet": "hardhat deploy --export-all dev/contracts.json --network bitlayer_testnet",
-    "bridge:bitlayer_testnet": "hardhat --network bitlayer_testnet run scripts/bridge.ts"
+    "bridge:bitlayer_testnet": "hardhat --network bitlayer_testnet run scripts/bridge.ts",
+    "deploy:arb": "hardhat deploy --export-all dev/contracts.json --network arbitrum",
+    "deploy:xend": "hardhat deploy --export-all dev/contracts.json --network xend",
+    "deploy:bsc": "hardhat deploy --export-all dev/contracts.json --network bsc",
+    "deploy:ethereum": "hardhat deploy --export-all dev/contracts.json --network ethereum",
+    "factory:arb_main": "hardhat --network arbitrum run scripts/factory.ts",
+    "factory:xend_main": "hardhat --network xend run scripts/factory.ts",
+    "factory:bsc_main": "hardhat --network bsc run scripts/factory.ts",
+    "factory:ethereum": "hardhat --network ethereum run scripts/factory.ts",
+    "bridge:arb_main": "hardhat --network arbitrum run scripts/bridge.ts",
+    "bridge:xend_main": "hardhat --network xend run scripts/bridge.ts",
+    "bridge:bsc_main": "hardhat --network bsc run scripts/bridge.ts",
+    "deploy:base": "hardhat deploy --export-all dev/contracts.json --network base",
+    "factory:base": "hardhat --network base run scripts/factory.ts",
+    "bridge:base": "hardhat --network base run scripts/bridge.ts",
+    "bridgetoken:xend_main": "hardhat --network xend run scripts/assetChainBridgeToken.ts",
+    "factory:bitlayer": "hardhat --network bitlayer run scripts/factory.ts",
+    "deploy:bitlayer": "hardhat deploy --export-all dev/contracts.json --network bitlayer",
+    "bridge:bitlayer": "hardhat --network bitlayer run scripts/bridge.ts",
+    "bridge:ethereum": "hardhat --network ethereum run scripts/bridge.ts"
   },
   "_moduleAliases": {
     "@": "."

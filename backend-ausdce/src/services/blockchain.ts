@@ -10,19 +10,21 @@ import { EIP712DOMAIN_NAME, EIP712DOMAIN_VERSION, eip712Transaction } from '@/ut
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
-const getWallet = () => {
-  return process.env.DEBUG
-    ? new Wallet(process.env.PRIVATE_KEY, getProvider(config.DEFAULT_CHAINID))
-    : new Wallet(process.env.PRIVATE_KEY, getProvider(config.DEFAULT_CHAINID))
+const getWallet = (signerIndex: number) => {
+  if (signerIndex === 0) {
+    return new Wallet(process.env.PRIVATE_KEY, getProvider(config.DEFAULT_CHAINID))
+  }
+  return new Wallet(process.env.PRIVATE_KEY2!, getProvider(config.DEFAULT_CHAINID))
 }
 
 
 async function signHashedTransaction(
   transaction: FulfillTxContract,
   chainId: string,
-  contractAddress: string
+  contractAddress: string,
+  signerIndex: number
 ) {
-  const wallet = getWallet()
+  const wallet = getWallet(signerIndex)
   const domain = {
     name: EIP712DOMAIN_NAME,
     version: EIP712DOMAIN_VERSION,
@@ -71,12 +73,25 @@ export const signTransaction = async (
     throw Error('waiting for confirmations')
   if (tx.toChain.startsWith('evm.')) {
     const chainId = tx.toChain.replace('evm.', '')
-    const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
-    return await signHashedTransaction(
+    // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
+    let signatures = []
+    const signer0 = await signHashedTransaction(
       extractFulfillTransaction(tx),
       chainId,
-      bridgeAssist(toBridgeAddress).address
+      toBridgeAddress,
+      0
     )
+    signatures.push(signer0)
+    if (process.env.PROD){
+      const signer1 = await signHashedTransaction(
+        extractFulfillTransaction(tx),
+        chainId,
+        toBridgeAddress,
+        1
+      )
+      signatures.push(signer1)
+    }
+    return signatures
   } else {
     throw Error('bad contract params')
   }
