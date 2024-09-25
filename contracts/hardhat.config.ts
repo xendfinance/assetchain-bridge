@@ -66,26 +66,42 @@ const config: HardhatUserConfig = {
       deploy: ['deploy/testnet/non-asset-chain'],
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
-    // polygon_amoy: {
-    //   tags: ['testnet'],
-    //   deploy: ['deploy/testnet/'],
-    //   url: 'https://polygon-amoy.blockpi.network/v1/rpc/public',
-    //   accounts: [process.env.PRIVATE_TEST!],
-    // },
-    // eth_sepolia: {
-    //   tags: ['testnet'],
-    //   deploy: ['deploy/testnet/'],
-    //   url: 'https://1rpc.io/sepolia',
-    //   accounts: [process.env.PRIVATE_TEST!],
-    // },
-    // base_sepolia: {
-    //   tags: ['testnet'],
-    //   deploy: ['deploy/testnet/'],
-    //   url: 'https://base-sepolia.blockpi.network/v1/rpc/public',
-    //   accounts: [process.env.PRIVATE_TEST!],
-    // },
-    // ...genNetworks(),
-    // place here any network you like (for overriding `genNetworks`)
+    xend: {
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/asset-chain'],
+      url: 'https://mainnet-rpc.assetchain.org',
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!]
+    },
+    arbitrum: {
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
+      url: 'https://arb1.arbitrum.io/rpc',
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
+    bsc: {
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
+      url: 'https://binance.llamarpc.com',
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
+    base: {
+      url: 'https://mainnet.base.org',
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
+    bitlayer: {
+      url: 'https://rpc.bitlayer.org',
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
+    ethereum: {
+      url: 'https://ethereum-rpc.publicnode.com',
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    }
   },
   gasReporter: {
     enabled: true,
