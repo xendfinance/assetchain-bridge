@@ -265,8 +265,10 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const { supportedChains, assistAndTokenAddresses } = useFactory()
 
         const token = useToken()
+        
 
-        await Promise.all((supportedChains as ChainId[]).map(async chainId => {
+        for (const chainId of supportedChains as ChainId[]) {
+          // const { bridgeAssist } = useContracts(undefined, chainId)
           let tokenAddr = token.tokenAddress
           // const tokenAddr =
           //   token.symbol === 'RWA' && chainId === '42421'
@@ -300,44 +302,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
               )
             )
           }
-        }))
-
-        // for (const chainId of supportedChains as ChainId[]) {
-        //   // const { bridgeAssist } = useContracts(undefined, chainId)
-        //   let tokenAddr = token.tokenAddress
-        //   // const tokenAddr =
-        //   //   token.symbol === 'RWA' && chainId === '42421'
-        //   //     ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
-        //   //     : token.tokenAddress
-        //   if (
-        //     (token.symbol === 'RWA' && chainId === '42421') ||
-        //     (token.symbol === 'BTC' && chainId === '200810')
-        //   ) {
-        //     tokenAddr = DEFAULT_NATIVE_TOKEN_CONTRACT_2
-        //   } else {
-        //     const tokens = token.tokens[chainId]
-        //     if (tokens) {
-        //       const _token = tokens.find((t) => t.label === token.symbol)
-        //       if (_token) {
-        //         tokenAddr = _token.value
-        //       }
-        //     }
-        //   }
-
-        //   const bridgeAddress = assistAndTokenAddresses[chainId].find(
-        //     (item) => item.token === tokenAddr
-        //   )?.bridgeAssist
-
-        //   const contract = getContract(chainId)
-        //   if (bridgeAddress) {
-        //     transactions = transactions.concat(
-        //       await safeRead(
-        //         contract.anyBridgeAssist(bridgeAddress).getUserTransactions(web3.wallet),
-        //         []
-        //       )
-        //     )
-        //   }
-        // }
+        }
         // console.log('dddddddddd', transactions)
         return transactions
       },
@@ -349,7 +314,6 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const fulfilled: Record<string, boolean> = {}
         const claimInfo: Record<string, FulfillInfo> = {}
         const transactions: TransactionContract[] = await this.getTransactions()
-
         let symbol = ''
 
         await Promise.all(transactions.map(async transaction => {
