@@ -30,8 +30,9 @@ const getUrl = (symbol: Symbol) => {
   }
 }
 
-const axiosClientToken = (token: Symbol) =>
-  axios.create({
+const axiosClientToken = (token: Symbol) =>{
+  console.log(token, getUrl(token), 'saklsa')
+  return axios.create({
     baseURL: getUrl(token),
     transformResponse: [
       (data) => {
@@ -39,6 +40,8 @@ const axiosClientToken = (token: Symbol) =>
       },
     ],
   })
+}
+  
 
 const axiosClient = axios.create({
   baseURL,
@@ -84,6 +87,7 @@ export async function getTokenSignature(
   fromUser: string,
   index: number
 ): Promise<string | string[]> {
+  console.log(symbol, 'sdkd')
   const [response, error] = await safe(
     axiosClientToken(symbol).get<{ signature: string | string[] }>(SIGN, {
       params: { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index },

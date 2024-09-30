@@ -38,7 +38,7 @@ let storeSettings: StoreSettings = {
 let config = {
   DEBUG: true,
   chainIds: [] as any,
-  DEFAULT_CHAINID: '' as any,
+  DEFAULT_CHAINID: '42421' as any,
   rpc: () => '',
 } as GotBitConfig<any>
 
@@ -87,7 +87,6 @@ export const useWeb3 = defineStore('$web3', {
     },
     testLogin(address: string, chainId?: ChainId) {
       console.gotbit.log(`Test login ${address} on ${chainId}`)
-
       if (chainId === undefined) chainId = this.DEFAULT_CHAINID
       const signer = new VoidSigner(address, getProvider(chainId))
 

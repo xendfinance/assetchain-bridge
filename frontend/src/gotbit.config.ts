@@ -13,7 +13,7 @@ export const XEND_CHAIN = '42421'
 export const config = defineConfig({
   DEBUG: IS_DEBUG,
   chainIds: ['97', '421614', '42421', '11155111', '80002', '84532', '200810'],
-  DEFAULT_CHAINID: IS_DEBUG ? '97' : '97',
+  DEFAULT_CHAINID: IS_DEBUG ? '42421' : '42421',
   rpc: (chainTag) => {
     const uni = universalRpc()
 

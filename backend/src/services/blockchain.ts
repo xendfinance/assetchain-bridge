@@ -250,7 +250,7 @@ export const signTransaction = async (
       0
     )
     signatures.push(signer0)
-    if (process.env.PROD){
+    if (process.env.PRIVATE_KEY2){
       const signer1 = await signHashedTransaction(
         extractFulfillTransaction(tx),
         chainId,

@@ -74,7 +74,7 @@ export const signTransaction = async (
   if (tx.toChain.startsWith('evm.')) {
     const chainId = tx.toChain.replace('evm.', '')
     // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
-    let signatures = []
+    let signatures : any[] = []
     const signer0 = await signHashedTransaction(
       extractFulfillTransaction(tx),
       chainId,
@@ -82,7 +82,7 @@ export const signTransaction = async (
       0
     )
     signatures.push(signer0)
-    if (process.env.PROD){
+    if (process.env.PRIVATE_KEY2){
       const signer1 = await signHashedTransaction(
         extractFulfillTransaction(tx),
         chainId,

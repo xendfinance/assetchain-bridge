@@ -105,7 +105,6 @@ const createAction = async (
           return 'Warning! An error has occurred. Please try again.'
       }
     }
-
     if (web3.realChainId !== uiBridge.network) {
       dialogs.openDialog(
         'waitDialog',
