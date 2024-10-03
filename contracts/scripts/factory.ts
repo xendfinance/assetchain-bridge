@@ -97,7 +97,7 @@ async function createBridge(
       DEFAULT_FEE_FULFILL,
       owner.address,
       _relayers,
-      _relayers.length,
+      2,
     ]
   )
   const transactionCount = await mulsigwallet.transactionCount()

@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import type { DeployFunction } from 'hardhat-deploy/types'
-import { CHAIN_IDS } from '@/config'
+import { CHAIN_IDS, MAINNET_CHAIN_IDS } from '@/config'
 
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type { BridgeAssistCircleMintUpgradeable__factory } from '@/typechain'

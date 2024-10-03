@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat'
 import type { DeployFunction } from 'hardhat-deploy/types'
-import { CHAIN_IDS } from '@/config'
+import { CHAIN_IDS, MAINNET_CHAIN_IDS } from '@/config'
 
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type { BridgeAssistNativeUpgradeable__factory } from '@/typechain'
@@ -10,7 +10,7 @@ const func: DeployFunction = async (hre) => {
   const [deployer] = await ethers.getSigners()
   const { chainId } = await ethers.provider.getNetwork()
 
-  if (chainId != CHAIN_IDS.assetChain) {
+  if (chainId != MAINNET_CHAIN_IDS.assetChain) {
     return
   }
 

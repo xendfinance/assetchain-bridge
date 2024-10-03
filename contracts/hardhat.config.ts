@@ -44,7 +44,7 @@ const config: HardhatUserConfig = {
     },
     arbitrum_sepolia: {
       tags: ['testnet'],
-      deploy: ['deploy/testnet/non-asset-chain'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
       url: 'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
