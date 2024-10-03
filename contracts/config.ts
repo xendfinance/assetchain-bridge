@@ -278,7 +278,7 @@ export const MAINNET_BRIDGED_TOKEN_PARAMS: {
       totalSupply: '0',
       isLockActive: false,
       tokenOriginal: '0xAD4b9c1FbF4923061814dD9d5732EB703FaA53D4',
-      chainIdOriginal: CHAIN_IDS.arbitrum,
+      chainIdOriginal: MAINNET_CHAIN_IDS.arbitrum,
     },
     USDT: {
       name: 'Tether USD',
@@ -287,7 +287,7 @@ export const MAINNET_BRIDGED_TOKEN_PARAMS: {
       totalSupply: '0',
       isLockActive: true,
       tokenOriginal: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-      chainIdOriginal: CHAIN_IDS.ethereum,
+      chainIdOriginal: MAINNET_CHAIN_IDS.ethereum,
     },
     BTC: {
       name: 'Bitlayer Bitcoin',
@@ -296,7 +296,16 @@ export const MAINNET_BRIDGED_TOKEN_PARAMS: {
       totalSupply: '0',
       isLockActive: true,
       tokenOriginal: DEFAULT_NATIVE_TOKEN_CONTRACT,
-      chainIdOriginal: CHAIN_IDS.bitlayer,
+      chainIdOriginal: MAINNET_CHAIN_IDS.bitlayer,
     },
   },
+}
+
+export const MULTISIG_ADDRESSES = {
+  [MAINNET_CHAIN_IDS.arbitrum]: '',
+  [MAINNET_CHAIN_IDS.assetChain]: '',
+  [MAINNET_CHAIN_IDS.base]: '',
+  [MAINNET_CHAIN_IDS.bitlayer]: '',
+  [MAINNET_CHAIN_IDS.bsc]: '',
+  [MAINNET_CHAIN_IDS.ethereum]: ''
 }
