@@ -123,13 +123,13 @@ jobs:
       - name: Deploy Backend
         if: steps.filter.outputs.backend == 'true'
         run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r parse-apps.config.js yarn.lock package.json  backend/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend/
+          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r  backend/parse-apps.config.js  backend/yarn.lock  backend/package.json  backend/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend/
           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend && yarn && pm2 restart parse-apps.config.js"
       
       - name: Deploy Backend ausdce
         if: steps.filter.outputs.backend-ausdce == 'true'
         run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r parse-apps.config.js yarn.lock package.json  backend-ausdce/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-ausdce/
+          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-ausdce/parse-apps.config.js backend-ausdce/yarn.lock backend-ausdce/package.json  backend-ausdce/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-ausdce/
           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-ausdce && yarn && pm2 restart parse-apps.config.js"
       
       - name: Clear Credentials
