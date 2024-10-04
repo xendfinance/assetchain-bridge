@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - staging
+    paths:
+      - 'backend/**'
+      - 'backend-ausdce/**'
+      - 'backend-dai/**'
+      - 'backend-usdc/**'
+      - 'backend-usdt/**'
+      - 'backend-wbtc/**'
+      - 'backend-weth/**'
+      - 'backend-wnt/**'
 
 jobs:
   deploy:
@@ -112,7 +121,7 @@ jobs:
           chmod 600 id_rsa
 
       - name: Deploy Backend
-        # if: steps.filter.outputs.backend == 'true'
+        if: steps.filter.outputs.backend == 'true'
         run: |
           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r parse-apps.config.js yarn.lock package.json  backend/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend/
           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend && yarn && pm2 restart parse-apps.config.js"
