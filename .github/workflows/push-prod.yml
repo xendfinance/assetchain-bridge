@@ -52,49 +52,49 @@ jobs:
         if: steps.filter.outputs.backend == 'true'
         run: |
           cd backend
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend ausdce
         if: steps.filter.outputs.backend-ausdce == 'true'
         run: |
           cd backend-ausdce
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend dai
         if: steps.filter.outputs.backend-dai == 'true'
         run: |
           cd backend-dai
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend usdc
         if: steps.filter.outputs.backend-usdc == 'true'
         run: |
           cd backend-usdc
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend usdt
         if: steps.filter.outputs.backend-usdt == 'true'
         run: |
           cd backend-usdt
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend wbtc
         if: steps.filter.outputs.backend-wbtc == 'true'
         run: |
           cd backend-wbtc
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend weth
         if: steps.filter.outputs.backend-weth == 'true'
         run: |
           cd backend-weth
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Build Backend wnt
         if: steps.filter.outputs.backend-wnt == 'true'
         run: |
           cd backend-wnt
-          yarn && yarn build --production
+          yarn && yarn build
 
       - name: Install OpenVPN
         run: |
