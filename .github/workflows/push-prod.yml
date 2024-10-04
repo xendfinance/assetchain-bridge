@@ -4,15 +4,6 @@ on:
   push:
     branches:
       - staging
-    paths:
-      - 'backend/**'
-      - 'backend-ausdce/**'
-      - 'backend-dai/**'
-      - 'backend-usdc/**'
-      - 'backend-usdt/**'
-      - 'backend-wbtc/**'
-      - 'backend-weth/**'
-      - 'backend-wnt/**'
 
 jobs:
   deploy:
