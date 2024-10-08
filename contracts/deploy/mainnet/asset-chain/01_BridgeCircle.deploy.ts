@@ -10,7 +10,7 @@ const func: DeployFunction = async (hre) => {
   const [deployer] = await ethers.getSigners()
   const { chainId } = await ethers.provider.getNetwork()
 
-  if (chainId != CHAIN_IDS.assetChain) {
+  if (chainId != MAINNET_CHAIN_IDS.assetChain) {
     return
   }
 
