@@ -15,8 +15,8 @@ import type {
 const func: DeployFunction = async (hre) => {
   const { deploy } = wrapperHRE(hre)
   const [deployer] = await ethers.getSigners()
-  
-
+  const { chainId } = await ethers.provider.getNetwork()
+  console.log(`ChainId ${chainId}`)
   const bridgeMint = await ethers.getContract<BridgeAssistMintUpgradeable>(
     'BridgeAssistMintUpgradeable'
   )
@@ -31,7 +31,7 @@ const func: DeployFunction = async (hre) => {
     'BridgeAssistTransferUpgradeable'
   )
 
-  const mulsigwallet = MULTISIG_ADDRESSES[MAINNET_CHAIN_IDS.arbitrum]
+  const mulsigwallet = MULTISIG_ADDRESSES[chainId]
 
   console.log(`Bridge Mint ${bridgeMint.address}`)
   console.log(`Bridge Circle ${bridgeCircle.address}`)
