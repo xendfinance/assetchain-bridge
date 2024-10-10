@@ -63,7 +63,7 @@ const func: DeployFunction = async (hre) => {
           bridgeMint,
           bridgeNative,
           bridgeCircle,
-          mulsigwallet.address,
+          '0x313a053B007cfb921BCC6dabC5150Cb561C05626',
           deployer.address,
         ],
       },
