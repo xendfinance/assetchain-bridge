@@ -96,11 +96,11 @@ export function useContracts<SelectedChainId extends LegitChainIds>(
     ...definedContracts[realChainId],
     ...Object.fromEntries(
       Object.entries(definedContracts).filter(
-        ([key]) => !config.chainIds.includes(key as any),
+        ([key]) => !config.supportedChains.includes(key as never),
       ),
     ),
   } as any // TODO: fix `any` typing
-
+  
   if (definedContracts.hasOwnProperty(toMainChainIds(realChainId))) {
     for (const [key, value] of Object.entries<ContractFunction<ChainId>>(allContracts)) {
       const contract = value(realChainId)

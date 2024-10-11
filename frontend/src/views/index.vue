@@ -39,6 +39,7 @@ import { useTokenRead } from '@/store/business/token'
 import { DEFAULT_NATIVE_TOKEN_CONTRACT_2 } from '@/misc/utils'
 import { REAL_CHAIN_IDS } from '@/misc/chains'
 import { useToken } from '@/store/contracts/token'
+import { IS_DEBUG } from '@/gotbit.config'
 
 const { login } = useWallet()
 const { tokens: tokensRead } = useTokenRead()
@@ -67,7 +68,7 @@ const tokenStore = useToken()
 
 
 
-const options = computed(() => [
+const options = IS_DEBUG ? computed(() => [
   ...new Map(tokenStore.tokens[web3.chainId] ? tokenStore.tokens[web3.chainId].filter(v => {
     if (v.label === 'USDC' || v.label === 'BTC' || v.label === 'RWA'){
       if (v.label === 'USDC'){
@@ -84,7 +85,7 @@ const options = computed(() => [
     //   }else return true
     // }
   }).map((item) => [item.value, item]) : []).values(),
-])
+]) : computed(() => [...tokenStore.tokens[web3.chainId]])
 </script>
 
 <style scoped lang="scss">

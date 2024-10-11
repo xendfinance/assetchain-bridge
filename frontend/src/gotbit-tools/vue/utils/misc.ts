@@ -17,6 +17,7 @@ export const realChainIds = {
   pulse_mainnet: 369,
   base_mainnet: 8453,
   bitlayer_mainnet: 200901,
+  xend_mainnet: 42420,
 
 
   rinkeby: 4,
@@ -125,6 +126,7 @@ export type GotBitConfig<Chains extends RealChains[]> = {
   DEFAULT_CHAINID: Default<GotBitConfig<Chains>['chainIds'][number], any>
   rpc: RpcFunction
   checkpoints?: Partial<Record<RemoteChainTag, string>>
+  supportedChains: ChainIds[]
 }
 
 export function defineConfig<Chains extends RealChains[]>(config: GotBitConfig<Chains>) {

@@ -46,6 +46,7 @@ export const realTypes: Record<RealChainTag, Types> = {
   pulse_mainnet: 'mainnet',
   base_mainnet: 'mainnet',
   bitlayer_mainnet: 'mainnet',
+  xend_mainnet: 'mainnet',
 
   rinkeby: 'testnet',
   ropsten: 'testnet',
@@ -85,6 +86,7 @@ export const realNames: Record<RealChainTag, string> = {
   pulse_mainnet: 'PulseChain Mainnet',
   base_mainnet: 'Base',
   bitlayer_mainnet: 'Bitlayer Mainnet',
+  xend_mainnet: 'Asset Chain',
 
   rinkeby: 'Rinkeby',
   ropsten: 'Ropsten',
@@ -124,6 +126,7 @@ export const realSymbols: Record<RealChainTag, string> = {
   pulse_mainnet: 'PLS',
   base_mainnet: 'ETH',
   bitlayer_mainnet: 'BTC',
+  xend_mainnet: 'RWA',
 
   rinkeby: 'ETH',
   ropsten: 'ETH',
@@ -186,6 +189,7 @@ export const scanners: Record<RealChainTag, string> = {
     'https://scan.mypinata.cloud/ipfs/bafybeih3olry3is4e4lzm7rus5l3h6zrphcal5a7ayfkhzm5oivjro2cp4/#/',
   base_mainnet: 'https://basescan.org/',
   bitlayer_mainnet: 'https://www.btrscan.com/',
+  xend_mainnet: 'https://scan.assetchain.org/',
 
   rinkeby: 'https://rinkeby.etherscan.io/',
   ropsten: 'https://ropsten.etherscan.io/',
@@ -210,6 +214,7 @@ export const scanners: Record<RealChainTag, string> = {
 }
 
 export function node(name: ChainTag): Node {
+  // console.log(name, 'name')
   if (name === 'localhost') {
     return {
       rpc: 'http://127.0.0.1:8545/',
@@ -282,6 +287,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   pulse_mainnet: ['https://pulsechain.publicnode.com'],
   base_mainnet: ['https://base-rpc.publicnode.com'],
   bitlayer_mainnet: ['https://rpc-bitlayer.rockx.com'],
+  xend_mainnet: ['https://mainnet-rpc.assetchain.org'],
 
   rinkeby: ['https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
   ropsten: ['https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],

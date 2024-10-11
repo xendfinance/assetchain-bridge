@@ -37,7 +37,7 @@
       </div>
     </div>
     <p :class="{
-      invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA') || (modelValue === '200810' && symbol !== 'BTC'),
+      invisible: props.title === 'From' || (modelValue === '42421' && symbol !== 'RWA') || (modelValue === '42420' && symbol !== 'RWA') || (modelValue === '200810' && symbol !== 'BTC') || (modelValue === '200901' && symbol !== 'BTC'),
     }" class="text-[14px] text-[#A0A0A0]">
       Total liquidity
       {{

@@ -22,7 +22,8 @@
           <GTooltip :hint="`${balanceToken(from)} ${token.symbol}`" text position="top">
             <span class="flex text-[11px] text-label-text">
               {{
-                token.symbol === "BTC" && from === '200810' ? balanceToken(from) : formatBigNums(
+                (token.symbol === "BTC" && from === '200810') || (token.symbol === "BTC" && from === '200901') ?
+                balanceToken(from) : formatBigNums(
                   balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0, token.symbol
                 )
               }}
@@ -201,7 +202,7 @@ watch(
       to.value = normalizedChainsLabels.value[1]?.value
     }
 
-    if ((isNativeToken.value && from.value === '42421')) toggle()
+    if ((isNativeToken.value && from.value === '42421') || (isNativeToken.value && from.value === '42420')) toggle()
 
     chainsTo.value = isNativeToken.value
       ? []
@@ -272,7 +273,7 @@ const balanceAfterReceive = computed(() => {
 
 const hasAllowance = computed(() => {
   if (!token || !token.symbol) return false
-  if ((token.symbol === "RWA" && from.value === '42421') || (token.symbol === "BTC" && from.value === '200810')) return true
+  if ((token.symbol === "RWA" && from.value === '42421') || (token.symbol === "RWA" && from.value === '42420') || (token.symbol === "BTC" && from.value === '200810') || (token.symbol === "BTC" && from.value === '200810')) return true
   return allowance(bridgeUI.from)
 })
 
@@ -300,7 +301,7 @@ const allowanceLoading = ref(false)
 const checkAllowance = useDebounceFn(async () => {
   if (!login.value) return false
   if (!token || !token.symbol) return false
-  if ((token.symbol === "RWA" && web3.chainId === '42421') || (token.symbol === "BTC" && web3.chainId === '200810')) return false
+  if ((token.symbol === "RWA" && web3.chainId === '42421') || (token.symbol === "RWA" && web3.chainId === '42420') || (token.symbol === "BTC" && web3.chainId === '200810') || (token.symbol === "BTC" && web3.chainId === '200901')) return false
   allowanceLoading.value = true
   // console.log(wallet.value, bridgeUI, 'allowance')
   await token.hasAllowance(

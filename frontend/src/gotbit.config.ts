@@ -8,12 +8,13 @@ import {
 import { universalRpc, extraRpc } from '@/gotbit-tools/vue/rpc'
 
 export const IS_DEBUG = import.meta.env.VITE_DEBUG === 'true'
-export const XEND_CHAIN = '42421'
+export const XEND_CHAIN = IS_DEBUG ? '42421' : '42420'
 
 export const config = defineConfig({
   DEBUG: IS_DEBUG,
-  chainIds: ['97', '421614', '42421', '11155111', '80002', '84532', '200810'],
-  DEFAULT_CHAINID: IS_DEBUG ? '42421' : '42421',
+  chainIds: IS_DEBUG ? ['97', '421614', '42421', '11155111', '80002', '84532', '200810'] : ["200901", "42161", "42420", "56", "8453"],
+  DEFAULT_CHAINID: IS_DEBUG ? '42421' : '42420',
+  supportedChains: supportedChains as any[],
   rpc: (chainTag) => {
     const uni = universalRpc()
 
@@ -45,6 +46,15 @@ import type {
 export const contracts = defineContracts({
   bridgeFactory: addContract<BridgeFactoryUpgradeable>('BridgeFactoryUpgradeable'),
   anyToken: addContractWithAddressI<ERC20>('USDT'),
+  bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '97'>(
+    'BridgeAssistNativeUpgradeable'
+  ),
+  anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '97'>(
+    'BridgeAssistTransferUpgradeable'
+  ),
+  // anyBridgeAssistMint: addContractWithAddressI<BridgeAssistMintUpgradeable, '97'>(
+  //   'BridgeAssistTransferUpgradeable'
+  // ),
   '97': {
     bridgeFactory: addContractI<BridgeFactoryUpgradeable, '97'>(
       'BridgeFactoryUpgradeable'
@@ -122,9 +132,65 @@ export const contracts = defineContracts({
       'BridgeAssistNativeUpgradeable'
     ),
   },
+  '200901': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '200901'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '200901'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '200901'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
+  },
+  '42161': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '42161'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '42161'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '42161'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
+  },
+  '42420': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '42420'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '42420'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '42420'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
+  },
+  '56': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '56'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '56'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '56'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
+  },
+  '8453': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '8453'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '8453'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '8453'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
+  },
 })
 
 import { defineStoreSettings } from '@/gotbit-tools/vue/config'
+import { supportedChains } from './misc/constants'
 export const storeSettings = defineStoreSettings(
   [
     import('@/store/contracts/factory').then((_) => _.useFactory),
