@@ -2,7 +2,7 @@ import { mapContractSafe, safeRead } from '@/gotbit-tools/vue'
 import { defineContractStore } from '@/gotbit-tools/vue/store'
 
 import type { ChainId, ContractActions } from '@/gotbit-tools/vue/types'
-import { config } from '@/gotbit.config'
+import { IS_DEBUG, config } from '@/gotbit.config'
 import { REAL_CHAIN_IDS } from '@/misc/chains'
 import { BigNumber, ethers } from 'ethers'
 import { getContract } from '@/misc/utils'
@@ -108,7 +108,7 @@ export const useFactory = defineContractStore<
       const token = useToken()
 
       const chainIds =
-        token.symbol === 'USDC'
+        token.symbol === 'USDC' && IS_DEBUG
           ? REAL_CHAIN_IDS.filter((c) => c !== '421614')
           : REAL_CHAIN_IDS
 

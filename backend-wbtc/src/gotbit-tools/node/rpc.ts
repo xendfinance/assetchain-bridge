@@ -68,6 +68,8 @@ export const universalRpc = (): RpcFunction => {
       polygon_mainnet: ankr(chainTag),
       celo_mainnet: ankr(chainTag),
       base_mainnet: ankr(chainTag),
+      bitlayer_mainnet: extraRpcs.bitlayer_mainnet[0],
+      xend_mainnet: extraRpcs.xend_mainnet[0],
 
       avax_testnet: 'https://avalanche-fuji-c-chain.publicnode.com',
       polygon_testnet: 'https://rpc-mumbai.maticvigil.com',

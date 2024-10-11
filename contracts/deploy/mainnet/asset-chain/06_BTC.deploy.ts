@@ -1,6 +1,6 @@
 import { ethers, getNamedAccounts } from 'hardhat'
 import type { DeployFunction } from 'hardhat-deploy/types'
-import { CHAIN_IDS, MAINNET_BRIDGED_TOKEN_PARAMS} from '@/config'
+import {BRIDGED_TOKEN_PARAMS, CHAIN_IDS, MAINNET_BRIDGED_TOKEN_PARAMS, MAINNET_CHAIN_IDS, MULTISIG_ADDRESSES} from '@/config'
 
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type { BridgedAssetChainToken__factory, MultiSigWallet } from '@/typechain'
@@ -11,16 +11,16 @@ const func: DeployFunction = async (hre) => {
   const [deployer] = await ethers.getSigners()
   const { chainId } = await ethers.provider.getNetwork()
 
-  if (chainId != CHAIN_IDS.assetChain) {
+  if (chainId != MAINNET_CHAIN_IDS.assetChain) {
     return
   }
 
-  const token = 'USDT'
+  const token = 'BTC'
   const params = MAINNET_BRIDGED_TOKEN_PARAMS[chainId][token]
 
-  if (!token) throw new Error('Token not set')
+  if (!params) throw new Error('Token not set')
 
-  const mulsigwallet = '' // address
+  const mulsigwallet = MULTISIG_ADDRESSES[MAINNET_CHAIN_IDS.assetChain]
   if (!mulsigwallet) throw new Error('Set address')
 
   await deploy<BridgedAssetChainToken__factory>(token, {
@@ -41,5 +41,5 @@ const func: DeployFunction = async (hre) => {
 }
 export default func
 
-func.tags = ['USDT.deploy']
-func.dependencies = ['MultiSigWallet.deploy']
+func.tags = ['BTC.deploy']
+// func.dependencies = ['MultiSigWallet.deploy']

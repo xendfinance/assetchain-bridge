@@ -80,6 +80,11 @@ export const useToken = defineContractStore<
       '84532': 6,
       '11155111': 6,
       '200810': 6,
+      '200901': 6,
+      '42161': 6,
+      '42420': 6,
+      '56': 18,
+      '8453': 6
     },
     tokens: genPerChainId(() => []),
     contractBalances: genPerChainId(() => BigNumber.from(0)),
@@ -144,8 +149,8 @@ export const useToken = defineContractStore<
             const contract = getContract(chainId)
             const factory = useFactory()
             const tokenAddr =
-              (this.symbol === 'RWA' && chainId === '42421') ||
-              (this.symbol === 'BTC' && chainId === '200810')
+              (this.symbol === 'RWA' && chainId === '42421') || (this.symbol === 'RWA' && chainId === '42420') ||
+              (this.symbol === 'BTC' && chainId === '200810') || (this.symbol === 'BTC' && chainId === '200901')
                 ? DEFAULT_NATIVE_TOKEN_CONTRACT_2
                 : this.tokenAddress
             const bridgeAssistAddress =
@@ -153,8 +158,8 @@ export const useToken = defineContractStore<
                 (item) => item.token === tokenAddr
               )?.bridgeAssist ?? ''
             if (
-              (this.symbol === 'RWA' && chainId === '42421') ||
-              (this.symbol === 'BTC' && chainId === '200810')
+              (this.symbol === 'RWA' && chainId === '42421') || (this.symbol === 'RWA' && chainId === '42420') ||
+              (this.symbol === 'BTC' && chainId === '200810') || (this.symbol === 'BTC' && chainId === '200901')
             ) {
               const provider = getProvider(chainId)
               this.balances[chainId] = await provider.getBalance(web3.wallet)
@@ -202,7 +207,7 @@ export const useToken = defineContractStore<
 
             // Handle native tokens
             if (item.token === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
-              if (chainId === '42421') {
+              if (chainId === '42421' || chainId === '42420') {
                 symbol = 'RWA'
                 decimals = 18
               } else {
@@ -246,7 +251,7 @@ export const useToken = defineContractStore<
       await Promise.all(tokenPromises)
 
       // Optional: log final tokens structure
-      // console.log('this.tokens', this.tokens);
+      console.log('this.tokens', this.tokens);
     },
 
     async setToken(symbol, tokenAddress) {
@@ -269,7 +274,7 @@ export const useToken = defineContractStore<
 
       const contract = getContract(chainId as ChainId)
       if (tokenAddress === DEFAULT_NATIVE_TOKEN_CONTRACT_2) {
-        if (chainId === '42421') {
+        if (chainId === '42421' || chainId === '42420') {
           this.symbol = 'RWA'
         } else {
           this.symbol = 'BTC'

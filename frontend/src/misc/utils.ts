@@ -173,14 +173,14 @@ export const DEFAULT_NATIVE_TOKEN_CONTRACT_2 =
 
 export const getContract = (chainId: ChainId) => {
   if (chainId === XEND_CHAIN) {
-    const { BridgeAssistNative } = useContracts(undefined, chainId)
-    const { anyBridgeAssistMint } = useContracts(undefined, chainId)
+    const { bridgeAssistNative } = useContracts(undefined, chainId)
+    const { anyBridgeAssist } = useContracts(undefined, chainId)
     const { anyToken } = useContracts(undefined, chainId)
     const { bridgeFactory } = useContracts(undefined, chainId)
 
     return {
-      anyBridgeAssist: anyBridgeAssistMint,
-      bridgeAssistNative: BridgeAssistNative,
+      anyBridgeAssist,
+      bridgeAssistNative: bridgeAssistNative,
       bridgeFactory: bridgeFactory,
       anyToken: anyToken,
     }

@@ -45,6 +45,8 @@ export const realTypes: Record<RealChainTag, Types> = {
   cmp_mainnet: 'mainnet',
   pulse_mainnet: 'mainnet',
   base_mainnet: 'mainnet',
+  bitlayer_mainnet: 'mainnet',
+  xend_mainnet: 'mainnet',
 
   rinkeby: 'testnet',
   ropsten: 'testnet',
@@ -64,7 +66,9 @@ export const realTypes: Record<RealChainTag, Types> = {
   arbitrum_sepolia: 'testnet',
   base_sepolia: 'testnet',
   eth_sepolia: 'testnet',
-  polygon_amoy: 'testnet'
+  polygon_amoy: 'testnet',
+  bitlayer_testnet: 'testnet',
+  base_sepolia_testnet: 'testnet',
 }
 export const realNames: Record<RealChainTag, string> = {
   localhost: 'Localhost',
@@ -82,6 +86,8 @@ export const realNames: Record<RealChainTag, string> = {
   cmp_mainnet: 'CMP Mainnet',
   pulse_mainnet: 'PulseChain Mainnet',
   base_mainnet: 'Base',
+  bitlayer_mainnet: 'BitLayer Mainnet',
+  xend_mainnet: 'Asset Chain Mainnet',
 
   rinkeby: 'Rinkeby',
   ropsten: 'Ropsten',
@@ -101,7 +107,9 @@ export const realNames: Record<RealChainTag, string> = {
   arbitrum_sepolia: 'Arbitrum Sepolia Testnet',
   base_sepolia: 'Base Sepolia Testnet',
   eth_sepolia: 'Sepolia',
-  polygon_amoy: 'Amoy'
+  polygon_amoy: 'Amoy',
+  bitlayer_testnet: 'BitLayer Testnet',
+  base_sepolia_testnet: 'Base Sepolia'
 }
 export const realSymbols: Record<RealChainTag, string> = {
   localhost: 'LOC',
@@ -119,6 +127,8 @@ export const realSymbols: Record<RealChainTag, string> = {
   cmp_mainnet: 'CMP',
   pulse_mainnet: 'PLS',
   base_mainnet: 'ETH',
+  bitlayer_mainnet: 'BTC',
+  xend_mainnet: 'RWA',
 
   rinkeby: 'ETH',
   ropsten: 'ETH',
@@ -138,7 +148,9 @@ export const realSymbols: Record<RealChainTag, string> = {
   arbitrum_sepolia: 'ETH',
   base_sepolia: 'ETH',
   eth_sepolia: 'ETH',
-  polygon_amoy: 'MATIC'
+  polygon_amoy: 'MATIC',
+  bitlayer_testnet: 'BTC',
+  base_sepolia_testnet: 'ETH',
 }
 
 export const types: Record<ChainTag, Types> = {
@@ -177,6 +189,8 @@ export const scanners: Record<RealChainTag, string> = {
   cmp_mainnet: 'https://mainnet.scan.caduceus.foundation/',
   pulse_mainnet: 'https://scan.mypinata.cloud/ipfs/bafybeih3olry3is4e4lzm7rus5l3h6zrphcal5a7ayfkhzm5oivjro2cp4/#/',
   base_mainnet: 'https://basescan.org/',
+  bitlayer_mainnet: 'https://www.btrscan.com/',
+  xend_mainnet: 'https://scan.assetchain.org/',
 
   rinkeby: 'https://rinkeby.etherscan.io/',
   ropsten: 'https://ropsten.etherscan.io/',
@@ -196,7 +210,9 @@ export const scanners: Record<RealChainTag, string> = {
   arbitrum_sepolia: 'https://sepolia.arbiscan.io/',
   base_sepolia: 'https://public.stackup.sh/api/v1/node/base-sepolia',
   eth_sepolia: 'https://ethereum-sepolia-rpc.publicnode.com',
-  polygon_amoy: 'https://polygon-amoy-bor-rpc.publicnode.com'
+  polygon_amoy: 'https://polygon-amoy-bor-rpc.publicnode.com',
+  base_sepolia_testnet: 'https://sepolia.basescan.org/',
+  bitlayer_testnet: 'https://testnet-scan.bitlayer.org/'
 }
 
 export function node(name: ChainTag): Node {
@@ -271,6 +287,8 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   cmp_mainnet: ['https://mainnet.block.caduceus.foundation'],
   pulse_mainnet: ['https://pulsechain.publicnode.com'],
   base_mainnet: ['https://base-rpc.publicnode.com'],
+  bitlayer_mainnet: ['https://rpc-bitlayer.rockx.com'],
+  xend_mainnet: ['https://mainnet-rpc.assetchain.org'],
 
   rinkeby: ['https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
   ropsten: ['https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
@@ -295,7 +313,9 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   okex_testnet: ['https://exchaintestrpc.okex.org'],
   cmp_testnet: ['https://galaxy.block.caduceus.foundation	'],
   pulse_testnet: ['https://rpc.v4.testnet.pulsechain.com'],
-  xend_testnet: ['https://enugu-rpc.assetchain.org/'],
+  xend_testnet: [
+    'https://enugu-rpc.assetchain.org',
+  ],
   arbitrum_sepolia: ['https://public.stackup.sh/api/v1/node/arbitrum-sepolia'],
   /**
    * chainId 11155111
@@ -309,10 +329,21 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   /**
    * 80002
    */
-  polygon_amoy: ['https://rpc-amoy.polygon.technology', 'https://polygon-amoy.drpc.org'],
+  polygon_amoy: [
+    'https://rpc-amoy.polygon.technology',
+    'https://polygon-amoy.drpc.org'
+  ],
 
   /**
    * 84532
    */
-  base_sepolia: ['https://rpc.notadegen.com/base/sepolia', 'https://sepolia.base.org'],
+  base_sepolia: [
+    'https://base-sepolia-rpc.publicnode.com',
+    'https://sepolia.base.org'
+  ],
+  bitlayer_testnet: ['https://testnet-rpc.bitlayer.org'],
+  base_sepolia_testnet: [
+    'https://base-sepolia-rpc.publicnode.com',
+    'https://sepolia.base.org'
+  ]
 }

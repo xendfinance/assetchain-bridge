@@ -104,7 +104,7 @@ import { config } from '@/gotbit.config'
 const web3 = useWeb3()
 const contracts = getContracts()
 const chainNames = Object.keys(contracts).filter((c) =>
-  config.chainIds.includes(contracts[c].chainId as ChainId),
+  config.chainIds.includes(contracts[c].chainId as never),
 ) as ChainId[]
 
 function getAddress(chainId: string, address: string) {

@@ -1,3 +1,5 @@
+// Sources flattened with hardhat v2.11.0 https://hardhat.org
+
 // File contracts/interfaces/IBridgeAssist.sol
 
 // SPDX-License-Identifier: MIT
@@ -21,6 +23,118 @@ interface IBridgeAssist {
     ) external;
 
     function TOKEN() external view returns (address);
+}
+
+
+// File contracts/utils/errors/BridgeFactoryErrors.sol
+
+pragma solidity ^0.8.18;
+
+library BridgeFactoryErrors {
+    error ZeroAddress();
+    error ZeroLengthArray();
+    error ArrayLengthExceedsLimit();
+    error InvalidOffsetLimit();
+    error InvalidIndex();
+    error NoBridgesByToken();
+    error BridgeTypeInvalidImplementation();
+    error DuplicateImplementations();
+    error BridgeZeroAddress(uint256 index);
+    error BridgeDuplicate(uint256 index);
+    error TokenZeroAddress(uint256 index);
+    error BridgeNotFound(uint256 index);
+    error NotMultiSigWallet();
+}
+
+
+// File @openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol@v4.9.6
+
+// OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev External interface of AccessControl declared to support ERC165 detection.
+ */
+interface IAccessControlUpgradeable {
+    /**
+     * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
+     *
+     * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+     * {RoleAdminChanged} not being emitted signaling this.
+     *
+     * _Available since v3.1._
+     */
+    event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
+
+    /**
+     * @dev Emitted when `account` is granted `role`.
+     *
+     * `sender` is the account that originated the contract call, an admin role
+     * bearer except when using {AccessControl-_setupRole}.
+     */
+    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
+
+    /**
+     * @dev Emitted when `account` is revoked `role`.
+     *
+     * `sender` is the account that originated the contract call:
+     *   - if using `revokeRole`, it is the admin role bearer
+     *   - if using `renounceRole`, it is the role bearer (i.e. `account`)
+     */
+    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
+
+    /**
+     * @dev Returns `true` if `account` has been granted `role`.
+     */
+    function hasRole(bytes32 role, address account) external view returns (bool);
+
+    /**
+     * @dev Returns the admin role that controls `role`. See {grantRole} and
+     * {revokeRole}.
+     *
+     * To change a role's admin, use {AccessControl-_setRoleAdmin}.
+     */
+    function getRoleAdmin(bytes32 role) external view returns (bytes32);
+
+    /**
+     * @dev Grants `role` to `account`.
+     *
+     * If `account` had not been already granted `role`, emits a {RoleGranted}
+     * event.
+     *
+     * Requirements:
+     *
+     * - the caller must have ``role``'s admin role.
+     */
+    function grantRole(bytes32 role, address account) external;
+
+    /**
+     * @dev Revokes `role` from `account`.
+     *
+     * If `account` had been granted `role`, emits a {RoleRevoked} event.
+     *
+     * Requirements:
+     *
+     * - the caller must have ``role``'s admin role.
+     */
+    function revokeRole(bytes32 role, address account) external;
+
+    /**
+     * @dev Revokes `role` from the calling account.
+     *
+     * Roles are often managed via {grantRole} and {revokeRole}: this function's
+     * purpose is to provide a mechanism for accounts to lose their privileges
+     * if they are compromised (such as when a trusted device is misplaced).
+     *
+     * If the calling account had been granted `role`, emits a {RoleRevoked}
+     * event.
+     *
+     * Requirements:
+     *
+     * - the caller must be `account`.
+     */
+    function renounceRole(bytes32 role, address account) external;
 }
 
 
@@ -478,97 +592,6 @@ abstract contract ContextUpgradeable is Initializable {
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
     uint256[50] private __gap;
-}
-
-
-// File @openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol@v4.9.6
-
-// OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev External interface of AccessControl declared to support ERC165 detection.
- */
-interface IAccessControlUpgradeable {
-    /**
-     * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
-     *
-     * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
-     * {RoleAdminChanged} not being emitted signaling this.
-     *
-     * _Available since v3.1._
-     */
-    event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
-
-    /**
-     * @dev Emitted when `account` is granted `role`.
-     *
-     * `sender` is the account that originated the contract call, an admin role
-     * bearer except when using {AccessControl-_setupRole}.
-     */
-    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
-
-    /**
-     * @dev Emitted when `account` is revoked `role`.
-     *
-     * `sender` is the account that originated the contract call:
-     *   - if using `revokeRole`, it is the admin role bearer
-     *   - if using `renounceRole`, it is the role bearer (i.e. `account`)
-     */
-    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
-
-    /**
-     * @dev Returns `true` if `account` has been granted `role`.
-     */
-    function hasRole(bytes32 role, address account) external view returns (bool);
-
-    /**
-     * @dev Returns the admin role that controls `role`. See {grantRole} and
-     * {revokeRole}.
-     *
-     * To change a role's admin, use {AccessControl-_setRoleAdmin}.
-     */
-    function getRoleAdmin(bytes32 role) external view returns (bytes32);
-
-    /**
-     * @dev Grants `role` to `account`.
-     *
-     * If `account` had not been already granted `role`, emits a {RoleGranted}
-     * event.
-     *
-     * Requirements:
-     *
-     * - the caller must have ``role``'s admin role.
-     */
-    function grantRole(bytes32 role, address account) external;
-
-    /**
-     * @dev Revokes `role` from `account`.
-     *
-     * If `account` had been granted `role`, emits a {RoleRevoked} event.
-     *
-     * Requirements:
-     *
-     * - the caller must have ``role``'s admin role.
-     */
-    function revokeRole(bytes32 role, address account) external;
-
-    /**
-     * @dev Revokes `role` from the calling account.
-     *
-     * Roles are often managed via {grantRole} and {revokeRole}: this function's
-     * purpose is to provide a mechanism for accounts to lose their privileges
-     * if they are compromised (such as when a trusted device is misplaced).
-     *
-     * If the calling account had been granted `role`, emits a {RoleRevoked}
-     * event.
-     *
-     * Requirements:
-     *
-     * - the caller must be `account`.
-     */
-    function renounceRole(bytes32 role, address account) external;
 }
 
 
@@ -1857,6 +1880,7 @@ pragma solidity 0.8.18;
 
 
 
+// import {StringsUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 
 /**
  * @title BridgeFactory
@@ -1870,7 +1894,8 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     enum BridgeType {
         TRANSFER,
         MINT,
-        NATIVE
+        NATIVE,
+        CIRCLEMINTBURN
     }
 
     struct BridgeAssistInfo {
@@ -1880,6 +1905,7 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
 
     bytes32 public constant CREATOR_ROLE = keccak256('CREATOR_ROLE');
     uint256 public constant ADD_REMOVE_LIMIT_PER_TIME = 100;
+    address public MULTISIG_WALLET;
 
     mapping(BridgeType => address) public bridgeAssistImplementation;
 
@@ -1889,11 +1915,19 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     event BridgeAssistCreated(address indexed bridgeAssist, address indexed token);
     event BridgeAssistAdded(address indexed bridgeAssist, address indexed token);
     event BridgeAssistRemoved(address indexed bridgeAssist, address indexed token);
+    // once the indexed params surpase 3. there is compilation error. So, the indexed was removed
     event BridgeAssistImplementationsSet(
-        address indexed bridgeTransfer,
-        address indexed bridgeMint,
-        address indexed bridgeNative
+        address bridgeTransfer,
+        address bridgeMint,
+        address bridgeNative,
+        address bridgeCircle
     );
+
+
+    modifier onlyMultisig() {
+        if (msg.sender != MULTISIG_WALLET) revert BridgeFactoryErrors.NotMultiSigWallet();
+        _;
+    }
 
     constructor() {
         _disableInitializers();
@@ -1902,36 +1936,55 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     /**
      * @notice Initializes the BridgeFactory contract.
      * @param bridgeAssistTransferImplementation_ BridgeAssistTransfer implementation
-     * @param bridgeAssistNativeImplementation_ BridgeAssistNative implementation
      * @param bridgeAssistMintImplementation_ BridgeAssistMint implementation
+     * @param bridgeAssistNativeImplementation_ BridgeAssistNative implementation
+     * @param bridgeAssistCircleMintBurnImplementation_ BridgeAssistMint implementation
+     * @param multisigWalletAddress_ Multisig wallet address
      * @param owner DEFAULT_ADMIN_ROLE holder
      */
     function initialize(
         address bridgeAssistTransferImplementation_,
         address bridgeAssistMintImplementation_,
         address bridgeAssistNativeImplementation_,
+        address bridgeAssistCircleMintBurnImplementation_,
+        address multisigWalletAddress_,
         address owner
     ) external initializer {
-        require(owner != address(0), 'Owner: zero address');
-        if (bridgeAssistTransferImplementation_ != address(0)) {
-            bridgeAssistImplementation[
-                BridgeType.TRANSFER
-            ] = bridgeAssistTransferImplementation_;
-        }
-        if (bridgeAssistMintImplementation_ != address(0)) {
-            bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
-        }
-        if (bridgeAssistNativeImplementation_ != address(0)) {
-            bridgeAssistImplementation[
-                BridgeType.NATIVE
-            ] = bridgeAssistNativeImplementation_;
-        }
+        // Ensure that owner and multisig wallet addresses are not zero
+        if (owner == address(0)) revert BridgeFactoryErrors.ZeroAddress();
+        if (multisigWalletAddress_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+
+        // Ensure that all implementation addresses are not zero
+        if (bridgeAssistTransferImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+        if (bridgeAssistMintImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+        if (bridgeAssistNativeImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+        if (bridgeAssistCircleMintBurnImplementation_ == address(0))
+            revert BridgeFactoryErrors.ZeroAddress();
+
+        // Set the implementation addresses
+        bridgeAssistImplementation[
+            BridgeType.TRANSFER
+        ] = bridgeAssistTransferImplementation_;
+        bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
+        bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
+        bridgeAssistImplementation[
+            BridgeType.CIRCLEMINTBURN
+        ] = bridgeAssistCircleMintBurnImplementation_;
+
+        // Set the multisig wallet address
+        MULTISIG_WALLET = multisigWalletAddress_;
+
+        // Grant the admin role to the owner
         _grantRole(DEFAULT_ADMIN_ROLE, owner);
     }
 
     /**
      * @notice Creates new BridgeAssist contract
-     * @param bridgeType 0 - MINT, 1 - NATIVE
+     * @param bridgeType 0 - TRANSFER, 1 - MINT, 2 - NATIVE, 3 - CIRCLEMINTBURN
      * @param token Supported token to send (not used if NATIVE)
      * @param limitPerSend Limit per one send (not used if NATIVE)
      * @param feeWallet Platform fee wallet
@@ -1952,9 +2005,10 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         address owner,
         address[] memory relayers,
         uint256 relayerConsensusThreshold
-    ) external onlyRole(CREATOR_ROLE) returns (address bridge) {
+    ) external onlyMultisig returns (address bridge) {
         address implementation = bridgeAssistImplementation[bridgeType];
-        require(implementation != address(0), 'BR_TYPE_INVALID_IMPL');
+        if (implementation == address(0))
+            revert BridgeFactoryErrors.BridgeTypeInvalidImplementation();
 
         bridge = ClonesUpgradeable.clone(implementation);
         IBridgeAssist(bridge).initialize(
@@ -1979,41 +2033,19 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * @dev Third-party bridges interface must match the implementation bridge
      * @param bridges Bridge addresses to add
      */
-    function addBridgeAssists(address[] memory bridges)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function addBridgeAssists(address[] memory bridges) external onlyMultisig {
         uint256 length = bridges.length;
-        require(length != 0, 'Zero length array');
-        require(length <= ADD_REMOVE_LIMIT_PER_TIME, 'Array length exceeds limit');
+        if (length == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (length > ADD_REMOVE_LIMIT_PER_TIME)
+            revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
 
-        for (uint256 i = 0; i < length; ) {
-            if (bridges[i] == address(0)) {
-                revert(
-                    string.concat(
-                        'Bridge zero address at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
-            if (!_createdBridges.add(bridges[i])) {
-                revert(
-                    string.concat(
-                        'Bridge duplicate at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
+        for (uint256 i; i < length; ) {
+            if (bridges[i] == address(0)) revert BridgeFactoryErrors.BridgeZeroAddress(i);
+            if (!_createdBridges.add(bridges[i]))
+                revert BridgeFactoryErrors.BridgeDuplicate(i);
 
             address token = IBridgeAssist(bridges[i]).TOKEN();
-            if (token == address(0)) {
-                revert(
-                    string.concat(
-                        'Token zero address at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
+            if (token == address(0)) revert BridgeFactoryErrors.TokenZeroAddress(i);
             _bridgesByToken[token].add(bridges[i]);
 
             emit BridgeAssistAdded(bridges[i], token);
@@ -2028,23 +2060,15 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * @notice Allows to remove bridges from the stored list
      * @param bridges Bridge addresses to remove
      */
-    function removeBridgeAssists(address[] memory bridges)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function removeBridgeAssists(address[] memory bridges) external onlyMultisig {
         uint256 length = bridges.length;
-        require(length != 0, 'Zero length array');
-        require(length <= ADD_REMOVE_LIMIT_PER_TIME, 'Array length exceeds limit');
+        if (length == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (length > ADD_REMOVE_LIMIT_PER_TIME)
+            revert BridgeFactoryErrors.ArrayLengthExceedsLimit();
 
-        for (uint256 i = 0; i < length; ) {
-            if (!_createdBridges.remove(bridges[i])) {
-                revert(
-                    string.concat(
-                        'Bridge not found at index: ',
-                        StringsUpgradeable.toString(i)
-                    )
-                );
-            }
+        for (uint256 i; i < length; ) {
+            if (!_createdBridges.remove(bridges[i]))
+                revert BridgeFactoryErrors.BridgeNotFound(i);
 
             address token = IBridgeAssist(bridges[i]).TOKEN();
             _bridgesByToken[token].remove(bridges[i]);
@@ -2060,35 +2084,42 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
     /**
      * @notice Allows to change template for creating new bridges
      * @dev Changes the implementation address for future proxy bridges
-     * @param bridgeAssistTransferImplementation_ New transfer bridge implementaion address
-     * @param bridgeAssistMintImplementation_ New mint bridge implementaion address
-     * @param bridgeAssistNativeImplementation_ New native bridge implementaion address
+     * @param bridgeAssistTransferImplementation_ New transfer bridge implementation address
+     * @param bridgeAssistMintImplementation_ New mint bridge implementation address
+     * @param bridgeAssistNativeImplementation_ New native bridge implementation address
+     * @param bridgeAssistCircleMintBurnImplementation_ New CircleMintBurn bridge implementation address
      */
     function changeBridgeAssistImplementation(
         address bridgeAssistTransferImplementation_,
         address bridgeAssistMintImplementation_,
-        address bridgeAssistNativeImplementation_
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            bridgeAssistTransferImplementation_ !=
-                bridgeAssistImplementation[BridgeType.TRANSFER] ||
-                bridgeAssistMintImplementation_ !=
-                bridgeAssistImplementation[BridgeType.MINT] ||
-                bridgeAssistNativeImplementation_ !=
-                bridgeAssistImplementation[BridgeType.NATIVE],
-            'Duplicate implementations'
-        );
+        address bridgeAssistNativeImplementation_,
+        address bridgeAssistCircleMintBurnImplementation_
+    ) external onlyMultisig {
+        if (
+            bridgeAssistTransferImplementation_ ==
+            bridgeAssistImplementation[BridgeType.TRANSFER] &&
+            bridgeAssistMintImplementation_ ==
+            bridgeAssistImplementation[BridgeType.MINT] &&
+            bridgeAssistNativeImplementation_ ==
+            bridgeAssistImplementation[BridgeType.NATIVE] &&
+            bridgeAssistCircleMintBurnImplementation_ ==
+            bridgeAssistImplementation[BridgeType.CIRCLEMINTBURN]
+        ) revert BridgeFactoryErrors.DuplicateImplementations();
 
         bridgeAssistImplementation[
             BridgeType.TRANSFER
         ] = bridgeAssistTransferImplementation_;
         bridgeAssistImplementation[BridgeType.MINT] = bridgeAssistMintImplementation_;
         bridgeAssistImplementation[BridgeType.NATIVE] = bridgeAssistNativeImplementation_;
+        bridgeAssistImplementation[
+            BridgeType.CIRCLEMINTBURN
+        ] = bridgeAssistCircleMintBurnImplementation_;
 
         emit BridgeAssistImplementationsSet(
             bridgeAssistTransferImplementation_,
             bridgeAssistMintImplementation_,
-            bridgeAssistNativeImplementation_
+            bridgeAssistNativeImplementation_,
+            bridgeAssistCircleMintBurnImplementation_
         );
     }
 
@@ -2100,17 +2131,17 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * Requirements:
      * {offset} + {limit} must be less than or equal to {getCreatedBridgesLength}.
      */
-    function getCreatedBridgesInfo(uint256 offset, uint256 limit)
-        external
-        view
-        returns (BridgeAssistInfo[] memory)
-    {
-        require(limit != 0, 'Limit: zero');
-        require(offset + limit <= _createdBridges.length(), 'Invalid offset-limit');
+    function getCreatedBridgesInfo(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (BridgeAssistInfo[] memory) {
+        if (limit == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (offset + limit > _createdBridges.length())
+            revert BridgeFactoryErrors.InvalidOffsetLimit();
 
         BridgeAssistInfo[] memory bridgesInfo = new BridgeAssistInfo[](limit);
 
-        for (uint256 i = 0; i < limit; ) {
+        for (uint256 i; i < limit; ) {
             address bridge = _createdBridges.at(i + offset);
             bridgesInfo[i] = BridgeAssistInfo({
                 bridgeAssist: bridge,
@@ -2132,12 +2163,10 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * Requirements:
      * {index} must be less than {getCreatedBridgesLength}.
      */
-    function getCreatedBridgeInfo(uint256 index)
-        external
-        view
-        returns (BridgeAssistInfo memory)
-    {
-        require(index < _createdBridges.length(), 'Invalid index');
+    function getCreatedBridgeInfo(
+        uint256 index
+    ) external view returns (BridgeAssistInfo memory) {
+        if (index >= _createdBridges.length()) revert BridgeFactoryErrors.InvalidIndex();
 
         address bridge = _createdBridges.at(index);
         return
@@ -2161,16 +2190,15 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
         uint256 offset,
         uint256 limit
     ) external view returns (address[] memory) {
-        require(_bridgesByToken[token].length() != 0, 'No bridges by this token');
-        require(limit != 0, 'Limit: zero');
-        require(
-            offset + limit <= _bridgesByToken[token].length(),
-            'Invalid offset-limit'
-        );
+        if (_bridgesByToken[token].length() == 0)
+            revert BridgeFactoryErrors.NoBridgesByToken();
+        if (limit == 0) revert BridgeFactoryErrors.ZeroLengthArray();
+        if (offset + limit > _bridgesByToken[token].length())
+            revert BridgeFactoryErrors.InvalidOffsetLimit();
 
         address[] memory bridges = new address[](limit);
 
-        for (uint256 i = 0; i < limit; ) {
+        for (uint256 i; i < limit; ) {
             bridges[i] = _bridgesByToken[token].at(i + offset);
 
             unchecked {
@@ -2189,13 +2217,14 @@ contract BridgeFactoryUpgradeable is AccessControlUpgradeable {
      * Requirements:
      * {index} must be less than or equal to {getBridgesByTokenLength}.
      */
-    function getBridgeByToken(address token, uint256 index)
-        external
-        view
-        returns (address)
-    {
-        require(_bridgesByToken[token].length() != 0, 'No bridges by this token');
-        require(index < _bridgesByToken[token].length(), 'Invalid index');
+    function getBridgeByToken(
+        address token,
+        uint256 index
+    ) external view returns (address) {
+        if (_bridgesByToken[token].length() == 0)
+            revert BridgeFactoryErrors.NoBridgesByToken();
+        if (index >= _bridgesByToken[token].length())
+            revert BridgeFactoryErrors.InvalidIndex();
 
         return _bridgesByToken[token].at(index);
     }

@@ -44,7 +44,7 @@ const config: HardhatUserConfig = {
     },
     arbitrum_sepolia: {
       tags: ['testnet'],
-      deploy: ['deploy/testnet/non-asset-chain'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
       url: 'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
@@ -87,13 +87,15 @@ const config: HardhatUserConfig = {
     base: {
       url: 'https://mainnet.base.org',
       tags: ['mainnet'],
-      deploy: ['deploy/mainnet/non-asset-chain'],
+      deploy: ['deploy/base'],
+      // deploy: ['deploy/mainnet/non-asset-chain'],
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
     bitlayer: {
       url: 'https://rpc.bitlayer.org',
       tags: ['mainnet'],
-      deploy: ['deploy/mainnet/non-asset-chain'],
+      // deploy: ['deploy/mainnet/non-asset-chain'],
+      deploy: ['deploy/bitlayer'],
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     },
     ethereum: {

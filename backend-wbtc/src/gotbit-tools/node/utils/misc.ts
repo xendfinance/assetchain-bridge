@@ -16,6 +16,7 @@ export const realChainIds = {
   pulse_mainnet: 369,
   base_mainnet: 8453,
   bitlayer_mainnet: 200901,
+  xend_mainnet: 42420,
 
   rinkeby: 4,
   ropsten: 3,
