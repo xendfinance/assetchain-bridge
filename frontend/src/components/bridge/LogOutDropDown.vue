@@ -98,7 +98,7 @@
             {{ token.symbol }}
           </div>
           <div v-else class="text-[16px] break-words">
-            {{ formatBigNums(balanceToken(chain.value as ChainId)) }}
+            {{ formatBigNums(balanceToken(chain.value as ChainId), token.symbol) }}
             {{ token.symbol }}
           </div>
         </div>

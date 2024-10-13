@@ -23,7 +23,7 @@ describe('`utils/contracts/use.ts` test', () => {
     it('should returns object with correct keys', () => {
       initWeb3()
       const offChain: string[] = Object.keys(contracts).filter(
-        (n) => !config.chainIds.includes(n as any),
+        (n) => !config.chainIds.includes(n as never),
       )
       let onChain: string[] = []
       if (config.chainIds.length === 0) return

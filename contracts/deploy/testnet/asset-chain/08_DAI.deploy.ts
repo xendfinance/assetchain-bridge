@@ -6,6 +6,7 @@ import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type {
   BridgeAssistMintUpgradeable,
   BridgedAssetChainToken__factory,
+  MultiSigWallet,
 } from '@/typechain'
 import { BigNumber, ContractTransaction } from 'ethers'
 
@@ -25,6 +26,8 @@ const func: DeployFunction = async (hre) => {
   const token = 'DAI'
   const params = BRIDGED_TOKEN_PARAMS[chainId][token]
 
+  const mulsigwallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
+
   const deployedTokenResult = await deploy<BridgedAssetChainToken__factory>(token, {
     contract: 'BridgedAssetChainToken',
     from: deployer.address,
@@ -33,25 +36,15 @@ const func: DeployFunction = async (hre) => {
       params.symbol,
       params.decimals,
       BigNumber.from(params.totalSupply),
-      deployer.address,
       params.isLockActive,
       params.tokenOriginal,
       params.chainIdOriginal,
+      mulsigwallet.address
     ],
     log: true,
   })
-  console.log(`Granting Bridge Assist Minter, Mint role to ${token}`)
-  const daiToken = await ethers.getContractAt(
-    deployedTokenResult.abi,
-    deployedTokenResult.address
-  )
-  const role = await daiToken.MINTER_ROLE()
-  const tx: ContractTransaction = await daiToken
-    .connect(deployer)
-    .grantRole(role, bridgeMinter.address)
-  await tx.wait()
-  console.log(`Done tx hash ${tx.hash}`)
 }
 export default func
 
 func.tags = ['DAI.deploy']
+func.dependencies = ['MultiSigWallet.deploy']

@@ -18,6 +18,23 @@ const func: DeployFunction = async (hre) => {
     contract: 'BridgeAssistTransferUpgradeable',
     from: deployer.address,
     args: [],
+    proxy: {
+      owner: deployer.address,
+      proxyContract: 'OpenZeppelinTransparentProxy',
+      execute: {
+        methodName: 'initialize',
+        args: [
+          '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+          100000000,
+          deployer.address,
+          0,
+          0,
+          deployer.address,
+          [deployer.address],
+          1,
+        ],
+      },
+    },
     log: true,
   })
 }

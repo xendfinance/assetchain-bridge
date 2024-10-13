@@ -88,7 +88,7 @@ export class TrustWallet extends WalletHandler {
       await this.updateProviderState()
       return true
     } catch (error) {
-      if (parseInt((error as any).code) == 4902) return await this.addChain(chainId)
+      if (parseInt((error as any).code) == 4200) return await this.addChain(chainId)
     }
     return false
   }

@@ -44,25 +44,6 @@
           WalletConnect
         </div>
       </GButton>
-
-      <GButton
-        secondary
-        @click="
-          () => {
-            connectOKXWallet()
-            dialogs.closeCurrentDialog()
-          }
-        "
-        class="w-full h-[50px]"
-      >
-        <div
-          class="flex items-center justify-center font-medium gap-2 w-full text-[16px] h-full z-30 button-text"
-        >
-          <OKXWalletIcon class="hidden md:block w-[24px] h-[24px]" />
-          <OKXWalletIcon class="md:hidden block w-[24px] h-[24px]" size="24px" />
-          OKX Wallet
-        </div>
-      </GButton>
       <GButton
         secondary
         @click="
@@ -81,7 +62,7 @@
           MAD Wallet
         </div>
       </GButton>
-      <!-- <GButton
+      <GButton
         secondary
         @click="
           () => {
@@ -98,8 +79,8 @@
           <CoinbaseIcon class="md:hidden block" size="24px" />
           Coinbase
         </div>
-      </GButton> -->
-      <!-- <div class="w-full hidden md:block">
+      </GButton>
+      <div class="w-full hidden md:block">
         <GButton
           secondary
           @click="
@@ -118,7 +99,27 @@
             Trust wallet
           </div>
         </GButton>
-      </div>  -->
+      </div> 
+      <GButton
+        secondary
+        @click="
+          () => {
+            connectOKXWallet()
+            dialogs.closeCurrentDialog()
+          }
+        "
+        class="w-full h-[50px]"
+      >
+        <div
+          class="flex items-center justify-center font-medium gap-2 w-full text-[16px] h-full z-30 button-text"
+        >
+          <OKXWalletIcon class="hidden md:block w-[24px] h-[24px]" />
+          <OKXWalletIcon class="md:hidden block w-[24px] h-[24px]" size="24px" />
+          OKX Wallet
+        </div>
+      </GButton>
+      
+      
       
     </div>
   </div>

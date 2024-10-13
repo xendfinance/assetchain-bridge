@@ -18,6 +18,8 @@ const func: DeployFunction = async (hre) => {
   const token = 'aUSDC.e'
   const params = DEFAULT_TOKEN_PARAMS[chainId][token]
 
+  if (!params) return
+
   await deploy<DefaultToken__factory>(token, {
     contract: 'DefaultToken',
     from: deployer.address,

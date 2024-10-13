@@ -5,22 +5,21 @@
     >
       <a href="https://xend.finance" target="_blank" class="md:block w-[25%] hidden">
         <div class="flex flex-col items-start w-[135px]">
-          <Logotip class="hidden md:block" />
-          <p class="text-[14px] mt-[10px] text-label-text uppercase">
-            © {{ new Date().getFullYear() }} Gotbit Ltd
+          <Logotip class="hidden md:block"/>
+          <p class="text-[12px] mt-[10px] text-label-text uppercase">
+            © {{ new Date().getFullYear() }} Xend Finance
           </p>
         </div>
       </a>
       <Social :links="links" class="" />
     </div>
-    <div class="w-full flex justify-center items-center">
-      <p
-        class="max-w-[1280px] w-full flex justify-center md:justify-between items-center border-t-[1px] border-t-primary-border py-4 md:py-5 px-2 md:pt-[12px] text text-[13px]"
-      >
-        <a href="https://xend.finance/policy" target="_blank">Privacy Police</a>
-        <a href="https://gotbit.io/" target="_blank">develop by Gotbit</a>
+    <!-- <div class="w-full flex justify-center items-center">
+      <p class="max-w-[1280px] w-full flex justify-center md:justify-end items-center border-t-[1px] border-t-primary-border py-4 md:py-5 md:pt-[12px]">
+        <span class="text text-[13px]">
+          <a href="https://gotbit.io/">develop by Gotbit</a>
+        </span>
       </p>
-    </div>
+    </div> -->
   </footer>
 </template>
 
@@ -31,33 +30,38 @@ import Social from '@/components/nav/Social.vue'
 
 const links = ref([
   {
-    name: 'facebook',
-    link: 'http://web.facebook.com/XendFinance',
-    img: 'Facebook.svg',
+    name: 'medium',
+    link: 'http://medium.com/xendfinance',
+    img: 'medium.png',
   },
   {
     name: 'telegram',
-    link: 'https://t.me/XendAnnouncements',
+    link: 'https://t.me/AssetChainBuilders',
     img: 'Telegram.svg',
   },
   {
     name: 'youtube',
-    link: 'https://www.youtube.com/channel/UCcR2lTpYwCws-axra4AAO8Q/featured',
+    link: 'https://www.youtube.com/@AssetChain',
     img: 'Youtube.svg',
   },
+  {
+    name: 'linkedin',
+    link: 'https://www.linkedin.com/company/theassetchain',
+    img: 'Linkedin.svg',
+  },
   // {
-  //   name: 'linkedin',
-  //   link: 'https://www.linkedin.com/company/chaingpt',
-  //   img: 'Linkedin.svg',
+  //   name: 'Testnet Leaderboard',
+  //   link: 'https://leaderboard.assetchain.org',
+  //   img: 'change.svg',
+  // },
+  // {
+  //   name: 'reddit',
+  //   link: 'http://www.reddit.com/r/XendFinance/',
+  //   img: 'Reddit.svg',
   // },
   {
-    name: 'reddit',
-    link: 'http://www.reddit.com/r/XendFinance/',
-    img: 'Reddit.svg',
-  },
-  {
     name: 'twitter',
-    link: 'http://twitter.com/xendfinance',
+    link: 'https://x.com/rwaassetchain',
     img: 'Twitter.svg',
   },
   {
@@ -67,8 +71,13 @@ const links = ref([
   },
   {
     name: 'discord',
-    link: 'https://discord.gg/QGHb7jp2GV',
+    link: 'https://discord.gg/wvvtY8Wk6M',
     img: 'Discord.svg',
+  },
+  {
+    name: 'Audit',
+    link: 'https://drive.google.com/file/d/1_cfCQNldq8xzmlsVJV26rP_0DDEpRcpk/',
+    img: 'vidma.png',
   },
 ])
 </script>

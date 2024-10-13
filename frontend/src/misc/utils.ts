@@ -87,7 +87,11 @@ export const genPerChainId = <T>(content: () => T) => {
 //   }
 //   return '0'
 // }
-export const formatBigNums = (number: number | string) => {
+export const formatBigNums = (number: number | string, token: string) => {
+  if (+number < 1) {
+    const num = (+number).toFixed(8) // This rounds the number to 4 decimal places
+    return num.replace(/\.?0+$/, '')
+  }
   const num = number.toString()
   const decimalIndex = num.indexOf('.')
   const isDecimal = decimalIndex !== -1
@@ -101,6 +105,10 @@ export const formatBigNums = (number: number | string) => {
   } else {
     floorNum = num
   }
+
+  // if (token && token === 'RWA' || token === 'BTC') {
+  //   decimalPart = decimalPart.padEnd(8, '0'); // Ensure 8 decimal places
+  // }
 
   let wholePath = floorNum.length % 3
   let stringPath = (floorNum.length - wholePath) / 3
@@ -165,14 +173,14 @@ export const DEFAULT_NATIVE_TOKEN_CONTRACT_2 =
 
 export const getContract = (chainId: ChainId) => {
   if (chainId === XEND_CHAIN) {
-    const { BridgeAssistNative } = useContracts(undefined, chainId)
-    const { anyBridgeAssistMint } = useContracts(undefined, chainId)
+    const { bridgeAssistNative } = useContracts(undefined, chainId)
+    const { anyBridgeAssist } = useContracts(undefined, chainId)
     const { anyToken } = useContracts(undefined, chainId)
     const { bridgeFactory } = useContracts(undefined, chainId)
 
     return {
-      anyBridgeAssist: anyBridgeAssistMint,
-      briggeAssistNative: BridgeAssistNative,
+      anyBridgeAssist,
+      bridgeAssistNative: bridgeAssistNative,
       bridgeFactory: bridgeFactory,
       anyToken: anyToken,
     }
@@ -180,11 +188,14 @@ export const getContract = (chainId: ChainId) => {
     const { anyBridgeAssist } = useContracts(undefined, chainId)
     const { anyToken } = useContracts(undefined, chainId)
     const { bridgeFactory } = useContracts(undefined, chainId)
+    const { bridgeAssistNative } = useContracts(undefined, chainId)
+
     // anyBridgeAssist('').supportedChainList
     return {
       anyBridgeAssist: anyBridgeAssist,
       bridgeFactory: bridgeFactory,
       anyToken: anyToken,
+      bridgeAssistNative: bridgeAssistNative,
     }
   }
 }

@@ -22,7 +22,21 @@ export const CHAIN_IDS = {
   ethereum: 11155111,
   bsc: 97,
   base: 84532,
+  bitlayer: 200810
 }
+
+export const MAINNET_CHAIN_IDS = {
+  assetChain: 42420,
+  arbitrum: 42161,
+  polygon: 137,
+  ethereum: 1,
+  bsc: 56,
+  base: 8453,
+  bitlayer: 200901
+}
+
+export const DEFAULT_NATIVE_TOKEN_CONTRACT =
+  '0x0000000000000000000000000000000000000001'
 
 export const DEFAULT_TOKEN_PARAMS: {
   [chainId: number]: { [token: string]: IDefaultTokenParams }
@@ -139,6 +153,14 @@ export const DEFAULT_TOKEN_PARAMS: {
       totalSupply: '200000',
     },
   },
+  200810: {
+    WBTC: {
+      name: 'Wrapped Bitlayer BTC',
+      symbol: 'WBTC',
+      decimals: 18,
+      totalSupply: '20000000',
+    },
+  }
 }
 
 // export const BRIDGED_TOKEN_PARAMS: {
@@ -233,5 +255,57 @@ export const BRIDGED_TOKEN_PARAMS: {
       tokenOriginal: '0x4BCf919e7B32c7e0a8a4fe08F40928fAd5d57b40',
       chainIdOriginal: CHAIN_IDS.arbitrum,
     },
+    WBTC: {
+      name: 'Wrapped Bitlayer BTC',
+      symbol: 'WBTC',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: '0x3095A7217Cda6EEc1E6BEdACb56974431f2B3623',
+      chainIdOriginal: CHAIN_IDS.bitlayer,
+    },
   },
+}
+
+export const MAINNET_BRIDGED_TOKEN_PARAMS: {
+  [chainId: number]: { [token: string]: IBridgedTokenParams }
+} = {
+  42420: {
+    WNT: {
+      name: 'Wicrypt Network Token',
+      symbol: 'WNT',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: false,
+      tokenOriginal: '0xAD4b9c1FbF4923061814dD9d5732EB703FaA53D4',
+      chainIdOriginal: MAINNET_CHAIN_IDS.arbitrum,
+    },
+    USDT: {
+      name: 'Tether USD',
+      symbol: 'USDT',
+      decimals: 6,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+      chainIdOriginal: MAINNET_CHAIN_IDS.ethereum,
+    },
+    BTC: {
+      name: 'Bitlayer Bitcoin',
+      symbol: 'BTC',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: DEFAULT_NATIVE_TOKEN_CONTRACT,
+      chainIdOriginal: MAINNET_CHAIN_IDS.bitlayer,
+    },
+  },
+}
+
+export const MULTISIG_ADDRESSES = {
+  [MAINNET_CHAIN_IDS.arbitrum]: '',
+  [MAINNET_CHAIN_IDS.assetChain]: '',
+  [MAINNET_CHAIN_IDS.base]: '',
+  [MAINNET_CHAIN_IDS.bitlayer]: '',
+  [MAINNET_CHAIN_IDS.bsc]: '',
+  [MAINNET_CHAIN_IDS.ethereum]: ''
 }

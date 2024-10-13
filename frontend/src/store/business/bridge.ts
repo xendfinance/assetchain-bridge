@@ -5,7 +5,7 @@ import { useDialogs } from '@/store/ui/dialogs'
 
 import type { FulfillTx } from '@/api/types'
 import { ChainId } from '@/gotbit-tools/vue/types'
-import { ContractTransaction } from 'ethers'
+import { ContractTransaction, ethers } from 'ethers'
 
 import { claimDialog, Dialog, enableDialog, transferDialog } from '@/misc/dialogTexts'
 import { createWaiter, formatDialog } from '@/misc/formatDialog'
@@ -66,133 +66,146 @@ const createAction = async (
   action: () => Promise<ContractTransaction | null>,
   customDialog?: () => Promise<void | boolean>
 ) => {
-  const dialogs = useDialogs()
-  const web3 = useWeb3()
-  // const token = useToken()
-  const token = useToken()
-  const uiBridge = useUIBridge()
-  const bridge = useBridge()
+  try {
+    const dialogs = useDialogs()
+    const web3 = useWeb3()
+    // const token = useToken()
+    const token = useToken()
+    const uiBridge = useUIBridge()
+    const bridge = useBridge()
 
-  const [waiter, res] = createWaiter()
+    const [waiter, res] = createWaiter()
 
-  const dialogSuccessText = (title?: string) => {
-    switch (title) {
-      case 'Approve':
-        return `Transaction successfully completed.
+    const dialogSuccessText = (title?: string) => {
+      switch (title) {
+        case 'Approve':
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
-      case 'Transfer':
-        return `Transaction successfully completed.
+        case 'Transfer':
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
-      case 'Claim':
-        return `Transaction successfully completed.
+        case 'Claim':
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
-      default:
-        return `Transaction successfully completed.
+        default:
+          return `Transaction successfully completed.
         You can follow the information of your operation with the transaction hash:`
+      }
     }
-  }
 
-  const dialogErrorText = (title?: string) => {
-    switch (title) {
-      // case 'Enable transaction':
-      //   return 'Smth u need'
-      // case 'Claim':
-      //   return 'Not claimed'
-      // case 'Transfer':
-      //   return 'Not transfered'
-      default:
-        return 'Warning! An error has occurred. Please try again.'
+    const dialogErrorText = (title?: string) => {
+      switch (title) {
+        // case 'Enable transaction':
+        //   return 'Smth u need'
+        // case 'Claim':
+        //   return 'Not claimed'
+        // case 'Transfer':
+        //   return 'Not transfered'
+        default:
+          return 'Warning! An error has occurred. Please try again.'
+      }
     }
-  }
-
-  if (web3.realChainId !== uiBridge.network) {
-    dialogs.openDialog(
-      'waitDialog',
-      {
-        loading: true,
-        success: false,
-        errorMsg: dialogErrorText(dialog.title),
-        waitingMsg: 'Waiting for switch',
-        waitingText: 'Please switch your network to continue.',
-        successMsg: '',
-      },
-      { notClosable: true }
-    )
-
-    const switched = await web3.switchChain(uiBridge.network)
-    if (!switched) {
+    if (web3.realChainId !== uiBridge.network) {
       dialogs.openDialog(
         'waitDialog',
         {
-          loading: false,
+          loading: true,
           success: false,
           errorMsg: dialogErrorText(dialog.title),
           waitingMsg: 'Waiting for switch',
           waitingText: 'Please switch your network to continue.',
           successMsg: '',
         },
-        { noCross: false }
+        { notClosable: true }
       )
-      return
+
+      const switched = await web3.switchChain(uiBridge.network)
+      if (!switched) {
+        dialogs.openDialog(
+          'waitDialog',
+          {
+            loading: false,
+            success: false,
+            errorMsg: dialogErrorText(dialog.title),
+            waitingMsg: 'Waiting for switch',
+            waitingText: 'Please switch your network to continue.',
+            successMsg: '',
+          },
+          { noCross: false }
+        )
+        return
+      }
     }
-  }
 
-  if (customDialog) {
-    const result = await customDialog()
-    res(result!)
-  } else {
-    dialogs.openDialog('confirmDialog', {
-      ...dialog,
-      onConfirm: () => res(true),
-      onCancel: () => res(false),
-    })
-  }
+    if (customDialog) {
+      const result = await customDialog()
+      res(result!)
+    } else {
+      dialogs.openDialog('confirmDialog', {
+        ...dialog,
+        onConfirm: () => res(true),
+        onCancel: () => res(false),
+      })
+    }
 
-  const response = await waiter
-  if (!response) return
+    const response = await waiter
+    if (!response) return
 
-  dialogs.openDialog(
-    'waitDialog',
-    {
-      loading: true,
-      success: false,
-      errorMsg: dialogErrorText(dialog.title),
-      waitingMsg: 'Waiting for transaction',
-      waitingText: 'It will take some time for the transaction to be completed.',
-      successMsg: '',
-    },
-    { notClosable: true }
-  )
-  const success = await action()
-  if (!success) {
     dialogs.openDialog(
       'waitDialog',
       {
-        loading: false,
+        loading: true,
         success: false,
         errorMsg: dialogErrorText(dialog.title),
         waitingMsg: 'Waiting for transaction',
         waitingText: 'It will take some time for the transaction to be completed.',
         successMsg: '',
       },
-      { noCross: false }
+      { notClosable: true }
     )
+    try {
+      const success = await action()
+      if (!success) {
+        dialogs.openDialog(
+          'waitDialog',
+          {
+            loading: false,
+            success: false,
+            errorMsg: dialogErrorText(dialog.title),
+            waitingMsg: 'Waiting for transaction',
+            waitingText: 'It will take some time for the transaction to be completed.',
+            successMsg: '',
+          },
+          { noCross: false }
+        )
+        return
+      }
+      dialogs.openDialog('successAlert', {
+        label: dialogSuccessText(dialog.title),
+        btnText: dialog.title === 'Transfer' ? 'OK' : 'Done',
+        txHash: success.hash,
+        chainId: uiBridge.network,
+      })
+    } catch (error: any) {
+      console.log(error, 'sajhashsayas')
+      dialogs.openDialog(
+        'errorAlert',
+        {
+          label: error.message,
+        },
+        { noCross: false, notClosable: false }
+      )
+    }
+
+    if (dialog.title === 'Transfer') {
+      uiBridge.inputAmount = ''
+    }
+
+    bridge.upload()
+    // await token.upload()
+    token.setToken(token.symbol, token.tokenAddress)
     return
-  }
-  dialogs.openDialog('successAlert', {
-    label: dialogSuccessText(dialog.title),
-    btnText: dialog.title === 'Transfer' ? 'OK' : 'Done',
-    txHash: success.hash,
-    chainId: uiBridge.network,
-  })
-
-  if (dialog.title === 'Transfer') {
-    uiBridge.inputAmount = ''
-  }
-
-  await bridge.upload()
-  await token.upload()
-  return
+  } catch (error) {}
 }
 
 export const useBridgeWrite = () => {
@@ -202,19 +215,21 @@ export const useBridgeWrite = () => {
   const uiBridge = useUIBridge()
   const dialogs = useDialogs()
 
+  // console.log(token.cDecimals, token.decimals, 'decimals', uiBridge.inputAmount)
   return {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories
         .map((h) => {
           const decimals =
-            h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
-              ? 6
-              : token.decimals[h.transaction.toChain]
-
+            // h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
+            //   ? 6
+              token.decimals[web3.chainId]
+          // console.log(decimals)
           return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
-              amount: h.transaction.amount.formatNumber(decimals, 3),
+              // amount: h.transaction.amount.formatNumber(decimals, 3),
+              amount: +ethers.utils.formatUnits(h.transaction.amount, decimals),
               to: h.transaction.toChain as ChainId,
               from: h.transaction.fromChain as ChainId,
               fulfilled: h.fulfilled,
@@ -269,8 +284,8 @@ export const useBridgeWrite = () => {
 
     fulfill: (transaction: FulfillTx, amount: number, index: number) =>
       createAction(
-        formatDialog(claimDialog(`${amount} ${token.symbol}`), {
-          amount: `${amount} ${token.symbol}`,
+        formatDialog(claimDialog(`${ethers.utils.formatUnits(transaction.amount, token.decimals[web3.chainId])} ${token.symbol}`), {
+          amount: `${ethers.utils.formatUnits(transaction.amount, token.decimals[web3.chainId])} ${token.symbol}`,
         }),
         () => bridge.fulfill(transaction, index)
       ),

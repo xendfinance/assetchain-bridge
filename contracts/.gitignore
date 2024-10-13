@@ -11,4 +11,5 @@ artifacts
 yarn-error.log
 .vscode
 dev
+main/
 typechain

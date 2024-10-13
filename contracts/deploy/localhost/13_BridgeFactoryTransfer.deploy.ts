@@ -7,6 +7,8 @@ import type {
   BridgeAssistNativeUpgradeable,
   BridgeAssistMintUpgradeable,
   BridgeFactoryUpgradeable__factory,
+  BridgeAssistCircleMintUpgradeable,
+  MultiSigWallet,
 } from '@/typechain'
 
 const func: DeployFunction = async (hre) => {
@@ -20,6 +22,8 @@ const func: DeployFunction = async (hre) => {
   const bridgeAssistNative = await ethers.getContract<BridgeAssistNativeUpgradeable>(
     'BridgeAssistNativeUpgradeable'
   )
+  const bridgeAssistCircleMint = await ethers.getContract<BridgeAssistCircleMintUpgradeable>('BridgeAssistCircleMintUpgradeable')
+  const multiSigWallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
 
   await deploy<BridgeFactoryUpgradeable__factory>('BridgeFactoryUpgradeable', {
     from: deployer.address,
@@ -32,6 +36,8 @@ const func: DeployFunction = async (hre) => {
           bridgeAssistTransfer.address,
           bridgeAssistMint.address,
           bridgeAssistNative.address,
+          bridgeAssistCircleMint.address,
+          multiSigWallet.address,
           deployer.address,
         ],
       },
@@ -46,4 +52,6 @@ func.dependencies = [
   'BridgeAssistTransferUpgradeable.deploy',
   'BridgeAssistMintUpgradeable.deploy',
   'BridgeAssistNativeUpgradeable.deploy',
+  'BridgeAssistCircleMintUpgradeable.deploy',
+  'MultiSigWallet.deploy'
 ]

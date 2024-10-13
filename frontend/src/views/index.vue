@@ -3,8 +3,7 @@
     <Header class="header" />
     <main class="py-20" id="start">
       <h1
-        class="font-semibold text-[27px] md:text-[47px] mt-[24px] md:mt-[70px] text-center leading-[36px] md:leading-[64px] uppercase"
-      >
+        class="font-semibold text-[27px] md:text-[47px] mt-[24px] md:mt-[70px] text-center leading-[36px] md:leading-[64px] uppercase">
         Cross-chain bridge
       </h1>
       <!-- <p class="text-center text-[16px] font-bold leading-[16px] mt-6">
@@ -12,24 +11,13 @@
       </p> -->
 
       <div class="w-full h-full flex flex-col items-center mt-8 px-5 md:px-0">
-        <TokenSelect
-          :options="options"
-          v-model="token"
-          class="max-w-[820px] w-full"
-          bg="!bg-primary-card"
-        />
+        <TokenSelect :options="options" v-model="token" class="max-w-[820px] w-full" bg="!bg-primary-card" />
         <BridgeCard :token-symbol="token" :tokens="tokensRead" />
         <BridgeHistory :token-symbol="token" v-if="login" />
       </div>
       <div class="mt-[48px] md:mt-[60px] flex flex-col items-center px-4">
         <h3 class="text-[26px] md:text-[32px] font-medium mb-3">FAQ</h3>
-        <FaqCard
-          v-for="card in faqCards"
-          :key="card.title"
-          :title="card.title"
-          :text="card.text"
-          class="max-w-[730px]"
-        />
+        <FaqCard v-for="card in faqCards" :key="card.title" :title="card.title" :text="card.text" class="max-w-[730px]" />
       </div>
     </main>
     <Footer />
@@ -51,6 +39,7 @@ import { useTokenRead } from '@/store/business/token'
 import { DEFAULT_NATIVE_TOKEN_CONTRACT_2 } from '@/misc/utils'
 import { REAL_CHAIN_IDS } from '@/misc/chains'
 import { useToken } from '@/store/contracts/token'
+import { IS_DEBUG } from '@/gotbit.config'
 
 const { login } = useWallet()
 const { tokens: tokensRead } = useTokenRead()
@@ -75,31 +64,28 @@ const token = ref<string>('USDT')
 const web3 = useWeb3()
 const tokenStore = useToken()
 
-const nativeToken = computed(() =>
-  tokenStore.tokens[web3.chainId].filter(
-    (t) => t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2,
-  ),
-)
 
-const isNativeToken = computed(() =>
-  nativeToken.value && nativeToken.value.length
-    ? nativeToken.value[0].label === tokenStore.symbol
-    : false,
-)
 
-const tokens = computed(() =>
-  isNativeToken.value
-    ? REAL_CHAIN_IDS.map((chain) => tokensRead.value[chain])
-        .flat()
-        .filter((t) => t.label !== 'RWA' || t.value === DEFAULT_NATIVE_TOKEN_CONTRACT_2)
-    : REAL_CHAIN_IDS.map((chain) => tokensRead.value[chain])
-        .flat()
-        .filter((t) => t.value !== DEFAULT_NATIVE_TOKEN_CONTRACT_2),
-)
 
-const options = computed(() => [
-  ...new Map(tokens.value.map((item) => [item.value, item])).values(),
-])
+
+const options = IS_DEBUG ? computed(() => [
+  ...new Map(tokenStore.tokens[web3.chainId] ? tokenStore.tokens[web3.chainId].filter(v => {
+    if (v.label === 'USDC' || v.label === 'BTC' || v.label === 'RWA'){
+      if (v.label === 'USDC'){
+        if (web3.chainId === '42421' || web3.chainId === '84532') return true
+        else return false
+      }
+      return true
+    }
+    return false
+    // if (v.label !== 'aUSDC.e') {
+    //   if (v.label === 'USDC'){
+    //     if (web3.chainId === '42421' || web3.chainId === '84532') return true
+    //     else return false
+    //   }else return true
+    // }
+  }).map((item) => [item.value, item]) : []).values(),
+]) : computed(() => [...tokenStore.tokens[web3.chainId]])
 </script>
 
 <style scoped lang="scss">

@@ -30,6 +30,7 @@ import * as settings from '@/gotbit.config'
 import { checkRpc } from '../rpc/checker'
 import { toBeforeEvent, useEvent } from './event'
 import { Native } from '../wallets/native'
+import { supportedChains } from '@/misc/constants'
 
 let storeSettings: StoreSettings = {
   stores: [],
@@ -38,8 +39,9 @@ let storeSettings: StoreSettings = {
 let config = {
   DEBUG: true,
   chainIds: [] as any,
-  DEFAULT_CHAINID: '' as any,
+  DEFAULT_CHAINID: '42421' as any,
   rpc: () => '',
+  supportedChains: supportedChains
 } as GotBitConfig<any>
 
 if (!import.meta.env.VITE_OFF_STORE) {
@@ -87,7 +89,6 @@ export const useWeb3 = defineStore('$web3', {
     },
     testLogin(address: string, chainId?: ChainId) {
       console.gotbit.log(`Test login ${address} on ${chainId}`)
-
       if (chainId === undefined) chainId = this.DEFAULT_CHAINID
       const signer = new VoidSigner(address, getProvider(chainId))
 

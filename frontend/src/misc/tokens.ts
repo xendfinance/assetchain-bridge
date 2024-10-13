@@ -7,6 +7,7 @@ import UsdtIcon from '@/components/base/icons/UsdtIcon.vue'
 import UsdcIcon from '@/components/base/icons/UsdcIcon.vue'
 import WethIcon from '@/components/base/icons/WethIcon.vue'
 import WntIcon from '@/components/base/icons/WntIcon.vue'
+import BitcoinIcon from '@/components/base/icons/BItcoinIcon.vue'
 
 
 export const tokensLabels: {
@@ -63,5 +64,15 @@ export const tokensLabels: {
       label: 'WNT',
       value: 'WNT',
       component: WntIcon,
+    },
+    {
+      label: 'aUSDC.e',
+      value: 'aUSDC.e',
+      component: UsdcIcon,
+    },
+    {
+      label: 'BTC',
+      value: 'BTC',
+      component: BitcoinIcon,
     },
   ]

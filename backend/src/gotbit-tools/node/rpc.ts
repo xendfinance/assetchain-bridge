@@ -23,10 +23,10 @@ export const ankrRpc = (): RpcFunction => {
     if (chainTag === 'pulse_testnet') return 'https://rpc.v4.testnet.pulsechain.com'
     if (chainTag === 'base_mainnet') return 'https://base-rpc.publicnode.com'
     if (chainTag === 'arbitrum_sepolia') return 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia'
-    if (chainTag === 'xend_testnet') return 'https://rpctestnet.xendrwachain.com'
+    if (chainTag === 'xend_testnet') return 'https://enugu-rpc.assetchain.org'
     if (chainTag === 'eth_sepolia') return 'https://ethereum-sepolia-rpc.publicnode.com'
     if (chainTag === 'polygon_amoy') return 'https://rpc-amoy.polygon.technology'
-    if (chainTag === 'base_sepolia') return 'https://sepolia.base.org'
+    if (chainTag === 'base_sepolia') return 'https://rpc.notadegen.com/base/sepolia'
 
     if (chainTag === 'avax_testnet')
       return 'https://avalanche-fuji-c-chain.publicnode.com'
@@ -68,6 +68,8 @@ export const universalRpc = (): RpcFunction => {
       polygon_mainnet: ankr(chainTag),
       celo_mainnet: ankr(chainTag),
       base_mainnet: ankr(chainTag),
+      bitlayer_mainnet: extraRpcs.bitlayer_mainnet[0],
+      xend_mainnet: extraRpcs.xend_mainnet[0],
 
       avax_testnet: 'https://avalanche-fuji-c-chain.publicnode.com',
       polygon_testnet: 'https://rpc-mumbai.maticvigil.com',
@@ -96,9 +98,10 @@ export const universalRpc = (): RpcFunction => {
       pulse_testnet: 'https://rpc.v4.testnet.pulsechain.com',
       arbitrum_sepolia: extraRpcs.arbitrum_sepolia[0],
       xend_testnet: extraRpcs.xend_testnet[0],
-      sepolia: extraRpcs.eth_sepolia[0],
-      amoy: extraRpcs.polygon_amoy[0],
-      base_sepolia_testnet: extraRpcs.base_sepolia[0],
+      base_sepolia: extraRpcs.base_sepolia[0],
+      eth_sepolia: extraRpcs.eth_sepolia[0],
+      polygon_amoy: extraRpcs.polygon_amoy[0],
+      bitlayer_testnet: extraRpcs.bitlayer_testnet[0],
     } as any
     return a[chainTag]
   }

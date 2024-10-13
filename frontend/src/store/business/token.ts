@@ -28,5 +28,6 @@ export const useTokenRead = () => {
     getCurrentDecimals: (tokenAddres: string) =>
       computed(() => token.cDecimals[tokenAddres]),
     tokens: computed(() => token.tokens),
+    loading: computed(() => token.loading)
   }
 }

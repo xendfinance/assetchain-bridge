@@ -6,8 +6,10 @@ import {
   BridgeFactoryUpgradeable,
   BridgedAssetChainToken,
   MockNativeBridge,
+  MultiSigWallet,
   type BridgeAssistTransferUpgradeable,
   type Token,
+  BridgeAssistCircleMintUpgradeable,
 } from '@/typechain'
 
 export const useContracts = async () => {
@@ -22,7 +24,9 @@ export const useContracts = async () => {
 
     bridgeMint: await ethers.getContract<BridgeAssistMintUpgradeable>('BridgeAssistMintUpgradeable'),
     bridgeNative: await ethers.getContract<BridgeAssistNativeUpgradeable>('BridgeAssistNativeUpgradeable'),
-    mockNative: await ethers.getContract<MockNativeBridge>('MockNativeBridge')
+    mockNative: await ethers.getContract<MockNativeBridge>('MockNativeBridge'),
+    multiSigWallet: await ethers.getContract<MultiSigWallet>('MultiSigWallet'),
+    bridgeCircle: await ethers.getContract<BridgeAssistCircleMintUpgradeable>('BridgeAssistCircleMintUpgradeable'),
   }
 }
 

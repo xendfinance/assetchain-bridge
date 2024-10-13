@@ -70,6 +70,7 @@ import { tokensLabels } from '@/misc/tokens'
 import { useToken } from '@/store/contracts/token'
 import { useFactory } from '@/store/contracts/factory'
 import { useBridge } from '@/store/contracts/bridge'
+import { useWeb3 } from '@/gotbit-tools/vue'
 
 export interface SelectorProps {
   modelValue?: string
@@ -86,23 +87,38 @@ const emit = defineEmits(['update:modelValue', 'active'])
 const token = useToken()
 const factory = useFactory()
 const bridge = useBridge()
+const web3 = useWeb3()
 
 const active = ref(false)
 const dropdown = ref<HTMLElement | any>(null)
 
 const chosenToken = computed(() => {
-  console.log('tokenAddress_', props.modelValue)
-
-  if (!props.modelValue) return props.options[0]
-  return props.options?.filter((o) => o?.label === props.modelValue)?.[0]
+  if (!props.modelValue) {
+    const _c = props.options[0]
+    if (_c){
+      onSelect(_c.label, _c.value)
+    }
+    return _c ? _c : token.tokens[web3.chainId]?.[0]
+  }
+  
+  const _c = props.options.find(o => o.label === props.modelValue)
+  if (!_c) {
+    const firstToken = props.options[0]
+    if (firstToken){
+      onSelect(firstToken.label, firstToken.value)
+    }
+    
+    return firstToken ? firstToken : token.tokens[web3.chainId]?.[0]
+  }
+  return _c
 })
 
 const addTokenIcons = (item: string) => tokensLabels.filter((t) => t.label === item)?.[0]
 
 const onSelect = async (tokenSymbol: string, tokenAddress: string) => {
-  const item = props.options?.filter((o) => o.label === tokenSymbol)[0]
-  console.log(tokenAddress, 'tokenAddress')
-  if (item.disabled) return
+  const item = token.tokens[web3.chainId].find((o) => o.label === tokenSymbol)
+  if (!item) return
+  // if (item.disabled) return
   emit('update:modelValue', tokenSymbol)
   await token.setToken(tokenSymbol, tokenAddress)
   await factory.getSupportedChains()

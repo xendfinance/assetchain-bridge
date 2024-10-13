@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import type { DeployFunction } from 'hardhat-deploy/types'
 
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
-import type { BridgedAssetChainToken__factory } from '@/typechain'
+import type { BridgedAssetChainToken__factory, MultiSigWallet } from '@/typechain'
 import { BigNumber } from 'ethers'
 
 export const NAME = 'AssetToken'
@@ -16,6 +16,8 @@ const func: DeployFunction = async (hre) => {
   const { deploy } = wrapperHRE(hre)
   const [deployer] = await ethers.getSigners()
 
+  const multiSigWallet = await ethers.getContract<MultiSigWallet>('MultiSigWallet')
+
   await deploy<BridgedAssetChainToken__factory>('BridgedAssetChainToken', {
     from: deployer.address,
     args: [
@@ -23,10 +25,10 @@ const func: DeployFunction = async (hre) => {
       'ASTKN',
       18,
       BigNumber.from(10).pow(9),
-      deployer.address,
       false,
       ORIGINAL_TOKEN,
       ORIGINAL_CHAIN_ID,
+      multiSigWallet.address,
     ],
     log: true,
   })
