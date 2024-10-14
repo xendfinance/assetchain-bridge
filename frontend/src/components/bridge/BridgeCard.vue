@@ -349,7 +349,7 @@ const isValid = computed(() => {
     //   return true
     return (
       (
-        amount.gt(0) &&
+        amount.gt(0) && (token.symbol === 'BTC' && bridgeUI.from !== '200810' && bridgeUI.from !== '200901') &&
         amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
@@ -371,7 +371,7 @@ const errorMessage = computed(() => {
       return `Amount must be lower then ${bridgeRead
         .limitPerSend(from.value)
         .formatString(unref(decimals), 0)}`
-    if (Number(bridgeUI.inputAmount) < 0.1) return 'Amount must be more than 1'
+    if (Number(bridgeUI.inputAmount) < 0.1 && (token.symbol === 'BTC' && bridgeUI.from !== '200810' && bridgeUI.from !== '200901')) return 'Amount must be more than 1'
     // if (amount.lte(0)) return 'Amount must be more than 0'
 
     if (amount.gt(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))))
