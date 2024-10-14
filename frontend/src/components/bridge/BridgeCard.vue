@@ -349,7 +349,7 @@ const isValid = computed(() => {
     //   return true
     return (
       (
-        amount.gt(0) && (token.symbol === 'BTC' && bridgeUI.from !== '200810' && bridgeUI.from !== '200901') &&
+        amount.gt(0) &&
         amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
