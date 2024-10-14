@@ -31,7 +31,7 @@ import Social from '@/components/nav/Social.vue'
 const links = ref([
   {
     name: 'medium',
-    link: 'http://medium.com/xendfinance',
+    link: 'https://medium.com/asset-chain',
     img: 'medium.png',
   },
   {
@@ -71,7 +71,7 @@ const links = ref([
   },
   {
     name: 'discord',
-    link: 'https://discord.gg/wvvtY8Wk6M',
+    link: 'https://discord.assetchain.org',
     img: 'Discord.svg',
   },
   {
