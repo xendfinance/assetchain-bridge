@@ -224,7 +224,6 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         )
 
         this.loading = true
-        console.log(transaction, 'ksdjk')
 
         let symbol =
           token.symbol === 'USDC' &&
