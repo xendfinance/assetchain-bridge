@@ -26,7 +26,6 @@ async function signHashedTransaction(
   signerIndex: number
 ) {
   const wallet = getWallet(signerIndex)
-  console.log(wallet.address, 'addess', signerIndex)
   const domain = {
     name: EIP712DOMAIN_NAME,
     version: EIP712DOMAIN_VERSION,
@@ -79,15 +78,15 @@ export const signTransaction = async (
       0
     )
     signatures.push(signer0)
-
-    const signer1 = await signHashedTransaction(
-      extractFulfillTransaction(tx),
-      chainId,
-      toBridgeAddress,
-      1
-    )
-    signatures.push(signer1)
-
+    if (process.env.PRIVATE_KEY2){
+      const signer1 = await signHashedTransaction(
+        extractFulfillTransaction(tx),
+        chainId,
+        toBridgeAddress,
+        1
+      )
+      signatures.push(signer1)
+    }
     return signatures
   } else {
     throw Error('bad contract params')
