@@ -273,7 +273,7 @@ const balanceAfterReceive = computed(() => {
 
 const hasAllowance = computed(() => {
   if (!token || !token.symbol) return false
-  if ((token.symbol === "RWA" && from.value === '42421') || (token.symbol === "RWA" && from.value === '42420') || (token.symbol === "BTC" && from.value === '200810') || (token.symbol === "BTC" && from.value === '200810')) return true
+  if ((token.symbol === "RWA" && from.value === '42421') || (token.symbol === "RWA" && from.value === '42420') || (token.symbol === "BTC" && from.value === '200810') || (token.symbol === "BTC" && from.value === '200901')) return true
   return allowance(bridgeUI.from)
 })
 
@@ -349,7 +349,7 @@ const isValid = computed(() => {
     //   return true
     return (
       (
-        amount.gt(0) && (token.symbol === 'BTC' && bridgeUI.from !== '200810' && bridgeUI.from !== '200901') &&
+        amount.gt(0) &&
         amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
