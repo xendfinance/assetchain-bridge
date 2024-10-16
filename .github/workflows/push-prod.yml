@@ -42,7 +42,7 @@ jobs:
             backend-usdt:
               - 'backend-usdt/**'
             backend-wbtc:
-              - 'backend-wbtc/**'
+              - 'backend-wbtc/**/**'
             backend-weth:
               - 'backend-weth/**'
             backend-wnt:
