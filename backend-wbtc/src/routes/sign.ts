@@ -9,7 +9,7 @@ export default (): Resource => ({
     try {
       const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index } =
         req.query
-
+      console.log(fromBridgeAddress, toBridgeAssistAddress, fromBridgeAddress, fromChain, index, 'tracking param')
       if (!fromBridgeAddress)
         return res.status(400).send('fromBridgeAddress not specified')
       if (!toBridgeAssistAddress)
