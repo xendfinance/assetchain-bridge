@@ -424,7 +424,6 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         }
         this.loadingHistory = false
 
-        // console.log(signedTransactions)
 
         return signedTransactions.map((d) => ({
           ...d,
