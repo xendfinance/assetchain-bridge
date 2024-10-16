@@ -24,8 +24,10 @@ export default (): Resource => ({
         fromUser,
         index
       )
+      console.log(signature);
       res.status(200).json({ signature })
     } catch (error: any) {
+      console.log(error);
       res.status(400).json({ error: error.message })
     }
   },
