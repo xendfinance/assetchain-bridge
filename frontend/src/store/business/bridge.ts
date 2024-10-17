@@ -284,8 +284,8 @@ export const useBridgeWrite = () => {
 
     fulfill: (transaction: FulfillTx, amount: number, index: number) =>
       createAction(
-        formatDialog(claimDialog(`${ethers.utils.formatUnits(transaction.amount, token.decimals[web3.chainId])} ${token.symbol}`), {
-          amount: `${ethers.utils.formatUnits(transaction.amount, token.decimals[web3.chainId])} ${token.symbol}`,
+        formatDialog(claimDialog(`${amount} ${token.symbol}`), {
+          amount: `${amount} ${token.symbol}`,
         }),
         () => bridge.fulfill(transaction, index)
       ),

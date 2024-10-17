@@ -23,7 +23,7 @@
             <span class="flex text-[11px] text-label-text">
               {{
                 (token.symbol === "BTC" && from === '200810') || (token.symbol === "BTC" && from === '200901') ?
-                balanceToken(from) : formatBigNums(
+                balanceToken(bridgeUI.from) : formatBigNums(
                   balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0, token.symbol
                 )
               }}
@@ -328,13 +328,13 @@ const isValidInput = computed(() => {
     return (
       (
         amount.gt(0) &&
-        amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
+        amount.lte(balanceToken(bridgeUI.from)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
           ? bridgeUI.inputAmount.split('.')[1].length <= unref(decimals)
           : true) &&
         bridgeUI.inputAmount[0] !== '.' &&
-        bridgeRead.limitPerSend(from.value).gte(amount)) ||
+        bridgeRead.limitPerSend(bridgeUI.from).gte(amount)) ||
       !bridgeUI.inputAmount
     )
   } catch (e) {
@@ -350,13 +350,13 @@ const isValid = computed(() => {
     return (
       (
         amount.gt(0) &&
-        amount.lte(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))) &&
+        amount.lte(balanceToken(bridgeUI.from)?.toString().toBigNumber(unref(decimals))) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
           ? bridgeUI.inputAmount.split('.')[1].length <= unref(decimals)
           : true) &&
         bridgeUI.inputAmount[0] !== '.' &&
-        bridgeRead.limitPerSend(from.value).gte(amount)) ||
+        bridgeRead.limitPerSend(bridgeUI.from).gte(amount)) ||
       !bridgeUI.inputAmount
     )
   } catch (e) {
@@ -367,11 +367,11 @@ const isValid = computed(() => {
 const errorMessage = computed(() => {
   try {
     const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
-    if (bridgeRead.limitPerSend(from.value).lte(amount))
+    if (bridgeRead.limitPerSend(bridgeUI.from).lte(amount) && token.symbol !== 'BTC')
       return `Amount must be lower then ${bridgeRead
-        .limitPerSend(from.value)
+        .limitPerSend(bridgeUI.from)
         .formatString(unref(decimals), 0)}`
-    if (Number(bridgeUI.inputAmount) < 0.1 && (token.symbol === 'BTC' && bridgeUI.from !== '200810' && bridgeUI.from !== '200901')) return 'Amount must be more than 1'
+    if (Number(bridgeUI.inputAmount) < 0.1 && (token.symbol !== 'BTC')) return 'Amount must be more than 1'
     // if (amount.lte(0)) return 'Amount must be more than 0'
 
     if (amount.gt(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))))
