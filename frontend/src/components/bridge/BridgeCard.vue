@@ -116,6 +116,7 @@ import { useToken } from '@/store/contracts/token'
 import LogoutButton from '@/components/base/LogoutButton.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { useFactoryRead } from '@/store/business/factory'
+import { XEND_CHAIN } from '@/gotbit.config'
 
 export interface ElementProps {
   tokenSymbol: string
@@ -176,7 +177,7 @@ onMounted(() => {
     .map((c) => ({
       value: c.value,
       label: c.label,
-      disabled: from.value === c.value ? true : false,
+      disabled: from.value === XEND_CHAIN ? from.value === c.value :  from.value === c.value || c.value !== XEND_CHAIN ? true : false,
     }))
   chainsFrom.value = unref(normalizedChainsLabels)?.map((c) => ({
     value: c.value,
@@ -218,7 +219,7 @@ watch(
         .map((c) => ({
           value: c.value,
           label: c.label,
-          disabled: from.value === c.value ? true : false,
+          disabled: from.value === XEND_CHAIN ? from.value === c.value :  from.value === c.value || c.value !== XEND_CHAIN ? true : false,
         }))
     chainsFrom.value = isNativeToken.value
       ? []
