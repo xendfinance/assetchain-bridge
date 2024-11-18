@@ -8,7 +8,7 @@
       >
         <BaseLogo />
         <div class="flex gap-9">
-          <a target="__blank__" href="https://leaderboard.assetchain.org">
+          <a v-if="IS_DEBUG" target="__blank__" href="https://leaderboard.assetchain.org">
             <div class="flex items-center my-auto pt-3 w-full h-full">
             <span class="text-base h-full">Leaderboard</span>
           </div>
@@ -154,6 +154,7 @@ import { REAL_CHAIN_IDS } from '@/misc/chains'
 import { onClickOutside } from '@vueuse/core'
 import UserButton from '@/components/base/UserButton.vue'
 import BaseLogo from '@/components/nav/Logo.vue'
+import { IS_DEBUG } from '@/gotbit.config'
 
 const { login, disconnect, walletLabel } = useWallet()
 
