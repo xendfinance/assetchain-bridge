@@ -299,6 +299,17 @@ export const MAINNET_BRIDGED_TOKEN_PARAMS: {
       chainIdOriginal: MAINNET_CHAIN_IDS.bitlayer,
     },
   },
+  8453: {
+    RWA: {
+      name: 'Xend Real world Asset',
+      symbol: 'RWA',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: '',
+      chainIdOriginal: MAINNET_CHAIN_IDS.arbitrum,
+    }
+  }
 }
 
 export const MULTISIG_ADDRESSES = {
