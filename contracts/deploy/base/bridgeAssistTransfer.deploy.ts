@@ -3,7 +3,7 @@ import type { DeployFunction } from 'hardhat-deploy/types'
 import { CHAIN_IDS } from '@/config'
 
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
-import type { BridgeAssistTransferUpgradeable__factory } from '@/typechain'
+import type { BridgeAssistMintUpgradeable__factory, BridgeAssistTransferUpgradeable__factory } from '@/typechain'
 
 const token = ``
 const owner = ``
@@ -18,10 +18,10 @@ const func: DeployFunction = async (hre) => {
   if (!owner) throw new Error('Owner not Set')
   if (relayers.length <=0) throw new Error('Relayers not Set')
 
-  await deploy<BridgeAssistTransferUpgradeable__factory>(
-    'BridgeAssistTransferUpgradeable',
+  await deploy<BridgeAssistMintUpgradeable__factory>(
+    'BridgeAssistMintUpgradeable',
     {
-      contract: 'BridgeAssistTransferUpgradeable',
+      contract: 'BridgeAssistMintUpgradeable',
       from: deployer.address,
       args: [],
       proxy: {
@@ -30,13 +30,13 @@ const func: DeployFunction = async (hre) => {
         execute: {
           methodName: 'initialize',
           args: [
-            token,
+            '', //token adress
             0,
-            owner,
+            '', ///
             0,
             0,
-            owner,
-            relayers,
+            '', /// 
+            [], // relayers
             1,
           ],
         },

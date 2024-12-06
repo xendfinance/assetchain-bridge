@@ -34,7 +34,7 @@ const func: DeployFunction = async (hre) => {
       params.isLockActive,
       params.tokenOriginal,
       params.chainIdOriginal,
-      mulsigwallet
+      mulsigwallet,
     ],
     log: true,
   })
