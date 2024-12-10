@@ -308,6 +308,15 @@ export const MAINNET_BRIDGED_TOKEN_PARAMS: {
       isLockActive: true,
       tokenOriginal: '',
       chainIdOriginal: MAINNET_CHAIN_IDS.arbitrum,
+    },
+    WNT: {
+      name: 'Wicrypt Network Token',
+      symbol: 'WNT',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: '0xAD4b9c1FbF4923061814dD9d5732EB703FaA53D4',
+      chainIdOriginal: MAINNET_CHAIN_IDS.arbitrum,
     }
   }
 }
