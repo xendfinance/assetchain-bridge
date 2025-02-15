@@ -278,7 +278,6 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         const { supportedChains, assistAndTokenAddresses } = useFactory()
 
         const token = useToken()
-
         for (const chainId of supportedChains as ChainId[]) {
           // const { bridgeAssist } = useContracts(undefined, chainId)
           let tokenAddr = token.tokenAddress
@@ -302,8 +301,9 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
               }
             }
           }
-
-          const bridgeAddress = assistAndTokenAddresses[chainId].find(
+          const assist = assistAndTokenAddresses[chainId]
+          if (!assist) continue
+          const bridgeAddress = assist.find(
             (item) => item.token === tokenAddr
           )?.bridgeAssist
 
