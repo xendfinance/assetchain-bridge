@@ -12,7 +12,7 @@ export const XEND_CHAIN = IS_DEBUG ? '42421' : '42420'
 
 export const config = defineConfig({
   DEBUG: IS_DEBUG,
-  chainIds: IS_DEBUG ? ['97', '421614', '42421', '11155111', '80002', '84532', '200810'] : ["200901", "42161", "42420", "56", "8453"],
+  chainIds: IS_DEBUG ? ['97', '421614', '42421', '11155111', '80002', '84532', '200810'] : ["200901", "42161", "42420", "56", "8453", '1'],
   DEFAULT_CHAINID: IS_DEBUG ? '42421' : '42420',
   supportedChains: supportedChains as any[],
   rpc: (chainTag) => {
@@ -184,6 +184,17 @@ export const contracts = defineContracts({
       'BridgeAssistTransferUpgradeable'
     ),
     bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '8453'>(
+      'BridgeAssistNativeUpgradeable'
+    ),
+  },
+  '1': {
+    bridgeFactory: addContractI<BridgeFactoryUpgradeable, '1'>(
+      'BridgeFactoryUpgradeable'
+    ),
+    anyBridgeAssist: addContractWithAddressI<BridgeAssistTransferUpgradeable, '1'>(
+      'BridgeAssistTransferUpgradeable'
+    ),
+    bridgeAssistNative: addContractWithAddressI<BridgeAssistNativeUpgradeable, '1'>(
       'BridgeAssistNativeUpgradeable'
     ),
   },
