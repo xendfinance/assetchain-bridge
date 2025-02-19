@@ -6,7 +6,7 @@ import { TypedDataSigner } from '@ethersproject/abstract-signer'
 import { GotbitKmsSigner } from '@/lib/kms-signer'
 import CONFIRMATIONS from '../confirmations.json'
 
-export const REAL_CHAIN_IDS: ChainId[] = ['97', '42421', '421614', '200810', '200901', '42420', '42161', '56', '8453', '84532']
+export const REAL_CHAIN_IDS: ChainId[] = ['97', '42421', '421614', '200810', '200901', '42420', '42161', '56', '8453', '84532', "1"]
 
 const EIP712DOMAIN_NAME = 'BridgeAssist'
 const EIP712DOMAIN_VERSION = '1.0'
