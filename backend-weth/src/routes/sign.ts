@@ -17,7 +17,7 @@ export default (): Resource => ({
       if (!index) return res.status(400).send('index not specified')
       console.log(fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index)
       const signature = await signTransaction(fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index)
-      res.status(200).json({ signature }) 
+      res.status(200).json({ signature, dummy: "Testing deployment" }) 
     } catch (error: any) {
       console.log(error)
       throw new Error(error.message);

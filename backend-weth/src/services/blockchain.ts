@@ -223,6 +223,7 @@ export const signTransaction = async (
     const { bridgeAssist } = useContracts(undefined, fromChain.slice(4) as ChainId)
     tx = await bridgeAssist(fromBridgeAddress).transactions(fromUser, index)
     console.log(Number(tx.amount), 'amount', Number(tx.block), 'block', Number(tx.timestamp), 'timestamp')
+    console.log(tx, "sd")
   } else {
     throw Error('bad arguments')
   }
