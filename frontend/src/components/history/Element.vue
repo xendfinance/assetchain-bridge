@@ -23,33 +23,21 @@
           <span class="inline lg:hidden">Amount</span>
           <GTooltip
             :hint="fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10, token.symbol) : formatBigNums(claimAmount, token.symbol)"
-            text
-            position="right"
-            class="text-[15px]"
-          >
+            text position="right" class="text-[15px]">
             <p class="text-[15px] whitespace-normal text-center">
-              <span> {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10, token.symbol) : formatBigNums(claimAmount, token.symbol) }} </span
-              ><span>{{ ` ${token.symbol}` }}</span>
+              <span> {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10,
+                token.symbol) : formatBigNums(claimAmount, token.symbol) }} </span><span>{{ ` ${token.symbol}` }}</span>
             </p>
           </GTooltip>
         </div>
 
-        <div
-          class="w-[100px] text-brand-text-additional text-[13px] text-center"
-          :class="{
-            'text-success !text-[15px]': isConfirmed,
-          }"
-        >
+        <div class="w-[100px] text-brand-text-additional text-[13px] text-center" :class="{
+          'text-success !text-[15px]': isConfirmed,
+        }">
           {{ blocksToClaim }}
         </div>
 
-        <GButton
-          class=""
-          primary
-          size="sm"
-          :disabled="props.fulfilled"
-          @click="handleClick"
-        >
+        <GButton class="" primary size="sm" :disabled="props.fulfilled" @click="handleClick">
           {{
             props.fulfilled ? 'Claimed' : disabledConfirmations ? 'Pending...' : 'Claim'
           }}
@@ -60,9 +48,7 @@
         <div class="w-full flex flex-col justify-between text-[15px] gap-5 mt-5">
           <div class="flex flex-row justify-between w-full">
             <div class="flex flex-col gap-1">
-              <span class="text-[12px] font-semibold uppercase text-disabled-text"
-                >Date</span
-              >
+              <span class="text-[12px] font-semibold uppercase text-disabled-text">Date</span>
               <span class="text-[15px] uppercase">{{ props.date }}</span>
             </div>
 
@@ -72,26 +58,19 @@
                 Amount
               </span>
               <span class="text-[15px] uppercase">
-                {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10, token.symbol) : formatBigNums(claimAmount, token.symbol) }} {{ token.symbol }}
+                {{ fromChain.value === '84532' || toChain.value === '84532' ? formatBigNums(claimAmount * 10,
+                  token.symbol) : formatBigNums(claimAmount, token.symbol) }} {{ token.symbol }}
               </span>
             </div>
             <!-- </GTooltip> -->
           </div>
-          <div
-            class="w-full text-brand-text-additional text-[13px] text-center"
-            :class="{
-              'text-success !text-[15px]': isConfirmed,
-            }"
-          >
+          <div class="w-full text-brand-text-additional text-[13px] text-center" :class="{
+            'text-success !text-[15px]': isConfirmed,
+          }">
             {{ blocksToClaim }}
           </div>
 
-          <GButton
-            class="w-full max-w-[288px] self-center"
-            primary
-            :disabled="props.fulfilled"
-            @click="$emit('claim')"
-          >
+          <GButton class="w-full max-w-[288px] self-center" primary :disabled="props.fulfilled" @click="$emit('claim')">
             {{
               props.fulfilled ? 'Claimed' : disabledConfirmations ? 'Pending...' : 'Claim'
             }}
@@ -116,6 +95,7 @@ import { formatBigNums } from '@/misc/utils'
 import { currentBlocks, useMedia } from '@/composables'
 import { useToken } from '@/store/contracts/token'
 import { useBridgeRead } from '@/store/business/bridge'
+import { BigNumber, ethers } from 'ethers'
 
 export interface ElementProps {
   from: ChainId
@@ -142,8 +122,8 @@ const disabledConfirmations = computed(() => {
   if (props.from === '42421') return false
   return (
     currentBlocks.value[props.from] -
-      props.claimInfo.txBlock -
-      props.claimInfo.confirmations <
+    props.claimInfo.txBlock -
+    props.claimInfo.confirmations <
     0
   )
 })
@@ -158,7 +138,7 @@ const disabledConfirmations = computed(() => {
 // )
 
 const blocksToClaim = computed(() => {
-  if (props.from === '42421') {
+  if (props.from === '42421' || props.from === '42420') {
     isConfirmed.value = true
     return 'Confirmed!'
   }
@@ -185,8 +165,6 @@ const claimAmount = computed(
   () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
 )
 
-// console.log(props.amount, claimAmount, 'claim amount')
-
 function handleClick() {
   emit('claim', { claimAmount: claimAmount })
 }
@@ -203,6 +181,7 @@ onUnmounted(() => window.removeEventListener('resize', onWidthChange))
 
 .element {
   padding-bottom: 24px;
+
   @include for-size(lg) {
     padding-bottom: 16px;
   }

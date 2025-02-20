@@ -20,7 +20,7 @@ import BaseIconVue from '@/components/base/icons/BaseIconVue.vue'
 
   export const REAL_CHAIN_IDS: ChainId[] = IS_DEBUG
   ? ['42421', '84532', '200810', '421614']
-  : ['200901', '42161', '42420', '56', '8453']
+  : ['200901', '42161', '42420', '56', '8453', '1']
 
 export const chainsLabels: { value: ChainId; label: string; component: any }[] = IS_DEBUG
   ? [
@@ -45,4 +45,5 @@ export const chainsLabels: { value: ChainId; label: string; component: any }[] =
       { value: '42420', label: 'Asset Chain', component: XendIcon },
       { value: '56', label: 'BSC', component: BinanceIcon },
       { value: '200901', label: 'Bitlayer', component: BitlayerIcon },
+      { value: '1', label: 'Ethereum', component: EthereumIcon },
     ]

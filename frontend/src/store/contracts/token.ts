@@ -84,7 +84,8 @@ export const useToken = defineContractStore<
       '42161': 6,
       '42420': 6,
       '56': 18,
-      '8453': 6
+      '8453': 6,
+      '1': 6
     },
     tokens: genPerChainId(() => []),
     contractBalances: genPerChainId(() => BigNumber.from(0)),
@@ -216,7 +217,8 @@ export const useToken = defineContractStore<
               }
             } else {
               // Fetch symbol and decimals for non-native tokens
-              symbol = await safeRead(contract.anyToken(item.token).symbol(), 'RWA')
+              const _symbol = await safeRead(contract.anyToken(item.token).symbol(), 'RWA')
+              symbol = _symbol === 'USDT' || _symbol === 'USD₮0' ? "USDT" : _symbol
               decimals = await safeRead(contract.anyToken(item.token).decimals(), 6)
             }
 
