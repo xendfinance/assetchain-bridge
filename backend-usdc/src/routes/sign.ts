@@ -37,7 +37,7 @@ export default (): Resource => ({
         fromChain,
         fromUser,
         index
-      ).catch(console.error)
+      )
       res.status(200).json({ signature })
     } catch (error: any) {
       console.log(error)
