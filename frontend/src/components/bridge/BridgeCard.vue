@@ -324,15 +324,16 @@ watchEffect(async () => {
 
 const isValidInput = computed(() => {
   try {
-    const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
+    const fromDecimal = token.decimals[bridgeUI.from]
+    const amount = bridgeUI.inputAmount.toBigNumber(fromDecimal)
 
     return (
       (
         amount.gt(0) &&
-        amount.lte(balanceToken(bridgeUI.from)?.toString().toBigNumber(unref(decimals))) &&
+        amount.lte(balanceToken(bridgeUI.from)?.toString().toBigNumber(fromDecimal)) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
-          ? bridgeUI.inputAmount.split('.')[1].length <= unref(decimals)
+          ? bridgeUI.inputAmount.split('.')[1].length <= fromDecimal
           : true) &&
         bridgeUI.inputAmount[0] !== '.' &&
         bridgeRead.limitPerSend(bridgeUI.from).gte(amount)) ||
@@ -345,16 +346,17 @@ const isValidInput = computed(() => {
 
 const isValid = computed(() => {
   try {
-    const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
+    const fromDecimal = token.decimals[bridgeUI.from]
+    const amount = bridgeUI.inputAmount.toBigNumber(fromDecimal)
     // if (allowance(from.value).lt(bridgeUI.inputAmount.toBigNumber()) && amount.gt(0))
     //   return true
     return (
       (
         amount.gt(0) &&
-        amount.lte(balanceToken(bridgeUI.from)?.toString().toBigNumber(unref(decimals))) &&
+        amount.lte(balanceToken(bridgeUI.from)?.toString().toBigNumber(fromDecimal)) &&
         bridgeUI.inputAmount.split('.').length <= 2 &&
         (bridgeUI.inputAmount.split('.').length === 2
-          ? bridgeUI.inputAmount.split('.')[1].length <= unref(decimals)
+          ? bridgeUI.inputAmount.split('.')[1].length <= fromDecimal
           : true) &&
         bridgeUI.inputAmount[0] !== '.' &&
         bridgeRead.limitPerSend(bridgeUI.from).gte(amount)) ||
@@ -367,15 +369,16 @@ const isValid = computed(() => {
 
 const errorMessage = computed(() => {
   try {
-    const amount = bridgeUI.inputAmount.toBigNumber(unref(decimals))
+    const fromDecimal = token.decimals[bridgeUI.from]
+    const amount = bridgeUI.inputAmount.toBigNumber(fromDecimal)
     if (bridgeRead.limitPerSend(bridgeUI.from).lte(amount) && token.symbol !== 'BTC')
       return `Amount must be lower then ${bridgeRead
         .limitPerSend(bridgeUI.from)
-        .formatString(unref(decimals), 0)}`
+        .formatString(fromDecimal, 0)}`
     if (Number(bridgeUI.inputAmount) < 0.1 && (token.symbol !== 'BTC')) return 'Amount must be more than 1'
     // if (amount.lte(0)) return 'Amount must be more than 0'
 
-    if (amount.gt(balanceToken(from.value)?.toString().toBigNumber(unref(decimals))))
+    if (amount.gt(balanceToken(bridgeUI.from)?.toString().toBigNumber(fromDecimal)))
       return 'Transfer amount exceeds balance'
 
     // if (amount.gt(allowance(from.value)))
@@ -386,7 +389,7 @@ const errorMessage = computed(() => {
     }
     if (
       bridgeUI.inputAmount.split('.').length === 2 &&
-      bridgeUI.inputAmount.split('.')[1].length > unref(decimals)
+      bridgeUI.inputAmount.split('.')[1].length > fromDecimal
     )
       return `Supported only ${token.decimals} numbers after point`
   } catch (e) {
