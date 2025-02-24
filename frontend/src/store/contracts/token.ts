@@ -236,6 +236,7 @@ export const useToken = defineContractStore<
             // Add token if it's not already in the list for the current chain
             const foundToken = this.tokens[chainId].find((t) => t.label === symbol)
             if (!foundToken) {
+              if (symbol === `RWA` && chainId === '42420') return
               this.tokens[chainId].push({
                 value: item.token,
                 label: symbol,
