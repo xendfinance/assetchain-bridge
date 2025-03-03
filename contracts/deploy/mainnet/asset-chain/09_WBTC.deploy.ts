@@ -1,14 +1,51 @@
-// Copyright 2025 mac
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//     https://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+import { ethers, getNamedAccounts } from 'hardhat'
+import type { DeployFunction } from 'hardhat-deploy/types'
+import {
+  BRIDGED_TOKEN_PARAMS,
+  CHAIN_IDS,
+  MAINNET_BRIDGED_TOKEN_PARAMS,
+  MAINNET_CHAIN_IDS,
+  MULTISIG_ADDRESSES,
+} from '@/config'
 
+import { wrapperHRE } from '@/gotbit-tools/hardhat'
+import type { BridgedAssetChainToken__factory, MultiSigWallet } from '@/typechain'
+import { BigNumber } from 'ethers'
+
+const func: DeployFunction = async (hre) => {
+  const { deploy } = wrapperHRE(hre)
+  const [deployer] = await ethers.getSigners()
+  const { chainId } = await ethers.provider.getNetwork()
+
+  if (chainId != MAINNET_CHAIN_IDS.assetChain) {
+    return
+  }
+
+  const token = 'WBTC'
+  const params = MAINNET_BRIDGED_TOKEN_PARAMS[chainId][token]
+
+  if (!params) throw new Error('Token not set')
+
+  const mulsigwallet = MULTISIG_ADDRESSES[MAINNET_CHAIN_IDS.assetChain]
+  if (!mulsigwallet) throw new Error('Set address')
+
+  await deploy<BridgedAssetChainToken__factory>(token, {
+    contract: 'BridgedAssetChainToken',
+    from: deployer.address,
+    args: [
+      params.name,
+      params.symbol,
+      params.decimals,
+      BigNumber.from(params.totalSupply),
+      params.isLockActive,
+      params.tokenOriginal,
+      params.chainIdOriginal,
+      mulsigwallet,
+    ],
+    log: true,
+  })
+}
+export default func
+
+func.tags = ['WBTC.deploy']
+// func.dependencies = ['MultiSigWallet.deploy']
