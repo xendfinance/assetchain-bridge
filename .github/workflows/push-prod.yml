@@ -13,7 +13,7 @@ on:
       - 'backend-wbtc/**'
       - 'backend-weth/**'
       - 'backend-wnt/**'
-      - 'backend-btc/**
+      - 'backend-btc/**'
 
 jobs:
   deploy:
