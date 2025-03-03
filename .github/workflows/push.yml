@@ -13,6 +13,7 @@ on:
       - 'backend-wbtc/**'
       - 'backend-weth/**'
       - 'backend-wnt/**'
+      - 'backend-btc/**
 
 jobs:
   deploy:
@@ -92,6 +93,11 @@ jobs:
         run: |
           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-usdt && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
+      - name: Deploy Backend btc
+        if: steps.filter.outputs.backend-btc == 'true'
+        run: |
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-btc && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+      
       - name: Deploy Backend wbtc
         if: steps.filter.outputs.backend-wbtc == 'true'
         run: |
