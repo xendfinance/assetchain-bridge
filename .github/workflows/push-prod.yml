@@ -13,6 +13,7 @@ on:
       - 'backend-wbtc/**'
       - 'backend-weth/**'
       - 'backend-wnt/**'
+      - 'backend-btc/**
 
 jobs:
   deploy:
@@ -151,12 +152,19 @@ jobs:
           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-usdc/parse-apps.config.js backend-usdc/yarn.lock backend-usdc/package.json  backend-usdc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-usdc/
           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-usdc && yarn && pm2 restart parse-apps.config.js"
       
+      - name: Deploy Backend btc
+        if: steps.filter.outputs.backend-btc == 'true'
+        run: |
+          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-btc/parse-apps.config.js backend-btc/yarn.lock backend-btc/package.json  backend-btc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-btc/
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-btc && yarn && pm2 restart parse-apps.config.js"
+      
       - name: Deploy Backend wbtc
         if: steps.filter.outputs.backend-wbtc == 'true'
         run: |
           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-wbtc/parse-apps.config.js backend-wbtc/yarn.lock backend-wbtc/package.json  backend-wbtc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-wbtc/
           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-wbtc && yarn && pm2 restart parse-apps.config.js"
 
+      
       - name: Deploy Backend weth
         if: steps.filter.outputs.backend-weth == 'true'
         run: |

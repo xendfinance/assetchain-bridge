@@ -7,7 +7,7 @@ import axios from 'axios'
 const baseURL = import.meta.env.VITE_BACKEND_LINK
 // const baseURL = 'http://localhost:3000'
 
-export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT' | 'aUSDC.e' | 'BTC'
+export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT' | 'aUSDC.e' | 'BTC' | 'WBTC'
 
 const getUrl = (symbol: Symbol) => {
   switch (symbol) {
@@ -24,13 +24,15 @@ const getUrl = (symbol: Symbol) => {
     case 'aUSDC.e':
       return import.meta.env.VITE_BACKEND_LINK_AUSDCE
     case 'BTC':
+      return import.meta.env.VITE_BACKEND_LINK_BTC
+    case 'WBTC':
       return import.meta.env.VITE_BACKEND_LINK_WBTC
     default:
       return import.meta.env.VITE_BACKEND_LINK_USDT
   }
 }
 
-const axiosClientToken = (token: Symbol) =>{
+const axiosClientToken = (token: Symbol) => {
   return axios.create({
     baseURL: getUrl(token),
     transformResponse: [
@@ -40,7 +42,6 @@ const axiosClientToken = (token: Symbol) =>{
     ],
   })
 }
-  
 
 const axiosClient = axios.create({
   baseURL,
