@@ -48,6 +48,8 @@ jobs:
               - 'backend-weth/**'
             backend-wnt:
               - 'backend-wnt/**'
+            backend-btc:
+              - 'backend-btc/**'
 
       - name: Build Backend
         if: steps.filter.outputs.backend == 'true'
