@@ -298,6 +298,15 @@ export const MAINNET_BRIDGED_TOKEN_PARAMS: {
       tokenOriginal: DEFAULT_NATIVE_TOKEN_CONTRACT,
       chainIdOriginal: MAINNET_CHAIN_IDS.bitlayer,
     },
+    WBTC: {
+      name: 'Wrapped Bitcoin',
+      symbol: 'WBTC',
+      decimals: 18,
+      totalSupply: '0',
+      isLockActive: true,
+      tokenOriginal: `0x2260fac5e5542a773aa44fbcfedf7c193bc2c599`,
+      chainIdOriginal: MAINNET_CHAIN_IDS.ethereum,
+    },
   },
 }
 
