@@ -43,6 +43,8 @@ jobs:
               - 'backend-weth/**'
             backend-wnt:
               - 'backend-wnt/**'
+            backend-btc:
+              - 'backend-btc/**'
 
       - name: Install OpenVPN
         run: |
