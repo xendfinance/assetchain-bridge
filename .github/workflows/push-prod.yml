@@ -87,6 +87,12 @@ jobs:
           cd backend-wbtc
           yarn && yarn build
 
+      - name: Build Backend btc
+        if: steps.filter.outputs.backend-btc == 'true'
+        run: |
+          cd backend-btc
+          yarn && yarn build
+
       - name: Build Backend weth
         if: steps.filter.outputs.backend-weth == 'true'
         run: |
