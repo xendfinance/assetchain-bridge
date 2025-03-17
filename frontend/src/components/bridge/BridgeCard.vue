@@ -23,9 +23,9 @@
             <span class="flex text-[11px] text-label-text">
               {{
                 (token.symbol === "BTC" && from === '200810') || (token.symbol === "BTC" && from === '200901') ?
-                balanceToken(bridgeUI.from) : formatBigNums(
-                  balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0, token.symbol
-                )
+                  balanceToken(bridgeUI.from) : formatBigNums(
+                    balanceToken(from).toBigNumber(decimals).formatString(decimals) ?? 0, token.symbol
+                  )
               }}
               {{ token.symbol }}
             </span>
@@ -168,16 +168,18 @@ const normalizedChainsLabels = computed(() =>
 )
 
 onMounted(() => {
-  if (!from.value && !to.value) {
-    from.value = normalizedChainsLabels.value[0]?.value
-    to.value = normalizedChainsLabels.value[1]?.value
+  if (!from.value || !to.value) {
+    const nonAssetChain = normalizedChainsLabels.value.find(v => v.value !== XEND_CHAIN)
+    const assetChan = normalizedChainsLabels.value.find(v => v.value === XEND_CHAIN)
+    from.value = nonAssetChain?.value
+    to.value = assetChan?.value
   }
 
   chainsTo.value = unref(normalizedChainsLabels)
     .map((c) => ({
       value: c.value,
       label: c.label,
-      disabled: from.value === XEND_CHAIN ? from.value === c.value :  from.value === c.value || c.value !== XEND_CHAIN ? true : false,
+      disabled: from.value === XEND_CHAIN ? from.value === c.value : from.value === c.value || c.value !== XEND_CHAIN ? true : false,
     }))
   chainsFrom.value = unref(normalizedChainsLabels)?.map((c) => ({
     value: c.value,
@@ -198,12 +200,14 @@ watch(
     // bridgeRead.supportedChains,
   ],
   () => {
-    if (!from.value && !to.value) {
-      from.value = normalizedChainsLabels.value[0]?.value
-      to.value = normalizedChainsLabels.value[1]?.value
+    if (!from.value || !to.value) {
+      const nonAssetChain = normalizedChainsLabels.value.find(v => v.value !== XEND_CHAIN)
+      const assetChan = normalizedChainsLabels.value.find(v => v.value === XEND_CHAIN)
+      from.value = nonAssetChain?.value
+      to.value = assetChan?.value
     }
 
-    if ((isNativeToken.value && from.value === '42421') || (isNativeToken.value && from.value === '42420')) toggle()
+    if ((isNativeToken.value && from.value === XEND_CHAIN)) toggle()
 
     chainsTo.value = isNativeToken.value
       ? []
@@ -219,7 +223,7 @@ watch(
         .map((c) => ({
           value: c.value,
           label: c.label,
-          disabled: from.value === XEND_CHAIN ? from.value === c.value :  from.value === c.value || c.value !== XEND_CHAIN ? true : false,
+          disabled: from.value === XEND_CHAIN ? from.value === c.value : from.value === c.value || c.value !== XEND_CHAIN ? true : false,
         }))
     chainsFrom.value = isNativeToken.value
       ? []
