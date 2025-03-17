@@ -63,6 +63,7 @@ import { useBridgeRead } from '@/store/business/bridge'
 import { formatBigNums } from '@/misc/utils'
 import { useTokenRead } from '@/store/business/token'
 import { useToken } from '@/store/contracts/token'
+import { XEND_CHAIN } from '@/gotbit.config'
 
 export interface SelectorProps {
   options: { value: ChainId; label: string; disabled: boolean }[]
@@ -105,11 +106,15 @@ const selectedChain = computed(() => {
   if (!chain) {
     if (normalizedChainsLabels.value.length > 0) {
       if (props.title && props.title.toLowerCase() === 'from') {
-        emit('update:modelValue', normalizedChainsLabels.value[0].value)
-        return normalizedChainsLabels.value[0]
+        const nonAssetChain = normalizedChainsLabels.value.find(v => v.value !== XEND_CHAIN)
+        const _modalValue = nonAssetChain ? nonAssetChain : normalizedChainsLabels.value[0]
+        emit('update:modelValue', _modalValue.value)
+        return _modalValue;
       } else {
-        emit('update:modelValue', normalizedChainsLabels.value[1].value)
-        return normalizedChainsLabels.value[1]
+        const assetChain = normalizedChainsLabels.value.find(v => v.value === XEND_CHAIN)
+        const _modalValue = assetChain ? assetChain : normalizedChainsLabels.value[1]
+        emit('update:modelValue', _modalValue.value)
+        return _modalValue
       }
     } else {
       if (props.title && props.title.toLowerCase() === 'from') {
