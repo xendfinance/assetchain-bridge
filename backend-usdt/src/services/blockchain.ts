@@ -222,6 +222,7 @@ export const signTransaction = async (
   fromUser: string,
   index: string
 ) => {
+  console.log("I made a change.......")
   let tx: TransactionContract
   if (fromChain.startsWith('evm.')) {
     console.log(fromBridgeAddress, toBridgeAddress, fromChain.slice(4))
