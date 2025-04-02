@@ -229,7 +229,7 @@ export const signTransaction = async (
     tx = await bridgeAssist(fromBridgeAddress).transactions(fromUser, index)
     console.log(tx)
   } else {
-    throw Error('bad arguments')
+    throw Error('bad arguments');
   }
   const provider = getProvider(fromChain.slice(4) as ChainId)
   const currentBlock = await safeRead(provider.getBlockNumber(), 0)
