@@ -95,7 +95,7 @@ import { formatBigNums } from '@/misc/utils'
 import { currentBlocks, useMedia } from '@/composables'
 import { useToken } from '@/store/contracts/token'
 import { useBridgeRead } from '@/store/business/bridge'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, ethers, utils } from 'ethers'
 
 export interface ElementProps {
   from: ChainId
@@ -161,9 +161,20 @@ const toChain = computed(() => chainsLabels.filter((c) => c.value === props.to)[
 
 const bridgeRead = useBridgeRead()
 
+const chainDecimal = token.cDecimals[props.to]
+const symbolDecimal = chainDecimal ? chainDecimal[token.symbol] : 18
+
 const claimAmount = computed(
   () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
 )
+
+// console.log(symbolDecimal, 'dkdk')
+
+const displayAmount = computed(
+  () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
+)
+
+// console.log(displayAmount.value, 'display')
 
 function handleClick() {
   emit('claim', { claimAmount: claimAmount })
