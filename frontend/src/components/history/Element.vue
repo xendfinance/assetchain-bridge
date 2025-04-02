@@ -138,10 +138,10 @@ const disabledConfirmations = computed(() => {
 // )
 
 const blocksToClaim = computed(() => {
-  if (props.from === '42421' || props.from === '42420') {
-    isConfirmed.value = true
-    return 'Confirmed!'
-  }
+  // if (props.from === '42421' || props.from === '42420') {
+  //   isConfirmed.value = true
+  //   return 'Confirmed!'
+  // }
   const difference =
     props.claimInfo.txBlock +
     props.claimInfo.confirmations -
