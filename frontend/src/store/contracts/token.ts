@@ -218,7 +218,7 @@ export const useToken = defineContractStore<
             } else {
               // Fetch symbol and decimals for non-native tokens
               const _symbol = await safeRead(contract.anyToken(item.token).symbol(), 'RWA')
-              symbol = _symbol === 'USDT' || _symbol === 'USD₮0' ? "USDT" : _symbol
+              symbol = _symbol === 'USD₮0' ? "USDT" : _symbol
               decimals = await safeRead(contract.anyToken(item.token).decimals(), 6)
             }
 
@@ -286,7 +286,7 @@ export const useToken = defineContractStore<
         this.decimals[chainId] = 18
       } else {
         const dataSymbol = await safeRead(contract.anyToken(tokenAddress).symbol(), 'RWA')
-        this.symbol = dataSymbol
+        this.symbol = dataSymbol === 'USD₮0' ? 'USDT' : dataSymbol
         // console.log(dataSymbol, 'symbol')
         await this.setDecimals(this.symbol)
       }

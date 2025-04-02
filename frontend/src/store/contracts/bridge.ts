@@ -450,7 +450,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
             fromChain: d.transaction.fromChain.replace('evm.', '') as ChainId,
             toChain: d.transaction.toChain.replace('evm.', '') as ChainId,
             nonce: Number(d.transaction.nonce),
-            symbol: d.symbol,
+            symbol: d.symbol === 'USD₮0' ? 'USDT' : d.symbol,
           },
         }))
       },
