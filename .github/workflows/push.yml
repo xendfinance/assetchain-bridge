@@ -83,7 +83,7 @@ jobs:
       - name: Deploy Backend dai
         if: steps.filter.outputs.backend-dai == 'true'
         run: |
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }}"cd /var/www/bridge.assetchain.org/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
+          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.STAGING_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_STAGING_INTERNAL_IP }} "cd /var/www/bridge.assetchain.org/backend-dai && git pull origin staging && yarn && yarn build && pm2 restart parse-apps.config.js"
 
       - name: Deploy Backend usdc
         if: steps.filter.outputs.backend-usdc == 'true'
