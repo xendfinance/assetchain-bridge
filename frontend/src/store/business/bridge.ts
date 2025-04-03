@@ -219,13 +219,6 @@ export const useBridgeWrite = () => {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories
         .map((h) => {
-          const decimals =
-            // h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
-            //   ? 6
-            token.decimals[web3.chainId]
-          // console.log(decimals)
-      
-          // console.log(+amount, 'real amount')
           return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
