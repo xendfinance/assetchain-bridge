@@ -101,7 +101,7 @@ export interface ElementProps {
   from: ChainId
   to: ChainId
   date: string
-  amount: number
+  amount: BigNumber
   fulfilled: boolean
   claimInfo: {
     txBlock: number
