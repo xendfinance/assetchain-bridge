@@ -199,3 +199,11 @@ export const getContract = (chainId: ChainId) => {
     }
   }
 }
+
+export function toNormalNumber(num: number) {
+  if (Math.abs(num) < 1e21 && Math.abs(num) > 1e-7 || num === 0) {
+    return num.toString();
+}
+
+return num.toLocaleString('fullwide', { useGrouping: false });
+}

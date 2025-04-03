@@ -215,7 +215,6 @@ export const useBridgeWrite = () => {
   const uiBridge = useUIBridge()
   const dialogs = useDialogs()
 
-  // console.log(token.cDecimals, token.decimals, 'decimals', uiBridge.inputAmount)
   return {
     sortByDate: (asc = true, onlyUnclaimed = false) => {
       return bridge.histories
@@ -223,13 +222,15 @@ export const useBridgeWrite = () => {
           const decimals =
             // h.transaction.fromChain === '42421' && h.transaction.toChain === '97'
             //   ? 6
-              token.decimals[web3.chainId]
+            token.decimals[web3.chainId]
           // console.log(decimals)
+      
+          // console.log(+amount, 'real amount')
           return {
             transactionCard: {
               date: formatDate(h.transaction.timestamp),
               // amount: h.transaction.amount.formatNumber(decimals, 3),
-              amount: +ethers.utils.formatUnits(h.transaction.amount, decimals),
+              amount: h.transaction.amount,
               to: h.transaction.toChain as ChainId,
               from: h.transaction.fromChain as ChainId,
               fulfilled: h.fulfilled,

@@ -376,6 +376,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
       async fulfilledInfo(tx: TransactionContract) {
         const token = useToken()
         const chainId = tx.toChain.replace('evm.', '') as ChainId
+        const fromChain = tx.fromChain.replace('evm.', '') as ChainId
 
         const { assistAndTokenAddresses } = useFactory()
         let tokenAddr = token.tokenAddress
@@ -419,7 +420,7 @@ export const useBridge = defineContractStore<IBridgeAssistState, IBridgeAssistAc
         return {
           isFulfilled: !fulfilledAt.eq(0),
           txBlock: tx.block.toNumber(),
-          confirmations: CONFIRMATIONS[chainId],
+          confirmations: CONFIRMATIONS[fromChain],
         }
       },
       async getUserTransactions() {

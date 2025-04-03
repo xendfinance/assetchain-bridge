@@ -37,7 +37,7 @@
           {{ blocksToClaim }}
         </div>
 
-        <GButton class="" primary size="sm" :disabled="props.fulfilled" @click="handleClick">
+        <GButton class="" primary size="sm" :disabled="props.fulfilled || !isConfirmed" @click="handleClick">
           {{
             props.fulfilled ? 'Claimed' : disabledConfirmations ? 'Pending...' : 'Claim'
           }}
@@ -91,7 +91,7 @@ import { ChainId } from '@/gotbit-tools/vue/types'
 
 import { chainsLabels } from '@/misc/chains'
 
-import { formatBigNums } from '@/misc/utils'
+import { formatBigNums, toNormalNumber } from '@/misc/utils'
 import { currentBlocks, useMedia } from '@/composables'
 import { useToken } from '@/store/contracts/token'
 import { useBridgeRead } from '@/store/business/bridge'
@@ -119,7 +119,7 @@ const emit = defineEmits(['claim'])
 const isConfirmed = ref(false)
 
 const disabledConfirmations = computed(() => {
-  if (props.from === '42421') return false
+  // if (props.from === '42421') return false
   return (
     currentBlocks.value[props.from] -
     props.claimInfo.txBlock -
@@ -161,20 +161,17 @@ const toChain = computed(() => chainsLabels.filter((c) => c.value === props.to)[
 
 const bridgeRead = useBridgeRead()
 
-const chainDecimal = token.cDecimals[props.to]
-const symbolDecimal = chainDecimal ? chainDecimal[token.symbol] : 18
+const chainDecimal =  computed(
+  () => token.cDecimals[props.from]
+)
+
+const symbolDecimal = computed(() => chainDecimal.value ? chainDecimal.value[token.symbol] : 18)
+
+const amount = computed(() => +utils.formatUnits(props.amount, symbolDecimal.value))
 
 const claimAmount = computed(
-  () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
+  () => (amount.value * (100 - bridgeRead.feeFulfill(props.to))) / 100
 )
-
-// console.log(symbolDecimal, 'dkdk')
-
-const displayAmount = computed(
-  () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
-)
-
-// console.log(displayAmount.value, 'display')
 
 function handleClick() {
   emit('claim', { claimAmount: claimAmount })
