@@ -91,7 +91,7 @@ import { ChainId } from '@/gotbit-tools/vue/types'
 
 import { chainsLabels } from '@/misc/chains'
 
-import { formatBigNums, toNormalNumber } from '@/misc/utils'
+import {formatBigNums } from '@/misc/utils'
 import { currentBlocks, useMedia } from '@/composables'
 import { useToken } from '@/store/contracts/token'
 import { useBridgeRead } from '@/store/business/bridge'
@@ -164,13 +164,19 @@ const bridgeRead = useBridgeRead()
 const chainDecimal =  computed(
   () => token.cDecimals[props.from]
 )
+const toChainDecimal =  computed(
+  () => token.cDecimals[props.to]
+)
 
-const symbolDecimal = computed(() => chainDecimal.value ? chainDecimal.value[token.symbol] : 18)
+const symbolDecimal = computed(() => chainDecimal.value && chainDecimal.value[token.symbol] ? chainDecimal.value[token.symbol] : 18)
+const toSymbolDecimal = computed(() => toChainDecimal.value && toChainDecimal.value[token.symbol] ? toChainDecimal.value[token.symbol] : 18)
 
-const amount = computed(() => +utils.formatUnits(props.amount, symbolDecimal.value))
+
+const convertedAmount = computed(() => props.amount.formatNumber(Math.min(symbolDecimal.value, toSymbolDecimal.value)))
+
 
 const claimAmount = computed(
-  () => (amount.value * (100 - bridgeRead.feeFulfill(props.to))) / 100
+  () => ( convertedAmount.value * (100 - bridgeRead.feeFulfill(props.to))) / 100
 )
 
 function handleClick() {
