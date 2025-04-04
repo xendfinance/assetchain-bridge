@@ -31,8 +31,8 @@ export default (): Resource => ({
         const relayer2Url = process.env.RELAYER2_URL
         // Use Promise.all to fetch signatures in parallel
         const [relayer1Signature, relayer2Signature] = await Promise.all([
-          axios.post(relayer1Url, { query: req.query }),
-          axios.post(relayer2Url, { query: req.query })
+          axios.get(relayer1Url, { params: req.query }),
+          axios.get(relayer2Url, { params: req.query })
         ]);
         signatures.push(relayer1Signature.data.signature, relayer2Signature.data.signature, signature)
         return res.status(200).json(signatures)
