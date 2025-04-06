@@ -1,6 +1,7 @@
 import type { HistoryData, HistoryRawData } from '@/api/types'
 import { safe } from '@/gotbit-tools/vue'
 import { ChainId } from '@/gotbit-tools/vue/types'
+import { IS_DEBUG } from '@/gotbit.config'
 
 import axios from 'axios'
 
@@ -10,26 +11,33 @@ const baseURL = import.meta.env.VITE_BACKEND_LINK
 export type Symbol = 'USDT' | 'USDC' | 'RWA' | 'WETH' | 'WNT' | 'aUSDC.e' | 'BTC' | 'WBTC'
 
 const getUrl = (symbol: Symbol) => {
-  switch (symbol) {
-    case 'RWA':
-      return import.meta.env.VITE_BACKEND_LINK_RWA
-    case 'USDT':
-      return import.meta.env.VITE_BACKEND_LINK_USDT
-    case 'USDC':
-      return import.meta.env.VITE_BACKEND_LINK_USDC
-    case 'WETH':
-      return import.meta.env.VITE_BACKEND_LINK_WETH
-    case 'WNT':
-      return import.meta.env.VITE_BACKEND_LINK_WNT
-    case 'aUSDC.e':
-      return import.meta.env.VITE_BACKEND_LINK_AUSDCE
-    case 'BTC':
-      return import.meta.env.VITE_BACKEND_LINK_BTC
-    case 'WBTC':
-      return import.meta.env.VITE_BACKEND_LINK_WBTC
-    default:
-      return import.meta.env.VITE_BACKEND_LINK_USDT
+  if (!IS_DEBUG){
+    return import.meta.env.VITE_BACKEND_LINK
   }
+  else {
+    if (symbol === 'RWA') return import.meta.env.VITE_BACKEND_LINK_RWA
+    else return import.meta.env.VITE_BACKEND_LINK
+  }
+  // switch (symbol) {
+  //   case 'RWA':
+  //     return import.meta.env.VITE_BACKEND_LINK_RWA
+  //   case 'USDT':
+  //     return import.meta.env.VITE_BACKEND_LINK_USDT
+  //   case 'USDC':
+  //     return import.meta.env.VITE_BACKEND_LINK_USDC
+  //   case 'WETH':
+  //     return import.meta.env.VITE_BACKEND_LINK_WETH
+  //   case 'WNT':
+  //     return import.meta.env.VITE_BACKEND_LINK_WNT
+  //   case 'aUSDC.e':
+  //     return import.meta.env.VITE_BACKEND_LINK_AUSDCE
+  //   case 'BTC':
+  //     return import.meta.env.VITE_BACKEND_LINK_BTC
+  //   case 'WBTC':
+  //     return import.meta.env.VITE_BACKEND_LINK_WBTC
+  //   default:
+  //     return import.meta.env.VITE_BACKEND_LINK_USDT
+  // }
 }
 
 const axiosClientToken = (token: Symbol) => {
