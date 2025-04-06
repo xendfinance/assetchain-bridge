@@ -100,8 +100,8 @@ export const signTransaction = async (
             const res = await axios.get(geturl(relayer2Url, req.query))
             signatures = signatures.concat(res.data.signature)
           }
-        } catch (error) {
-          throw new Error(`Something went wrong in relayer server ${i + 1}`)
+        } catch (error: any) {
+          throw new Error(`relayer ${i + 1} error: ${error.message}`)
         }
       }
     }

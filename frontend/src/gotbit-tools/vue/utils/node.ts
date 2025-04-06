@@ -314,7 +314,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   cmp_testnet: ['https://galaxy.block.caduceus.foundation	'],
   pulse_testnet: ['https://rpc.v4.testnet.pulsechain.com'],
   xend_testnet: ['https://enugu-rpc.assetchain.org/'],
-  arbitrum_sepolia: ['https://endpoints.omniatech.io/v1/arbitrum/sepolia/public', 'https://sepolia-rollup.arbitrum.io/rpc'],
+  arbitrum_sepolia: ['https://sepolia-rollup.arbitrum.io/rpc', 'https://endpoints.omniatech.io/v1/arbitrum/sepolia/public'],
   base_sepolia: ['https://base-sepolia-rpc.publicnode.com'],
   eth_sepolia: ['https://ethereum-sepolia-rpc.publicnode.com'],
   polygon_amoy: ['https://polygon-amoy-bor-rpc.publicnode.com'],
