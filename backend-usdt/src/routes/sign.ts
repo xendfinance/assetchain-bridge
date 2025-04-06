@@ -39,7 +39,7 @@ export default (): Resource => ({
       )
       res.status(200).json({ signature })
     } catch (error: any) {
-      throw new Error(error.message)
+      res.status(400).json({ error: error.message })
     }
   },
 })

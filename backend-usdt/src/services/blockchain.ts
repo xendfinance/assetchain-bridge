@@ -222,6 +222,7 @@ export const signTransaction = async (
   fromUser: string,
   index: string
 ) => {
+  console.log("I made a change.......")
   let tx: TransactionContract
   if (fromChain.startsWith('evm.')) {
     console.log(fromBridgeAddress, toBridgeAddress, fromChain.slice(4))
@@ -229,7 +230,7 @@ export const signTransaction = async (
     tx = await bridgeAssist(fromBridgeAddress).transactions(fromUser, index)
     console.log(tx)
   } else {
-    throw Error('bad arguments')
+    throw Error('bad arguments');
   }
   const provider = getProvider(fromChain.slice(4) as ChainId)
   const currentBlock = await safeRead(provider.getBlockNumber(), 0)

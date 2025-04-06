@@ -255,6 +255,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
 
   eth_mainnet: ['https://rpc.ankr.com/eth'],
   bsc_mainnet: [
+    'https://binance.llamarpc.com',
     'https://bsc-dataseed1.binance.org/',
     'https://bsc-dataseed2.binance.org/',
     'https://bsc-dataseed3.binance.org/',

@@ -37,7 +37,7 @@
           {{ blocksToClaim }}
         </div>
 
-        <GButton class="" primary size="sm" :disabled="props.fulfilled" @click="handleClick">
+        <GButton class="" primary size="sm" :disabled="props.fulfilled || !isConfirmed" @click="handleClick">
           {{
             props.fulfilled ? 'Claimed' : disabledConfirmations ? 'Pending...' : 'Claim'
           }}
@@ -91,17 +91,17 @@ import { ChainId } from '@/gotbit-tools/vue/types'
 
 import { chainsLabels } from '@/misc/chains'
 
-import { formatBigNums } from '@/misc/utils'
+import {formatBigNums } from '@/misc/utils'
 import { currentBlocks, useMedia } from '@/composables'
 import { useToken } from '@/store/contracts/token'
 import { useBridgeRead } from '@/store/business/bridge'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, ethers, utils } from 'ethers'
 
 export interface ElementProps {
   from: ChainId
   to: ChainId
   date: string
-  amount: number
+  amount: BigNumber
   fulfilled: boolean
   claimInfo: {
     txBlock: number
@@ -119,7 +119,7 @@ const emit = defineEmits(['claim'])
 const isConfirmed = ref(false)
 
 const disabledConfirmations = computed(() => {
-  if (props.from === '42421') return false
+  // if (props.from === '42421') return false
   return (
     currentBlocks.value[props.from] -
     props.claimInfo.txBlock -
@@ -138,10 +138,10 @@ const disabledConfirmations = computed(() => {
 // )
 
 const blocksToClaim = computed(() => {
-  if (props.from === '42421' || props.from === '42420') {
-    isConfirmed.value = true
-    return 'Confirmed!'
-  }
+  // if (props.from === '42421' || props.from === '42420') {
+  //   isConfirmed.value = true
+  //   return 'Confirmed!'
+  // }
   const difference =
     props.claimInfo.txBlock +
     props.claimInfo.confirmations -
@@ -161,8 +161,22 @@ const toChain = computed(() => chainsLabels.filter((c) => c.value === props.to)[
 
 const bridgeRead = useBridgeRead()
 
+const chainDecimal =  computed(
+  () => token.cDecimals[props.from]
+)
+const toChainDecimal =  computed(
+  () => token.cDecimals[props.to]
+)
+
+const symbolDecimal = computed(() => chainDecimal.value && chainDecimal.value[token.symbol] ? chainDecimal.value[token.symbol] : 18)
+const toSymbolDecimal = computed(() => toChainDecimal.value && toChainDecimal.value[token.symbol] ? toChainDecimal.value[token.symbol] : 18)
+
+
+const convertedAmount = computed(() => props.amount.formatNumber(Math.min(symbolDecimal.value, toSymbolDecimal.value)))
+
+
 const claimAmount = computed(
-  () => (Number(props.amount) * (100 - bridgeRead.feeFulfill(props.to))) / 100
+  () => ( convertedAmount.value * (100 - bridgeRead.feeFulfill(props.to))) / 100
 )
 
 function handleClick() {
