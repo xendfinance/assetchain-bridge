@@ -38,6 +38,7 @@ export default (): Resource => ({
       //   signatures.push(relayer1Signature.data.signature, relayer2Signature.data.signature, signature)
       //   return res.status(200).json(signatures)
       // }
+
       
       res.status(200).json({signature})
     } catch (error: any) {
