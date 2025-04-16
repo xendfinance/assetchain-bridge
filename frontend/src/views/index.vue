@@ -85,7 +85,7 @@ const options = IS_DEBUG ? computed(() => [
     //   }else return true
     // }
   }).map((item) => [item.value, item]) : []).values(),
-]) : computed(() => [...tokenStore.tokens[web3.chainId]])
+]) : computed(() => tokenStore.tokens[web3.chainId].filter( t => t.value !== "RWA"))
 </script>
 
 <style scoped lang="scss">
