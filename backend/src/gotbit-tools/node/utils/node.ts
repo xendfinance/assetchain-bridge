@@ -301,7 +301,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   polygon_testnet: ['https://rpc-mumbai.maticvigil.com'],
   avax_testnet: ['https://api.avax-test.network/ext/bc/C/rpc'],
   ftm_testnet: ['https://rpc.testnet.fantom.network/'],
-  arbitrum_testnet: ['https://rinkeby.arbitrum.io/rpc'],
+  arbitrum_testnet: ['https://arb1.arbitrum.io/rpc'],
 
   celo_alfajores_testnet: ['https://alfajores-forno.celo-testnet.org'],
   metis_testnet: ['https://stardust.metis.io/?owner=588'],
