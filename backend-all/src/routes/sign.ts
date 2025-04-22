@@ -26,20 +26,7 @@ export default (): Resource => ({
         index,
         req
       )
-      // if (process.env.IS_PUBLIC_RELAYER === 'true') {
-      //   const signatures: any[] = []
-      //   const relayer1Url = process.env.RELAYER1_URL
-      //   const relayer2Url = process.env.RELAYER2_URL
-      //   // Use Promise.all to fetch signatures in parallel
-      //   const [relayer1Signature, relayer2Signature] = await Promise.all([
-      //     axios.post(relayer1Url, { query: req.query }),
-      //     axios.post(relayer2Url, { query: req.query })
-      //   ]);
-      //   signatures.push(relayer1Signature.data.signature, relayer2Signature.data.signature, signature)
-      //   return res.status(200).json(signatures)
-      // }
 
-      
       res.status(200).json({signature})
     } catch (error: any) {
       res.status(400).json({ error: error.message })
