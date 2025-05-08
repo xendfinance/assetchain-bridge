@@ -142,6 +142,15 @@ const blocksToClaim = computed(() => {
   //   isConfirmed.value = true
   //   return 'Confirmed!'
   // }
+  if (props.fulfilled){
+    isConfirmed.value = true
+    return 'Claimed'
+  }
+  const blockNumber = currentBlocks.value[props.from]
+  if (!blockNumber || blockNumber === 0) {
+    isConfirmed.value = false
+    return 'Pending...'
+  }
   const difference =
     props.claimInfo.txBlock +
     props.claimInfo.confirmations -

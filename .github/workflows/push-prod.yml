@@ -1,193 +1,193 @@
-name: Deploy to Server
+# name: Deploy to Server
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-      - 'backend-ausdce/**'
-      - 'backend-dai/**'
-      - 'backend-usdc/**'
-      - 'backend-usdt/**'
-      - 'backend-wbtc/**'
-      - 'backend-weth/**'
-      - 'backend-wnt/**'
-      - 'backend-btc/**'
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'backend/**'
+#       - 'backend-ausdce/**'
+#       - 'backend-dai/**'
+#       - 'backend-usdc/**'
+#       - 'backend-usdt/**'
+#       - 'backend-wbtc/**'
+#       - 'backend-weth/**'
+#       - 'backend-wnt/**'
+#       - 'backend-btc/**'
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '16'
 
-      - name: Filter Changed Files
-        id: filter
-        uses: dorny/paths-filter@v2
-        with:
-          filters: |
-            backend:
-              - 'backend/**'
-            backend-ausdce:
-              - 'backend-ausdce/**'
-            backend-dai:
-              - 'backend-dai/**'
-            backend-usdc:
-              - 'backend-usdc/**'
-            backend-usdt:
-              - 'backend-usdt/**'
-            backend-wbtc:
-              - 'backend-wbtc/**/**'
-            backend-weth:
-              - 'backend-weth/**'
-            backend-wnt:
-              - 'backend-wnt/**'
-            backend-btc:
-              - 'backend-btc/**'
+#       - name: Filter Changed Files
+#         id: filter
+#         uses: dorny/paths-filter@v2
+#         with:
+#           filters: |
+#             backend:
+#               - 'backend/**'
+#             backend-ausdce:
+#               - 'backend-ausdce/**'
+#             backend-dai:
+#               - 'backend-dai/**'
+#             backend-usdc:
+#               - 'backend-usdc/**'
+#             backend-usdt:
+#               - 'backend-usdt/**'
+#             backend-wbtc:
+#               - 'backend-wbtc/**/**'
+#             backend-weth:
+#               - 'backend-weth/**'
+#             backend-wnt:
+#               - 'backend-wnt/**'
+#             backend-btc:
+#               - 'backend-btc/**'
 
-      - name: Build Backend
-        if: steps.filter.outputs.backend == 'true'
-        run: |
-          cd backend
-          yarn && yarn build
+#       - name: Build Backend
+#         if: steps.filter.outputs.backend == 'true'
+#         run: |
+#           cd backend
+#           yarn && yarn build
 
-      - name: Build Backend ausdce
-        if: steps.filter.outputs.backend-ausdce == 'true'
-        run: |
-          cd backend-ausdce
-          yarn && yarn build
+#       - name: Build Backend ausdce
+#         if: steps.filter.outputs.backend-ausdce == 'true'
+#         run: |
+#           cd backend-ausdce
+#           yarn && yarn build
 
-      - name: Build Backend dai
-        if: steps.filter.outputs.backend-dai == 'true'
-        run: |
-          cd backend-dai
-          yarn && yarn build
+#       - name: Build Backend dai
+#         if: steps.filter.outputs.backend-dai == 'true'
+#         run: |
+#           cd backend-dai
+#           yarn && yarn build
 
-      - name: Build Backend usdc
-        if: steps.filter.outputs.backend-usdc == 'true'
-        run: |
-          cd backend-usdc
-          yarn && yarn build
+#       - name: Build Backend usdc
+#         if: steps.filter.outputs.backend-usdc == 'true'
+#         run: |
+#           cd backend-usdc
+#           yarn && yarn build
 
-      - name: Build Backend usdt
-        if: steps.filter.outputs.backend-usdt == 'true'
-        run: |
-          cd backend-usdt
-          yarn && yarn build
+#       - name: Build Backend usdt
+#         if: steps.filter.outputs.backend-usdt == 'true'
+#         run: |
+#           cd backend-usdt
+#           yarn && yarn build
 
-      - name: Build Backend wbtc
-        if: steps.filter.outputs.backend-wbtc == 'true'
-        run: |
-          cd backend-wbtc
-          yarn && yarn build
+#       - name: Build Backend wbtc
+#         if: steps.filter.outputs.backend-wbtc == 'true'
+#         run: |
+#           cd backend-wbtc
+#           yarn && yarn build
 
-      - name: Build Backend btc
-        if: steps.filter.outputs.backend-btc == 'true'
-        run: |
-          cd backend-btc
-          yarn && yarn build
+#       - name: Build Backend btc
+#         if: steps.filter.outputs.backend-btc == 'true'
+#         run: |
+#           cd backend-btc
+#           yarn && yarn build
 
-      - name: Build Backend weth
-        if: steps.filter.outputs.backend-weth == 'true'
-        run: |
-          cd backend-weth
-          yarn && yarn build
+#       - name: Build Backend weth
+#         if: steps.filter.outputs.backend-weth == 'true'
+#         run: |
+#           cd backend-weth
+#           yarn && yarn build
 
-      - name: Build Backend wnt
-        if: steps.filter.outputs.backend-wnt == 'true'
-        run: |
-          cd backend-wnt
-          yarn && yarn build
+#       - name: Build Backend wnt
+#         if: steps.filter.outputs.backend-wnt == 'true'
+#         run: |
+#           cd backend-wnt
+#           yarn && yarn build
 
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openvpn
+#       - name: Install OpenVPN
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y openvpn
 
-      - name: Configure OpenVPN
-        run: |
-          echo "${{ secrets.ASSETCHAIN_PROD_VPN_CONFIG }}" > ~/config.ovpn.encoded
-          echo "${{ secrets.ASSETCHAIN_PROD_VPN_AUTH }}" > ~/auth.txt.encoded
-          base64 -d ~/config.ovpn.encoded > config.ovpn
-          base64 -d ~/auth.txt.encoded > auth.txt
-          sudo mv config.ovpn /etc/openvpn/
-          sudo mv auth.txt /etc/openvpn/
+#       - name: Configure OpenVPN
+#         run: |
+#           echo "${{ secrets.ASSETCHAIN_PROD_VPN_CONFIG }}" > ~/config.ovpn.encoded
+#           echo "${{ secrets.ASSETCHAIN_PROD_VPN_AUTH }}" > ~/auth.txt.encoded
+#           base64 -d ~/config.ovpn.encoded > config.ovpn
+#           base64 -d ~/auth.txt.encoded > auth.txt
+#           sudo mv config.ovpn /etc/openvpn/
+#           sudo mv auth.txt /etc/openvpn/
 
-      - name: Connect to OpenVPN
-        run: |
-          sudo openvpn --config /etc/openvpn/config.ovpn --auth-user-pass /etc/openvpn/auth.txt &
-          sleep 10
+#       - name: Connect to OpenVPN
+#         run: |
+#           sudo openvpn --config /etc/openvpn/config.ovpn --auth-user-pass /etc/openvpn/auth.txt &
+#           sleep 10
 
-      - name: Setup SSH
-        run: |
-          echo "${{ secrets.ASSETCHAIN_SSH_PRIVATE_KEY }}" > id_rsa
-          chmod 600 id_rsa
+#       - name: Setup SSH
+#         run: |
+#           echo "${{ secrets.ASSETCHAIN_SSH_PRIVATE_KEY }}" > id_rsa
+#           chmod 600 id_rsa
 
-      - name: Deploy Backend
-        if: steps.filter.outputs.backend == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r  backend/parse-apps.config.js  backend/yarn.lock  backend/package.json  backend/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend && yarn && pm2 restart parse-apps.config.js"
+#       - name: Deploy Backend
+#         if: steps.filter.outputs.backend == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r  backend/parse-apps.config.js  backend/yarn.lock  backend/package.json  backend/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend && yarn && pm2 restart parse-apps.config.js"
       
-      - name: Deploy Backend ausdce
-        if: steps.filter.outputs.backend-ausdce == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-ausdce/parse-apps.config.js backend-ausdce/yarn.lock backend-ausdce/package.json  backend-ausdce/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-ausdce/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-ausdce && yarn && pm2 restart parse-apps.config.js"
+#       - name: Deploy Backend ausdce
+#         if: steps.filter.outputs.backend-ausdce == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-ausdce/parse-apps.config.js backend-ausdce/yarn.lock backend-ausdce/package.json  backend-ausdce/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-ausdce/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-ausdce && yarn && pm2 restart parse-apps.config.js"
       
-      - name: Deploy Backend dai
-        if: steps.filter.outputs.backend-dai == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-dai/parse-apps.config.js backend-dai/yarn.lock backend-dai/package.json  backend-dai/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-dai/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-dai && yarn && pm2 restart parse-apps.config.js"
-      
-
-      - name: Deploy Backend usdt
-        if: steps.filter.outputs.backend-usdt == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-usdt/parse-apps.config.js backend-usdt/yarn.lock backend-usdt/package.json  backend-usdt/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-usdt/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-usdt && yarn && pm2 restart parse-apps.config.js"
-      
-      - name: Deploy Backend usdc
-        if: steps.filter.outputs.backend-usdc == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-usdc/parse-apps.config.js backend-usdc/yarn.lock backend-usdc/package.json  backend-usdc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-usdc/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-usdc && yarn && pm2 restart parse-apps.config.js"
-      
-      - name: Deploy Backend btc
-        if: steps.filter.outputs.backend-btc == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-btc/parse-apps.config.js backend-btc/yarn.lock backend-btc/package.json  backend-btc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-btc/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-btc && yarn && pm2 restart parse-apps.config.js"
-      
-      - name: Deploy Backend wbtc
-        if: steps.filter.outputs.backend-wbtc == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-wbtc/parse-apps.config.js backend-wbtc/yarn.lock backend-wbtc/package.json  backend-wbtc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-wbtc/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-wbtc && yarn && pm2 restart parse-apps.config.js"
-
-      
-      - name: Deploy Backend weth
-        if: steps.filter.outputs.backend-weth == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-weth/parse-apps.config.js backend-weth/yarn.lock backend-weth/package.json  backend-weth/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-weth/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-weth && yarn && pm2 restart parse-apps.config.js"
-      
-      - name: Deploy Backend wnt
-        if: steps.filter.outputs.backend-wnt == 'true'
-        run: |
-          scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-wnt/parse-apps.config.js backend-wnt/yarn.lock backend-wnt/package.json  backend-wnt/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-wnt/
-          ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-wnt && yarn && pm2 restart parse-apps.config.js"
+#       - name: Deploy Backend dai
+#         if: steps.filter.outputs.backend-dai == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-dai/parse-apps.config.js backend-dai/yarn.lock backend-dai/package.json  backend-dai/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-dai/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-dai && yarn && pm2 restart parse-apps.config.js"
       
 
-      - name: Clear Credentials
-        if: always()
-        run: |
-          sudo rm -f /etc/openvpn/config.ovpn /etc/openvpn/auth.txt
-          rm -f ~/config.ovpn.encoded ~/auth.txt.encoded id_rsa
+#       - name: Deploy Backend usdt
+#         if: steps.filter.outputs.backend-usdt == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-usdt/parse-apps.config.js backend-usdt/yarn.lock backend-usdt/package.json  backend-usdt/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-usdt/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-usdt && yarn && pm2 restart parse-apps.config.js"
+      
+#       - name: Deploy Backend usdc
+#         if: steps.filter.outputs.backend-usdc == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-usdc/parse-apps.config.js backend-usdc/yarn.lock backend-usdc/package.json  backend-usdc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-usdc/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-usdc && yarn && pm2 restart parse-apps.config.js"
+      
+#       - name: Deploy Backend btc
+#         if: steps.filter.outputs.backend-btc == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-btc/parse-apps.config.js backend-btc/yarn.lock backend-btc/package.json  backend-btc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-btc/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-btc && yarn && pm2 restart parse-apps.config.js"
+      
+#       - name: Deploy Backend wbtc
+#         if: steps.filter.outputs.backend-wbtc == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-wbtc/parse-apps.config.js backend-wbtc/yarn.lock backend-wbtc/package.json  backend-wbtc/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-wbtc/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-wbtc && yarn && pm2 restart parse-apps.config.js"
+
+      
+#       - name: Deploy Backend weth
+#         if: steps.filter.outputs.backend-weth == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-weth/parse-apps.config.js backend-weth/yarn.lock backend-weth/package.json  backend-weth/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-weth/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-weth && yarn && pm2 restart parse-apps.config.js"
+      
+#       - name: Deploy Backend wnt
+#         if: steps.filter.outputs.backend-wnt == 'true'
+#         run: |
+#           scp -i id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.ONPREM_SSH_PORT }} -r backend-wnt/parse-apps.config.js backend-wnt/yarn.lock backend-wnt/package.json  backend-wnt/dist ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }}:/var/www/bridge.assetchain.org/backend-wnt/
+#           ssh -i id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.ONPREM_SSH_PORT }} ${{ secrets.DEPLOY_USER }}@${{ secrets.ASSETCHAIN_BRIDGE_PROD_IP }} "cd /var/www/bridge.assetchain.org/backend-wnt && yarn && pm2 restart parse-apps.config.js"
+      
+
+#       - name: Clear Credentials
+#         if: always()
+#         run: |
+#           sudo rm -f /etc/openvpn/config.ovpn /etc/openvpn/auth.txt
+#           rm -f ~/config.ovpn.encoded ~/auth.txt.encoded id_rsa
