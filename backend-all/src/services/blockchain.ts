@@ -89,6 +89,11 @@ export const signTransaction = async (
       const relayersLength = relayers - 1
       const relayer1Url = process.env.RELAYER1_URL
       const relayer2Url = process.env.RELAYER2_URL
+      const allowedIps = process.env.ALLOWED_IPS?.split(',')
+      const clientIp = getClientIp(req)
+      if (!allowedIps?.includes(clientIp)) {
+        throw new Error('IP not allowed to connect to the relayer')
+      }
 
       for (let i = 1; i <= relayersLength; i++) {
         try {
@@ -117,4 +122,20 @@ function geturl(baseUrl: string, searchParams: any) {
     url.searchParams.set(k, searchParams[k])
   })
   return url.toString()
+}
+
+function getClientIp(req: any) {
+  // Check Cloudflare headers first
+  if (req.headers['cf-connecting-ip']) {
+    return req.headers['cf-connecting-ip'];
+  }
+
+  // Fallback to X-Forwarded-For (split and take the first IP)
+  const xForwardedFor = req.headers['x-forwarded-for'];
+  if (xForwardedFor) {
+    return xForwardedFor.split(',')[0].trim();
+  }
+
+  // Default to direct connection IP
+  return req.connection.remoteAddress;
 }
