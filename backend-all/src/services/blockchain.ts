@@ -77,6 +77,7 @@ export const signTransaction = async (
     const chainId = tx.toChain.replace('evm.', '')
     // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
     let signatures: any[] = []
+    
     if (process.env.IS_PUBLIC_RELAYER === 'false'){
       if (!allowedIps?.includes(clientIp)) {
         throw new Error('IP not allowed to connect to the relayer')
