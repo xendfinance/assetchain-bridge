@@ -79,7 +79,6 @@ export const signTransaction = async (
     let signatures: any[] = []
     const allowedIps = process.env.ALLOWED_IPS?.split(',')
     const clientIp = getClientIp(req)
-    
     if (process.env.IS_PUBLIC_RELAYER === 'false'){
       if (!allowedIps?.includes(clientIp)) {
         throw new Error('IP not allowed to connect to the relayer')
