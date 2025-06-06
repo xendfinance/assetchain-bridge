@@ -253,7 +253,7 @@ export function getConfig(name: ChainTag): Config {
 export const extraRpcs: Record<RealChainTag, string[]> = {
   localhost: ['http://127.0.0.1:8545/'],
 
-  eth_mainnet: ['https://rpc.ankr.com/eth'],
+  eth_mainnet: ['https://eth.drpc.org','https://rpc.ankr.com/eth'],
   bsc_mainnet: [
     'https://bsc-dataseed1.binance.org/',
     'https://bsc-dataseed2.binance.org/',

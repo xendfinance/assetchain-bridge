@@ -63,7 +63,7 @@ export const universalRpc = (): RpcFunction => {
       avax_mainnet: ankr(chainTag),
       bsc_mainnet: extraRpcs.bsc_mainnet[0],
       arbitrum_mainnet: extraRpcs.arbitrum_mainnet[0],
-      eth_mainnet: ankr(chainTag),
+      eth_mainnet: extraRpcs.eth_mainnet[0],
       ftm_mainnet: ankr(chainTag),
       polygon_mainnet: ankr(chainTag),
       celo_mainnet: ankr(chainTag),
