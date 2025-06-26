@@ -106,6 +106,7 @@ export const signTransaction = async (
             signatures = signatures.concat(res.data.signature)
           }
         } catch (error: any) {
+          console.log(error, 'dkdkdkdk')
           throw new Error(`relayer ${i + 1} error: ${error.message}`)
         }
       }

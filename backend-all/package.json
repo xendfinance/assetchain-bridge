@@ -18,7 +18,9 @@
     "contracts:sync": "SCRIPT=./src/gotbit-tools/scripts/shell/import-contracts.sh yarn script",
     "contracts:typings": "node ./src/gotbit-tools/scripts/typings.js",
     "\n# UTILS SCRIPTS:": "",
-    "script": "chmod +x $SCRIPT && $SCRIPT"
+    "script": "chmod +x $SCRIPT && $SCRIPT",
+    "dev-win": "yarn build-win && concurrently \"tsc -w\" \"cross-env DEBUG=true node-dev --respawn dist/app.js\"",
+    "build-win": "rimraf dist && tsc -p ."
   },
   "jest": {
     "preset": "ts-jest",
