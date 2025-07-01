@@ -6,6 +6,7 @@ import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type { BridgeAssistTransferUpgradeable__factory } from '@/typechain'
 
 const func: DeployFunction = async (hre) => {
+  return
   const { deploy } = wrapperHRE(hre)
   const [deployer] = await ethers.getSigners()
   const { chainId } = await ethers.provider.getNetwork()
