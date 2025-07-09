@@ -10,6 +10,8 @@ import {
   eip712Transaction,
 } from '@/utils/constant'
 import axios from 'axios'
+import { extractTransaction, getAssociatedTokenAddress, getConfirmationsRequired, isToSolanaTxFulfilled, signSolana, solanaWorkspace } from '@/utils/solana/helpers'
+import { PublicKey } from '@solana/web3.js'
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
@@ -139,4 +141,64 @@ function getClientIp(req: any) {
 
   // Default to direct connection IP
   return req.connection.remoteAddress;
+}
+
+
+export async function signEvmToSolana(
+  fromChainId: string,
+  fromBridgeAddress: string,
+  toBridgeAddress: string,
+  fromUser: string,
+  index: string
+) {
+  const { tokenMint, connection, provider } = solanaWorkspace(toBridgeAddress)
+  const fromChain = fromChainId.slice(4) as ChainId
+  const { bridgeAssist } = useContracts(undefined, fromChain)
+  const tx = await bridgeAssist(fromBridgeAddress).transactions(fromUser, index)
+  const userSolana = tx.toUser
+  const userTokenAccountKey = await getAssociatedTokenAddress(
+    tokenMint,
+    new PublicKey(userSolana)
+  )
+  console.log('djjdjd')
+  const extractedTx = extractTransaction(tx)
+
+  if (await isToSolanaTxFulfilled(toBridgeAddress, fromChain, tx.nonce))
+    throw Error('Already claimed')
+
+  const blockConfirmed = hasPassedConfirmationEvm(fromChain, tx.block)
+
+  
+
+  if (!blockConfirmed) throw Error('Not confirmed yet')
+
+  const signature = await signSolana(toBridgeAddress, extractedTx, userTokenAccountKey)
+  // console.log(signature.toString('hex'), 'sksks')
+
+  // try {
+  //   const txSig = await connection.sendRawTransaction(signature, {
+  //   skipPreflight: false,
+  //   preflightCommitment: 'confirmed',
+  // });
+  // } catch (error:any) {
+  //   console.log(error)
+  //   if (error.getLogs) {
+  //     const logs = await error.getLogs();
+  //     console.log(logs, 'ssksk')
+  //   }
+  //   throw error
+  // }
+  
+  
+
+  // Confirm it
+  // await connection.confirmTransaction(txSig, provider.opts.commitment);
+
+  // console.log(txSig, 'jdjdjd')
+}
+
+export async function hasPassedConfirmationEvm(fromChain: ChainId, block: BigNumber) {
+  const provider = getProvider(fromChain)
+  const blockNumber = await provider.getBlockNumber()
+  return  BigNumber.from(blockNumber).gt(block.add(getConfirmationsRequired(fromChain)))
 }

@@ -32,7 +32,7 @@ export const ankrRpc = (): RpcFunction => {
     if (chainTag === 'avax_testnet')
       return 'https://avalanche-fuji-c-chain.publicnode.com'
 
-    return 'https://rpc.ankr.com' + ankrPath[chainTag] ?? ''
+    return 'https://rpc.ankr.com' + (ankrPath[chainTag] ?? '')
   }
 }
 
