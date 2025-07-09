@@ -61,6 +61,10 @@ export const signTransaction = async (
 ) => {
   let tx: TransactionContract
   let relayers = 1
+  const _provider = getProvider(fromChain.slice(4) as ChainId)
+  console.log(_provider, 'provider')
+  console.log(_provider.connection, 'connec')
+  console.log(_provider.connection.url, 'url')
   if (fromChain.startsWith('evm.')) {
     const { bridgeAssist } = useContracts(undefined, fromChain.slice(4) as ChainId)
     tx = await bridgeAssist(fromBridgeAddress).transactions(fromUser, index)
