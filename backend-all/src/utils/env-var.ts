@@ -8,3 +8,4 @@ export const base_spolia_rpc= process.env.BASE_SEPOLIA_RPC
 export const base_mainnet_rpc= process.env.BASE_MAINNET_RPC
 export const binance_testnet_rpc= process.env.BINANCE_TESTNET_RPC
 export const binance_mainnet_rpc= process.env.BINANCE_MAINNET_RPC
+export const relayerIndex= process.env.RELAYER_INDEX

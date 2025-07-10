@@ -17,12 +17,13 @@ const func: DeployFunction = async (hre) => {
   const [deployer] = await ethers.getSigners()
   const { chainId } = await ethers.provider.getNetwork()
 
-  if (chainId != CHAIN_IDS.assetChain) {
+  if (chainId != MAINNET_CHAIN_IDS.assetChain) {
     return
   }
 
   const token = 'xRWA'
-  const params = BRIDGED_TOKEN_PARAMS[chainId]['USDT']
+  // const params = BRIDGED_TOKEN_PARAMS[chainId]['USDT']
+
   const mulsigwallet = MULTISIG_ADDRESSES[MAINNET_CHAIN_IDS.assetChain]
   if (!mulsigwallet) throw new Error('Multisig wallet not set')
 
@@ -36,9 +37,9 @@ const func: DeployFunction = async (hre) => {
       token,
       18,
       0,
-      params.isLockActive,
-      params.tokenOriginal,
-      params.chainIdOriginal,
+      false,
+      '0x3096e7BFd0878Cc65be71f8899Bc4CFB57187Ba3',
+      MAINNET_CHAIN_IDS.arbitrum,
       mulsigwallet,
     ],
     log: true,
