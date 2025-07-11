@@ -54,15 +54,15 @@ export async function getActiveRpc(rpcList: string[], timeoutMs: number = 5000) 
       }
 
       // If JSON-RPC didn't work, try simple GET request
-      const getResponse = await fetch(rpc, {
-        signal: controller.signal,
-      })
+    //   const getResponse = await fetch(rpc, {
+    //     signal: controller.signal,
+    //   })
 
-      if (getResponse.ok) {
-        clearTimeout(timeout)
-        console.log(`Choose index ${index} rpc`)
-        return rpc
-      }
+    //   if (getResponse.ok) {
+    //     clearTimeout(timeout)
+    //     console.log(`Choose index ${index} rpc`)
+    //     return rpc
+    //   }
     } catch (error) {
       // Continue to next RPC if this one fails
       continue
