@@ -272,7 +272,7 @@ export const signSolana = async (
         CURRENT_CHAIN
       )[0],
     })
-    .signers([owner, user])
+    .signers([owner])
     .rpc()
 
   // const solanaTx = new Transaction()
