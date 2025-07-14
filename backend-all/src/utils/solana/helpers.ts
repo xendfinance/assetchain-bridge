@@ -1,5 +1,6 @@
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
   TOKEN_PROGRAM_ID,
   TokenOwnerOffCurveError,
 } from '@solana/spl-token'
@@ -8,6 +9,7 @@ import {
   Connection,
   Keypair,
   PublicKey,
+  sendAndConfirmTransaction,
   Transaction,
 } from '@solana/web3.js'
 import { AnchorProvider, BN, Program } from '@coral-xyz/anchor'
@@ -16,19 +18,19 @@ import IDL from './idl/assetchain_bridge_solana.json'
 import { AssetchainBridgeSolana } from './types/assetchain_bridge_solana'
 import { ExtractedTransaction, ITransaction } from '@/types'
 import { ChainId } from '@/gotbit-tools/node/types'
-import  bs58 from 'bs58'
+import bs58 from 'bs58'
 import CONFIRMATION from '../../confirmations.json'
 import { BigNumber } from 'ethers'
 import { SOLANABRIDGE_TOKENS } from '../constant'
-import { config }from 'dotenv'
+import { config } from 'dotenv'
 
 config()
 
 // console.log(process.env.SOLANA_KEY!, 'sksk')
 
-const isMain = false
+const isMain = process.env.SOLANA_MAINNET === 'true'
 
-const key = Uint8Array.from(JSON.parse(process.env.SOLANA_KEY!))
+const secretKey = bs58.decode(process.env.SOLANA_KEY!)
 
 // export const CURRENT_CHAIN_BUFFER = () =>
 //   Buffer.from(CURRENT_CHAIN().padEnd(32, "\0"), "ascii");
@@ -45,12 +47,12 @@ const key = Uint8Array.from(JSON.parse(process.env.SOLANA_KEY!))
  * @returns workspace.program The Solana program.
  */
 export const solanaWorkspace = (bridgeAssist: string) => {
-  const owner = Keypair.fromSecretKey(key)
+  const owner = Keypair.fromSecretKey(secretKey)
 
   const network = clusterApiUrl(isMain ? 'mainnet-beta' : 'devnet')
   const connection = new Connection(network, 'confirmed')
   const provider = new AnchorProvider(connection, new NodeWallet(owner), {
-    preflightCommitment: 'recent',
+    preflightCommitment: 'confirmed',
   })
   const program = new Program<AssetchainBridgeSolana>(IDL, provider)
   const tokenMint = (SOLANABRIDGE_TOKENS as any)[bridgeAssist]
@@ -92,8 +94,40 @@ export async function getAssociatedTokenAddress(
     [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
     associatedTokenProgramId
   )
-
   return address
+}
+
+export async function getOrCreateAssociatedTokenAccount(
+  connection: Connection,
+  mint: PublicKey,
+  owner: PublicKey,
+  payer: Keypair // payer pays the account creation fee
+): Promise<PublicKey> {
+  // 1. Derive ATA address
+  const ata = await getAssociatedTokenAddress(mint, owner);
+
+  // 2. Check if ATA account exists
+  const accountInfo = await connection.getAccountInfo(ata);
+  if (accountInfo === null) {
+    // ATA does not exist; create it
+    const ix = createAssociatedTokenAccountInstruction(
+      payer.publicKey, // payer
+      ata,             // ATA address to create
+      owner,           // owner of ATA
+      mint             // mint
+    );
+
+    const tx = new Transaction().add(ix);
+
+    // Send transaction to create ATA
+    await sendAndConfirmTransaction(connection, tx, [payer], {commitment:'confirmed'});
+
+    console.log(`Created ATA: ${ata.toBase58()}`);
+  } else {
+    console.log(`ATA exists: ${ata.toBase58()}`);
+  }
+
+  return ata;
 }
 
 /**
@@ -213,30 +247,25 @@ export const signSolana = async (
   tx: ExtractedTransaction,
   userTokenAccount: PublicKey
 ) => {
-    console.log('skskks')
   const { owner, tokenMint, program, connection } = solanaWorkspace(toBridgeAddress)
-  console.log('skskks')
   const user = new PublicKey(tx.toUser)
-  console.log('skskks 4')
+  console.log(user.toBase58(), 'toUser')
   const bridgeTokenAccount = getBridgeAccount(
     'wallet',
     program.programId,
     owner.publicKey,
     tokenMint
   )[0]
-  console.log('skskks 5')
+  console.log(bridgeTokenAccount.toBase58(), 'bridgeTokenAccount')
   const bridgeParams = getBridgeAccount(
     'bridge_params',
     program.programId,
     owner.publicKey,
     tokenMint
   )[0]
-
-  console.log('skskks 6')
+  console.log(bridgeParams.toBase58(), 'bridgeParams')
 
   const params = await program.account.bridgeParams.fetch(bridgeParams)
-
-  console.log(params, 'params')
 
   // const { bridgeAssist } = useContracts(undefined, tx.fromChain.slice(4) as EthChainId)
   // const CURRENT_CHAIN = await bridgeAssist.CURRENT_CHAIN()
@@ -272,18 +301,65 @@ export const signSolana = async (
         CURRENT_CHAIN
       )[0],
     })
-    .signers([owner])
-    .rpc()
+    .instruction()
 
-  // const solanaTx = new Transaction()
-  // solanaTx.add(instruction)
-  // solanaTx.feePayer = user
-  // solanaTx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-  // solanaTx.partialSign(owner)
+  const solanaTx = new Transaction()
+  solanaTx.add(instruction)
+  solanaTx.feePayer = user
+  solanaTx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+  solanaTx.partialSign(owner)
 
-  // return solanaTx.serialize({ requireAllSignatures: false })
+  return solanaTx.serialize({ requireAllSignatures: false })
 }
 
+function parseBytes32String(bytes32Buffer: Buffer) {
+  // Find first null byte
+  const nullIndex = bytes32Buffer.indexOf(0)
+  if (nullIndex !== -1) {
+    return bytes32Buffer.slice(0, nullIndex).toString('utf8')
+  }
+  // If no null byte found, convert all
+  return bytes32Buffer.toString('utf8')
+}
+
+export async function getSolanaSendTx(
+  owner: Keypair,
+  tokenMint: PublicKey,
+  program: Program<AssetchainBridgeSolana>,
+  user: PublicKey,
+  nonce: string,
+  fromChain: string
+) {
+  const sendTxKey = getSendTxAccount(
+    program.programId,
+    owner.publicKey,
+    tokenMint,
+    user,
+    new BN(nonce)
+  )[0]
+  const sendTxAccount = await program.account.bridgeSendTx.fetch(sendTxKey)
+
+  if (!sendTxAccount) throw new Error(`Transaction not found with nonce ${nonce}`)
+
+  console.log(sendTxAccount.toChain.byte, 'ssk')
+
+  const tx: ITransaction = {
+    fromUser: user.toString(),
+    toUser: '0x' + Buffer.from(sendTxAccount.to.byte).toString('hex').slice(0, 40),
+    amount: solanaBnToEthersBn(sendTxAccount.amount),
+    timestamp: solanaBnToEthersBn(sendTxAccount.timestamp),
+    fromChain: fromChain,
+    toChain: parseBytes32String(Buffer.from(sendTxAccount.toChain.byte)),
+    nonce: BigNumber.from(nonce),
+    block: solanaBnToEthersBn(sendTxAccount.block),
+  }
+
+  return tx
+}
+
+function solanaBnToEthersBn(bn: BN) {
+  return BigNumber.from(bn.toString())
+}
 /**
  * Gets a bridge instance-specific user-specific PDA. Used to get the `send_nonce` account that stores the user's nonce.
  *
@@ -329,7 +405,6 @@ export const getBridgeAccount = (
   bridgeOwner: PublicKey,
   tokenMint: PublicKey
 ) => {
-console.log(programId, 'sksks')
   return PublicKey.findProgramAddressSync(
     [
       SOLANA_PROGRAM_VERSION().toBuffer('be', 8),
@@ -397,3 +472,42 @@ export const SOL_CHAIN_B32 = () => ({
 export const CHAIN_TO_B32 = (chain: string) => ({
   byte: Array.from(CHAIN_TO_BUFFER(chain)),
 })
+
+/**
+ * Get an instance-specific PDA storing data for a bridge transaction sent from Solana.
+ *
+ * @param programId Solana program ID.
+ * @param bridgeOwner Creator of the bridge instance
+ * @param tokenMint Solana token address
+ * @param user Solana address of the user
+ * @param nonce Nonce of the transaction
+ * @returns account The instance-specific PDA storing data for a bridge transaction sent from Solana
+ */
+export const getSendTxAccount = (
+  programId: PublicKey,
+  bridgeOwner: PublicKey,
+  tokenMint: PublicKey,
+  user: PublicKey,
+  nonce: BN
+) => {
+  return PublicKey.findProgramAddressSync(
+    [
+      SOLANA_PROGRAM_VERSION().toBuffer('be', 8),
+      Buffer.from('send_tx'),
+      bridgeOwner.toBuffer(),
+      tokenMint.toBuffer(),
+      user.toBuffer(),
+      nonce.toBuffer('be', 8),
+      SOL_CHAIN_BUFFER(),
+    ],
+    programId
+  )
+}
+
+export async function hasPassedConfirmationSolana(
+  connection: Connection,
+  tx: ITransaction
+) {
+  const block = await connection.getSlot()
+  return BigNumber.from(block).gt(tx.block.add(getConfirmationsRequired(tx.fromChain)))
+}

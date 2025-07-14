@@ -1,7 +1,7 @@
 import { query, type Request } from 'express'
 import type { Resource } from 'express-automatic-routes'
 
-import { signEvmToSolana, signTransaction } from '@/services/blockchain'
+import { signSolanaToEvm } from '@/services/blockchain'
 import { GetTransactionSignationDto } from '@/types'
 // import axios from 'axios'
 
@@ -18,7 +18,8 @@ export default (): Resource => ({
       if (!fromChain) return res.status(400).send('from chain not specified')
       if (!fromUser) return res.status(400).send('from user not specified')
       if (!index) return res.status(400).send('index not specified')
-      const signature = await signEvmToSolana(
+      const signature = await signSolanaToEvm(
+        req,
         fromChain,
         fromBridgeAddress,
         toBridgeAssistAddress,
