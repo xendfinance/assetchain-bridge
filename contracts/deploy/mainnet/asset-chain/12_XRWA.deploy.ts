@@ -23,6 +23,7 @@ const func: DeployFunction = async (hre) => {
 
   const token = 'xRWA'
   // const params = BRIDGED_TOKEN_PARAMS[chainId]['USDT']
+
   const mulsigwallet = MULTISIG_ADDRESSES[MAINNET_CHAIN_IDS.assetChain]
   if (!mulsigwallet) throw new Error('Multisig wallet not set')
 
