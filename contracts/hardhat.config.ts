@@ -103,6 +103,12 @@ const config: HardhatUserConfig = {
       tags: ['mainnet'],
       deploy: ['deploy/mainnet/non-asset-chain'],
       accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
+    },
+    polygon: {
+      url: 'https://polygon-rpc.com',
+      tags: ['mainnet'],
+      deploy: ['deploy/mainnet/non-asset-chain'],
+      accounts: [process.env.PRIVATE_TEST!, process.env.PRIVATE_TEST2!],
     }
   },
   gasReporter: {
