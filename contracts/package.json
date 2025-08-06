@@ -36,6 +36,7 @@
     "deploy:xend": "hardhat deploy --export-all main/contracts.json --network xend",
     "deploy:bsc": "hardhat deploy --export-all main/contracts.json --network bsc",
     "deploy:ethereum": "hardhat deploy --export-all main/contracts.json --network ethereum",
+    "deploy:polygon": "hardhat deploy --export-all main/contracts.json --network polygon",
     "factory:arb_main": "hardhat --network arbitrum run scripts/factory.ts",
     "factory:xend_main": "hardhat --network xend run scripts/factory.ts",
     "factory:bsc_main": "hardhat --network bsc run scripts/factory.ts",
