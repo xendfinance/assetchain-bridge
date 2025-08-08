@@ -316,5 +316,6 @@ export const MULTISIG_ADDRESSES = {
   [MAINNET_CHAIN_IDS.base]: '',
   [MAINNET_CHAIN_IDS.bitlayer]: '',
   [MAINNET_CHAIN_IDS.bsc]: '',
-  [MAINNET_CHAIN_IDS.ethereum]: ''
+  [MAINNET_CHAIN_IDS.ethereum]: '',
+  [MAINNET_CHAIN_IDS.polygon]: ''
 }
