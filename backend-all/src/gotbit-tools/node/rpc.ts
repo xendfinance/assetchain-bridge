@@ -97,11 +97,11 @@ export const universalRpc = (): RpcFunction => {
       okex_testnet: extraRpcs.okex_testnet[0],
       cmp_testnet: extraRpcs.cmp_testnet[0],
       pulse_testnet: 'https://rpc.v4.testnet.pulsechain.com',
-      arbitrum_sepolia: arbitrum_sepolia_rpc,
+      arbitrum_sepolia: extraRpcs.arbitrum_sepolia[0],
       xend_testnet: extraRpcs.xend_testnet[0],
-      base_sepolia: base_spolia_rpc,
-      eth_sepolia: ethereum_sepolia_rpc,
-      polygon_amoy: polygon_amoy_rpc,
+      base_sepolia: extraRpcs.base_sepolia[0],
+      eth_sepolia: extraRpcs.eth_sepolia[0],
+      polygon_amoy: extraRpcs.polygon_amoy[0],
       bitlayer_testnet: extraRpcs.bitlayer_testnet[0],
     } as any
     return a[chainTag]

@@ -312,7 +312,7 @@ export const extraRpcs: Record<RealChainTag, string[]> = {
   xend_testnet: [
     'https://enugu-rpc.assetchain.org',
   ],
-  arbitrum_sepolia: ['https://public.stackup.sh/api/v1/node/arbitrum-sepolia'],
+  arbitrum_sepolia: ['https://arbitrum-sepolia-rpc.publicnode.com','https://public.stackup.sh/api/v1/node/arbitrum-sepolia'],
   /**
    * chainId 11155111
    */

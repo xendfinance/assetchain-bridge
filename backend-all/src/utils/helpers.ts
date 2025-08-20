@@ -113,6 +113,7 @@ export async function _getProvider(chainId: ChainId) {
     }
   } else {
     rpc = _rpc(getChainTag(chainId))
+    console.log(rpc, chainId, 'kdkdk')
     if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
     rpc = await getActiveRpc([rpc])
     console.log(`Using RPC public RPC`)
