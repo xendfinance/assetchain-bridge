@@ -1,18 +1,21 @@
-import { Wallet, ethers, BigNumber, BigNumberish } from 'ethers'
+import { Wallet, ethers, BigNumber, BigNumberish, providers, utils } from 'ethers'
 import { useContracts, getProvider, safeRead } from '@/gotbit-tools/node'
 import { config } from '@/gotbit.config'
 import { ChainId } from '@/gotbit-tools/node/types'
 import CONFIRMATIONS from '../confirmations.json'
 import { FulfillTxContract, TransactionContract } from '@/types'
 import {
+  BRIDGEASSISTS,
+  chainBridgeAssit,
   EIP712DOMAIN_NAME,
   EIP712DOMAIN_VERSION,
   eip712Transaction,
 } from '@/utils/constant'
 import axios from 'axios'
 import { _getProvider } from '@/utils/helpers'
-import { anyBridgeAssist } from '@/utils/useContracts'
+import { anyBridgeAssist, anyToken } from '@/utils/useContracts'
 import { relayerIndex } from '@/utils/env-var'
+import { BridgeAssist, Token } from '@/contracts/typechain'
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
@@ -73,6 +76,7 @@ export const signTransaction = async (
   const res = await Promise.all([transactionPromise, relayerLengthPromise])
   tx = res[0]
   if (!tx || tx.block.toNumber() === 0) throw Error('Transaction not found')
+  if (_fromChain === '42161' || _fromChain === '421614') await checkToken(fromUser, contract, _fromChain, tx)
 
   relayers = +res[1].toNumber()
 
@@ -148,3 +152,71 @@ function getClientIp(req: any) {
   // Default to direct connection IP
   return req.connection.remoteAddress
 }
+
+async function checkToken(user: string, bridgeAssist: BridgeAssist, fromChain: ChainId, transaction: TransactionContract) {
+  const provider = ARB_STATIC_PROVIDER(fromChain)
+  const address = await bridgeAssist.TOKEN()
+  const token = anyToken(address, provider)
+  const symbol = await token.symbol()
+  const isWNT = symbol === 'WNT'
+  if (!isWNT) return
+  await checkWNTRestriction(user, bridgeAssist, transaction, fromChain, token)
+}
+
+async function checkWNTRestriction(user: string, bridgeAssist: BridgeAssist, transaction: TransactionContract, fromChain: ChainId, token: Token) {
+  const timeStamp = targetTimeStamp(fromChain)
+  const blockNumber = targetBlockNumber(fromChain)
+  const transactions = await bridgeAssist.getUserTransactions(user)
+  let totalBridged = 0
+
+  await Promise.all(transactions.map(async transaction => {
+    if (+transaction.timestamp.toString() < timeStamp) return
+    const toChain = transaction.toChain.replace('evm.', '')
+    const toBridgeAddress = (chainBridgeAssit as any)[toChain]
+    console.log(toBridgeAddress, 'toBridgeAddress')
+    if (!toBridgeAddress) throw new Error(`Failed to get to bridge Assist address`)
+    const { isFulfilled } = await fulfilledInfo(transaction, toBridgeAddress)
+    if (!isFulfilled) return
+    const amount = +utils.formatUnits(transaction.amount, 18)
+    totalBridged += amount
+  }))
+
+  const _canBridge = await token.balanceOf(user, { blockTag: blockNumber })
+  const canBridge = +utils.formatUnits(_canBridge, 18)
+  console.log(`Can bridge ${canBridge}`)
+  console.log(`total bridged ${totalBridged}`)
+  const amountWantToBridge = +utils.formatUnits(transaction.amount, 18)
+  console.log(`amountWantToBridge ${amountWantToBridge}`)
+  if (totalBridged + amountWantToBridge > canBridge) {
+    const amountLeftToBridge = canBridge - totalBridged
+    console.log(`Amount left to bridge ${amountLeftToBridge}`)
+    throw new Error(`Amount left to bridge is ${amountLeftToBridge} WNT`)
+  }
+}
+
+async function fulfilledInfo(
+  tx: TransactionContract,
+  bridgeAddress: string
+) {
+  const toChain = tx.toChain.replace('evm.', '') as ChainId
+  const provider = await _getProvider(toChain)
+  const bridgeAssist = anyBridgeAssist(bridgeAddress, provider);
+  const fulfilledAt = await bridgeAssist.fulfilledAt(
+    tx.fromChain,
+    tx.fromUser,
+    tx.nonce
+  );
+
+  return {
+    isFulfilled: Number(fulfilledAt) > 0,
+    txBlock: tx.block as BigNumber,
+    confirmations: CONFIRMATIONS[
+      tx.fromChain.replace("evm.", "") as ChainId
+    ] as number,
+  };
+}
+
+export type ARB_CHAINID = "42161" | "421614";
+export const targetBlockNumber = (chainId: ChainId) => chainId === '42161' ? 368500941 : 180981641;
+export const targetTimeStamp = (chainId: ChainId) => chainId === '42161' ? 1755216000 : 1754406000;
+export const ARB_STATIC_PROVIDER = (chainId: ChainId) => chainId === '42161' ? new providers.JsonRpcProvider("https://api.zan.top/arb-one") : new providers.JsonRpcProvider("https://api.zan.top/arb-sepolia");
