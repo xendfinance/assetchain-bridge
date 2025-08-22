@@ -217,6 +217,6 @@ async function fulfilledInfo(
 }
 
 export type ARB_CHAINID = "42161" | "421614";
-export const targetBlockNumber = (chainId: ChainId) => chainId === '42161' ? 368500941 : 180981641;
-export const targetTimeStamp = (chainId: ChainId) => chainId === '42161' ? 1755216000 : 1754406000;
+export const targetBlockNumber = (chainId: ChainId) => chainId === '42161' ? 370576662 : 180981641;
+export const targetTimeStamp = (chainId: ChainId) => chainId === '42161' ? 1755734340 : 1754406000;
 export const ARB_STATIC_PROVIDER = (chainId: ChainId) => chainId === '42161' ? new providers.JsonRpcProvider("https://api.zan.top/arb-one") : new providers.JsonRpcProvider("https://api.zan.top/arb-sepolia");
