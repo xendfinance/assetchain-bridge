@@ -62,13 +62,13 @@ export const universalRpc = (): RpcFunction => {
   return (chainTag: ChainTag) => {
     const a: Record<ChainTag, string> = {
       avax_mainnet: ankr(chainTag),
-      bsc_mainnet: binance_mainnet_rpc,
-      arbitrum_mainnet: arbitrum_mainnet_rpc,
-      eth_mainnet: ethereum_mainnet_rpc,
+      bsc_mainnet: extraRpcs.base_mainnet[0],
+      arbitrum_mainnet: extraRpcs.arbitrum_mainnet[0],
+      eth_mainnet: extraRpcs.eth_mainnet[0],
       ftm_mainnet: ankr(chainTag),
-      polygon_mainnet: polygon_mainnet_rpc,
+      polygon_mainnet: extraRpcs.polygon_mainnet[0],
       celo_mainnet: ankr(chainTag),
-      base_mainnet: base_mainnet_rpc,
+      base_mainnet: extraRpcs.base_mainnet[0],
       bitlayer_mainnet: extraRpcs.bitlayer_mainnet[0],
       xend_mainnet: extraRpcs.xend_mainnet[0],
 
