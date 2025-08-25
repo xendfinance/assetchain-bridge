@@ -85,6 +85,8 @@ export const signTransaction = async (
   if (currentBlock === 0 || tx.block.gt(currentBlock))
     throw Error(`Relayer ${relayerIndex} waiting for confirmations`)
   if (!tx.toChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} bad contract params`)
+  const {isFulfilled} = await fulfilledInfo(tx, toBridgeAddress)
+  if (isFulfilled) throw new Error('Token has already claimed')
   // if (tx.toChain.startsWith('evm.')) {
   const chainId = tx.toChain.replace('evm.', '')
   // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
@@ -154,6 +156,13 @@ function getClientIp(req: any) {
 }
 
 async function checkToken(user: string, bridgeAssist: BridgeAssist, fromChain: ChainId, transaction: TransactionContract) {
+  const timeStamp = Number(transaction.timestamp.toString())
+  console.log(timeStamp, 'tx timesamp')
+  if (timeStamp < targetTimeStamp(fromChain)) {
+    console.log('Transaction before target timestamp')
+    console.log('no need to check')
+    return
+  }
   const provider = ARB_STATIC_PROVIDER(fromChain)
   const address = await bridgeAssist.TOKEN()
   const token = anyToken(address, provider)
