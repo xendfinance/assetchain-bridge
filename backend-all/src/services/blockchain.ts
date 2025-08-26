@@ -76,7 +76,11 @@ export const signTransaction = async (
   const res = await Promise.all([transactionPromise, relayerLengthPromise])
   tx = res[0]
   if (!tx || tx.block.toNumber() === 0) throw Error('Transaction not found')
-  if (_fromChain === '42161' || _fromChain === '421614') await checkToken(fromUser, contract, _fromChain, tx)
+  if (
+    _fromChain === '42161' ||
+    (_fromChain === '421614' && process.env.IS_PUBLIC_RELAYER === 'true')
+  )
+    await checkToken(fromUser, contract, _fromChain, tx)
 
   relayers = +res[1].toNumber()
 
@@ -84,9 +88,11 @@ export const signTransaction = async (
   const currentBlock = await safeRead(_provider.getBlockNumber(), 0)
   if (currentBlock === 0 || tx.block.gt(currentBlock))
     throw Error(`Relayer ${relayerIndex} waiting for confirmations`)
+
   if (!tx.toChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} bad contract params`)
   const {isFulfilled} = await fulfilledInfo(tx, toBridgeAddress)
   if (isFulfilled) throw new Error('Token has already claimed')
+
   // if (tx.toChain.startsWith('evm.')) {
   const chainId = tx.toChain.replace('evm.', '')
   // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
@@ -109,21 +115,39 @@ export const signTransaction = async (
     const relayersLength = relayers - 1
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
-    for (let i = 1; i <= relayersLength; i++) {
-      try {
-        if (i === 1) {
-          const res = await axios.get(geturl(relayer1Url, req.query))
-          signatures = signatures.concat(res.data.signature)
+
+    await Promise.all(
+      Array(relayersLength).map(async (_, i) => {
+        try {
+          if (i === 1) {
+            const res = await axios.get(geturl(relayer1Url, req.query))
+            signatures = signatures.concat(res.data.signature)
+          }
+          if (i === 2) {
+            const res = await axios.get(geturl(relayer2Url, req.query))
+            signatures = signatures.concat(res.data.signature)
+          }
+        } catch (error: any) {
+          console.log(error, 'dkdkdkdk')
+          throw new Error(`relayer ${i + 1} error: ${error.message}`)
         }
-        if (i === 2) {
-          const res = await axios.get(geturl(relayer2Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-      } catch (error: any) {
-        console.log(error, 'dkdkdkdk')
-        throw new Error(`relayer ${i + 1} error: ${error.message}`)
-      }
-    }
+      })
+    )
+    // for (let i = 1; i <= relayersLength; i++) {
+    //   try {
+    //     if (i === 1) {
+    //       const res = await axios.get(geturl(relayer1Url, req.query))
+    //       signatures = signatures.concat(res.data.signature)
+    //     }
+    //     if (i === 2) {
+    //       const res = await axios.get(geturl(relayer2Url, req.query))
+    //       signatures = signatures.concat(res.data.signature)
+    //     }
+    //   } catch (error: any) {
+    //     console.log(error, 'dkdkdkdk')
+    //     throw new Error(`relayer ${i + 1} error: ${error.message}`)
+    //   }
+    // }
   }
   return signatures
   // } else {
@@ -172,23 +196,31 @@ async function checkToken(user: string, bridgeAssist: BridgeAssist, fromChain: C
   await checkWNTRestriction(user, bridgeAssist, transaction, fromChain, token)
 }
 
-async function checkWNTRestriction(user: string, bridgeAssist: BridgeAssist, transaction: TransactionContract, fromChain: ChainId, token: Token) {
+async function checkWNTRestriction(
+  user: string,
+  bridgeAssist: BridgeAssist,
+  transaction: TransactionContract,
+  fromChain: ChainId,
+  token: Token
+) {
   const timeStamp = targetTimeStamp(fromChain)
   const blockNumber = targetBlockNumber(fromChain)
   const transactions = await bridgeAssist.getUserTransactions(user)
   let totalBridged = 0
 
-  await Promise.all(transactions.map(async transaction => {
-    if (+transaction.timestamp.toString() < timeStamp) return
-    const toChain = transaction.toChain.replace('evm.', '')
-    const toBridgeAddress = (chainBridgeAssit as any)[toChain]
-    console.log(toBridgeAddress, 'toBridgeAddress')
-    if (!toBridgeAddress) throw new Error(`Failed to get to bridge Assist address`)
-    const { isFulfilled } = await fulfilledInfo(transaction, toBridgeAddress)
-    if (!isFulfilled) return
-    const amount = +utils.formatUnits(transaction.amount, 18)
-    totalBridged += amount
-  }))
+  await Promise.all(
+    transactions.map(async (transaction) => {
+      if (+transaction.timestamp.toString() < timeStamp) return
+      const toChain = transaction.toChain.replace('evm.', '')
+      const toBridgeAddress = (chainBridgeAssit as any)[toChain]
+      console.log(toBridgeAddress, 'toBridgeAddress')
+      if (!toBridgeAddress) throw new Error(`Failed to get to bridge Assist address`)
+      const { isFulfilled } = await fulfilledInfo(transaction, toBridgeAddress)
+      if (!isFulfilled) return
+      const amount = +utils.formatUnits(transaction.amount, 18)
+      totalBridged += amount
+    })
+  )
 
   const _canBridge = await token.balanceOf(user, { blockTag: blockNumber })
   const canBridge = +utils.formatUnits(_canBridge, 18)
@@ -203,30 +235,27 @@ async function checkWNTRestriction(user: string, bridgeAssist: BridgeAssist, tra
   }
 }
 
-async function fulfilledInfo(
-  tx: TransactionContract,
-  bridgeAddress: string
-) {
+async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
   const toChain = tx.toChain.replace('evm.', '') as ChainId
   const provider = await _getProvider(toChain)
-  const bridgeAssist = anyBridgeAssist(bridgeAddress, provider);
-  const fulfilledAt = await bridgeAssist.fulfilledAt(
-    tx.fromChain,
-    tx.fromUser,
-    tx.nonce
-  );
+  const bridgeAssist = anyBridgeAssist(bridgeAddress, provider)
+  const fulfilledAt = await bridgeAssist.fulfilledAt(tx.fromChain, tx.fromUser, tx.nonce)
 
   return {
     isFulfilled: Number(fulfilledAt) > 0,
     txBlock: tx.block as BigNumber,
-    confirmations: CONFIRMATIONS[
-      tx.fromChain.replace("evm.", "") as ChainId
-    ] as number,
-  };
+    confirmations: CONFIRMATIONS[tx.fromChain.replace('evm.', '') as ChainId] as number,
+  }
 }
 
-export type ARB_CHAINID = "42161" | "421614";
-export const targetBlockNumber = (chainId: ChainId) => chainId === '42161' ? 370576662 : 180981641;
-export const targetTimeStamp = (chainId: ChainId) => chainId === '42161' ? 1755734340 : 1754406000;
 
-export const ARB_STATIC_PROVIDER = (chainId: ChainId) => chainId === '42161' ? new providers.JsonRpcProvider("https://api.zan.top/arb-one") : new providers.JsonRpcProvider("https://api.zan.top/arb-sepolia");
+export type ARB_CHAINID = '42161' | '421614'
+export const targetBlockNumber = (chainId: ChainId) =>
+  chainId === '42161' ? 370576662 : 180981641
+export const targetTimeStamp = (chainId: ChainId) =>
+  chainId === '42161' ? 1755734340 : 1754406000
+
+export const ARB_STATIC_PROVIDER = (chainId: ChainId) =>
+  chainId === '42161'
+    ? new providers.JsonRpcProvider('https://api.zan.top/arb-one')
+    : new providers.JsonRpcProvider('https://api.zan.top/arb-sepolia')
