@@ -112,34 +112,22 @@ export const signTransaction = async (
   )
   signatures.push(signer0)
   if (process.env.IS_PUBLIC_RELAYER === 'true' && relayers > 1) {
-    const relayersLength = relayers - 1
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
 
-    await Promise.all(
-      Array.from({ length: relayersLength }, (_, i) => {
-        return (async () => {
-          try {
-            if (i === 1) {
-              const res = await axios.get(geturl(relayer1Url, req.query))
-              signatures = signatures.concat(res.data.signature)
-            }
-            if (i === 2) {
-              const res = await axios.get(geturl(relayer2Url, req.query))
-              signatures = signatures.concat(res.data.signature)
-            }
-          } catch (error: any) {
-            console.log(error, 'dkdkdkdk')
-            throw new Error(`relayer ${relayerIndex} error: ${error.message}`)
-          }
-        })()
-      })
-    )
+    const promises = [getSignaturesFromRelayer(relayer1Url, req.query), getSignaturesFromRelayer(relayer2Url, req.query)]
+    const results = await Promise.all(promises)
+    signatures = signatures.concat(results[0], results[1])
   }
   return signatures
   // } else {
   //   throw Error('bad contract params')
   // }
+}
+
+async function getSignaturesFromRelayer(relayerUrl: string, searchParams: any) {
+  const res = await axios.get(geturl(relayerUrl, searchParams))
+  return res.data.signature
 }
 
 function geturl(baseUrl: string, searchParams: any) {
