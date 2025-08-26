@@ -117,37 +117,24 @@ export const signTransaction = async (
     const relayer2Url = process.env.RELAYER2_URL
 
     await Promise.all(
-      Array(relayersLength).map(async (_, i) => {
-        try {
-          if (i === 1) {
-            const res = await axios.get(geturl(relayer1Url, req.query))
-            signatures = signatures.concat(res.data.signature)
+      Array.from({ length: relayersLength }, (_, i) => {
+        return (async () => {
+          try {
+            if (i === 1) {
+              const res = await axios.get(geturl(relayer1Url, req.query))
+              signatures = signatures.concat(res.data.signature)
+            }
+            if (i === 2) {
+              const res = await axios.get(geturl(relayer2Url, req.query))
+              signatures = signatures.concat(res.data.signature)
+            }
+          } catch (error: any) {
+            console.log(error, 'dkdkdkdk')
+            throw new Error(`relayer ${relayerIndex} error: ${error.message}`)
           }
-          if (i === 2) {
-            const res = await axios.get(geturl(relayer2Url, req.query))
-            signatures = signatures.concat(res.data.signature)
-          }
-        } catch (error: any) {
-          console.log(error, 'dkdkdkdk')
-          throw new Error(`relayer ${i + 1} error: ${error.message}`)
-        }
+        })()
       })
     )
-    // for (let i = 1; i <= relayersLength; i++) {
-    //   try {
-    //     if (i === 1) {
-    //       const res = await axios.get(geturl(relayer1Url, req.query))
-    //       signatures = signatures.concat(res.data.signature)
-    //     }
-    //     if (i === 2) {
-    //       const res = await axios.get(geturl(relayer2Url, req.query))
-    //       signatures = signatures.concat(res.data.signature)
-    //     }
-    //   } catch (error: any) {
-    //     console.log(error, 'dkdkdkdk')
-    //     throw new Error(`relayer ${i + 1} error: ${error.message}`)
-    //   }
-    // }
   }
   return signatures
   // } else {
