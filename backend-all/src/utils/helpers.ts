@@ -91,6 +91,10 @@ export function getChainRPCS(chainId: ChainId) {
       return binance_testnet_rpc
     case '1':
       return ethereum_mainnet_rpc
+    case '137':
+        return polygon_mainnet_rpc
+    case '80002':
+        return polygon_amoy_rpc
     default:
       return undefined
   }
@@ -109,6 +113,7 @@ export async function _getProvider(chainId: ChainId) {
     }
   } else {
     rpc = _rpc(getChainTag(chainId))
+    console.log(rpc, chainId, 'kdkdk')
     if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
     rpc = await getActiveRpc([rpc])
     console.log(`Using RPC public RPC`)

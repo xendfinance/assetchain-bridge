@@ -1,18 +1,21 @@
-import { Wallet, ethers, BigNumber, BigNumberish } from 'ethers'
+import { Wallet, ethers, BigNumber, BigNumberish, providers, utils } from 'ethers'
 import { useContracts, getProvider, safeRead } from '@/gotbit-tools/node'
 import { config } from '@/gotbit.config'
 import { ChainId } from '@/gotbit-tools/node/types'
 import CONFIRMATIONS from '../confirmations.json'
 import { FulfillTxContract, TransactionContract } from '@/types'
 import {
+  BRIDGEASSISTS,
+  chainBridgeAssit,
   EIP712DOMAIN_NAME,
   EIP712DOMAIN_VERSION,
   eip712Transaction,
 } from '@/utils/constant'
 import axios from 'axios'
 import { _getProvider } from '@/utils/helpers'
-import { anyBridgeAssist } from '@/utils/useContracts'
+import { anyBridgeAssist, anyToken } from '@/utils/useContracts'
 import { relayerIndex } from '@/utils/env-var'
+import { BridgeAssist, Token } from '@/contracts/typechain'
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
@@ -73,6 +76,11 @@ export const signTransaction = async (
   const res = await Promise.all([transactionPromise, relayerLengthPromise])
   tx = res[0]
   if (!tx || tx.block.toNumber() === 0) throw Error('Transaction not found')
+  if (
+    _fromChain === '42161' ||
+    (_fromChain === '421614' && process.env.IS_PUBLIC_RELAYER === 'true')
+  )
+    await checkToken(fromUser, contract, _fromChain, tx)
 
   relayers = +res[1].toNumber()
 
@@ -80,7 +88,11 @@ export const signTransaction = async (
   const currentBlock = await safeRead(_provider.getBlockNumber(), 0)
   if (currentBlock === 0 || tx.block.gt(currentBlock))
     throw Error(`Relayer ${relayerIndex} waiting for confirmations`)
+
   if (!tx.toChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} bad contract params`)
+  const {isFulfilled} = await fulfilledInfo(tx, toBridgeAddress)
+  if (isFulfilled) throw new Error('Token has already claimed')
+
   // if (tx.toChain.startsWith('evm.')) {
   const chainId = tx.toChain.replace('evm.', '')
   // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
@@ -100,29 +112,22 @@ export const signTransaction = async (
   )
   signatures.push(signer0)
   if (process.env.IS_PUBLIC_RELAYER === 'true' && relayers > 1) {
-    const relayersLength = relayers - 1
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
-    for (let i = 1; i <= relayersLength; i++) {
-      try {
-        if (i === 1) {
-          const res = await axios.get(geturl(relayer1Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-        if (i === 2) {
-          const res = await axios.get(geturl(relayer2Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-      } catch (error: any) {
-        console.log(error, 'dkdkdkdk')
-        throw new Error(`relayer ${i + 1} error: ${error.message}`)
-      }
-    }
+
+    const promises = [getSignaturesFromRelayer(relayer1Url, req.query), getSignaturesFromRelayer(relayer2Url, req.query)]
+    const results = await Promise.all(promises)
+    signatures = signatures.concat(results[0], results[1])
   }
   return signatures
   // } else {
   //   throw Error('bad contract params')
   // }
+}
+
+async function getSignaturesFromRelayer(relayerUrl: string, searchParams: any) {
+  const res = await axios.get(geturl(relayerUrl, searchParams))
+  return res.data.signature
 }
 
 function geturl(baseUrl: string, searchParams: any) {
@@ -148,3 +153,84 @@ function getClientIp(req: any) {
   // Default to direct connection IP
   return req.connection.remoteAddress
 }
+
+async function checkToken(user: string, bridgeAssist: BridgeAssist, fromChain: ChainId, transaction: TransactionContract) {
+  const timeStamp = Number(transaction.timestamp.toString())
+  console.log(timeStamp, 'tx timesamp')
+  if (timeStamp < targetTimeStamp(fromChain)) {
+    console.log('Transaction before target timestamp')
+    console.log('no need to check')
+    return
+  }
+  const provider = ARB_STATIC_PROVIDER(fromChain)
+  const address = await bridgeAssist.TOKEN()
+  const token = anyToken(address, provider)
+  const symbol = await token.symbol()
+  const isWNT = symbol === 'WNT'
+  if (!isWNT) return
+  await checkWNTRestriction(user, bridgeAssist, transaction, fromChain, token)
+}
+
+async function checkWNTRestriction(
+  user: string,
+  bridgeAssist: BridgeAssist,
+  transaction: TransactionContract,
+  fromChain: ChainId,
+  token: Token
+) {
+  const timeStamp = targetTimeStamp(fromChain)
+  const blockNumber = targetBlockNumber(fromChain)
+  const transactions = await bridgeAssist.getUserTransactions(user)
+  let totalBridged = 0
+
+  await Promise.all(
+    transactions.map(async (transaction) => {
+      if (+transaction.timestamp.toString() < timeStamp) return
+      const toChain = transaction.toChain.replace('evm.', '')
+      const toBridgeAddress = (chainBridgeAssit as any)[toChain]
+      console.log(toBridgeAddress, 'toBridgeAddress')
+      if (!toBridgeAddress) throw new Error(`Failed to get to bridge Assist address`)
+      const { isFulfilled } = await fulfilledInfo(transaction, toBridgeAddress)
+      if (!isFulfilled) return
+      const amount = +utils.formatUnits(transaction.amount, 18)
+      totalBridged += amount
+    })
+  )
+
+  const _canBridge = await token.balanceOf(user, { blockTag: blockNumber })
+  const canBridge = +utils.formatUnits(_canBridge, 18)
+  console.log(`Can bridge ${canBridge}`)
+  console.log(`total bridged ${totalBridged}`)
+  const amountWantToBridge = +utils.formatUnits(transaction.amount, 18)
+  console.log(`amountWantToBridge ${amountWantToBridge}`)
+  if (totalBridged + amountWantToBridge > canBridge) {
+    const amountLeftToBridge = canBridge - totalBridged
+    console.log(`Amount left to bridge ${amountLeftToBridge}`)
+    throw new Error(`Amount left to bridge is ${amountLeftToBridge} WNT`)
+  }
+}
+
+async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
+  const toChain = tx.toChain.replace('evm.', '') as ChainId
+  const provider = await _getProvider(toChain)
+  const bridgeAssist = anyBridgeAssist(bridgeAddress, provider)
+  const fulfilledAt = await bridgeAssist.fulfilledAt(tx.fromChain, tx.fromUser, tx.nonce)
+
+  return {
+    isFulfilled: Number(fulfilledAt) > 0,
+    txBlock: tx.block as BigNumber,
+    confirmations: CONFIRMATIONS[tx.fromChain.replace('evm.', '') as ChainId] as number,
+  }
+}
+
+
+export type ARB_CHAINID = '42161' | '421614'
+export const targetBlockNumber = (chainId: ChainId) =>
+  chainId === '42161' ? 370576662 : 180981641
+export const targetTimeStamp = (chainId: ChainId) =>
+  chainId === '42161' ? 1755734340 : 1754406000
+
+export const ARB_STATIC_PROVIDER = (chainId: ChainId) =>
+  chainId === '42161'
+    ? new providers.JsonRpcProvider('https://api.zan.top/arb-one')
+    : new providers.JsonRpcProvider('https://api.zan.top/arb-sepolia')
