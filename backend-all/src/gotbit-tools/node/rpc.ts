@@ -62,13 +62,13 @@ export const universalRpc = (): RpcFunction => {
   return (chainTag: ChainTag) => {
     const a: Record<ChainTag, string> = {
       avax_mainnet: ankr(chainTag),
-      bsc_mainnet: binance_mainnet_rpc,
-      arbitrum_mainnet: arbitrum_mainnet_rpc,
-      eth_mainnet: ethereum_mainnet_rpc,
+      bsc_mainnet: extraRpcs.base_mainnet[0],
+      arbitrum_mainnet: extraRpcs.arbitrum_mainnet[0],
+      eth_mainnet: extraRpcs.eth_mainnet[0],
       ftm_mainnet: ankr(chainTag),
-      polygon_mainnet: polygon_mainnet_rpc,
+      polygon_mainnet: extraRpcs.polygon_mainnet[0],
       celo_mainnet: ankr(chainTag),
-      base_mainnet: base_mainnet_rpc,
+      base_mainnet: extraRpcs.base_mainnet[0],
       bitlayer_mainnet: extraRpcs.bitlayer_mainnet[0],
       xend_mainnet: extraRpcs.xend_mainnet[0],
 
@@ -97,11 +97,11 @@ export const universalRpc = (): RpcFunction => {
       okex_testnet: extraRpcs.okex_testnet[0],
       cmp_testnet: extraRpcs.cmp_testnet[0],
       pulse_testnet: 'https://rpc.v4.testnet.pulsechain.com',
-      arbitrum_sepolia: arbitrum_sepolia_rpc,
+      arbitrum_sepolia: extraRpcs.arbitrum_sepolia[0],
       xend_testnet: extraRpcs.xend_testnet[0],
-      base_sepolia: base_spolia_rpc,
-      eth_sepolia: ethereum_sepolia_rpc,
-      polygon_amoy: polygon_amoy_rpc,
+      base_sepolia: extraRpcs.base_sepolia[0],
+      eth_sepolia: extraRpcs.eth_sepolia[0],
+      polygon_amoy: extraRpcs.polygon_amoy[0],
       bitlayer_testnet: extraRpcs.bitlayer_testnet[0],
     } as any
     return a[chainTag]
