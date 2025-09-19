@@ -5,7 +5,7 @@ import { CHAIN_IDS } from '@/config'
 import { wrapperHRE } from '@/gotbit-tools/hardhat'
 import type { BridgeAssistTransferUpgradeable__factory } from '@/typechain'
 
-const token = ``
+const token = `0xa753625Acf9afc43a272BA96CB5E620BeFa7625b`
 const owner = ``
 const relayers : string[] = []
 
