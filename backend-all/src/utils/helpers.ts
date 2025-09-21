@@ -12,9 +12,10 @@ import {
   polygon_mainnet_rpc,
   relayerIndex,
 } from './env-var'
-import { providers } from 'ethers'
+import { BigNumber, providers } from 'ethers'
 import { universalRpc } from '@/gotbit-tools/node/rpc'
 import { getChainName, getChainTag } from '@/gotbit-tools/node'
+import { getConfirmationsRequired } from './solana/helpers'
 
 export async function getActiveRpc(rpcList: string[], timeoutMs: number = 5000) {
   /**
@@ -120,4 +121,9 @@ export async function _getProvider(chainId: ChainId) {
   }
   if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
   return new providers.JsonRpcProvider(rpc)
+}
+
+export async function hasPassedConfirmationEvm(provider: providers.JsonRpcProvider, fromChain: ChainId, block: BigNumber) {
+  const blockNumber = await provider.getBlockNumber()
+  return BigNumber.from(blockNumber).gt(block.add(getConfirmationsRequired(fromChain)))
 }

@@ -1,4 +1,4 @@
-import {BigNumberish} from 'ethers'
+import {BigNumber, BigNumberish} from 'ethers'
 import { useContracts } from '@/gotbit-tools/node'
 export interface AuthResponse {
   access_token: string
@@ -83,3 +83,26 @@ type BridgeWithAddress = ReturnType<ReturnType<typeof useContracts>['bridgeAssis
 export type TransactionContract = Awaited<
 ReturnType<BridgeWithAddress['getUserTransactions']>
 >[number]
+
+export type ITransaction = {
+  fromUser: string
+  toUser: string
+  amount: BigNumber
+  timestamp: BigNumber
+  fromChain: string
+  toChain: string
+  nonce: BigNumber
+  block: BigNumber
+}
+
+export type ExtractedTransaction = {
+  fromUser: string
+  toUser: string
+  amount: string
+  timestamp: string
+  fromChain: string
+  toChain: string
+  nonce: string
+  block: string
+  confirmationsRequired: string
+}

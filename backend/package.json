@@ -18,7 +18,8 @@
     "contracts:sync": "SCRIPT=./src/gotbit-tools/scripts/shell/import-contracts.sh yarn script",
     "contracts:typings": "node ./src/gotbit-tools/scripts/typings.js",
     "\n# UTILS SCRIPTS:": "",
-    "script": "chmod +x $SCRIPT && $SCRIPT"
+    "script": "chmod +x $SCRIPT && $SCRIPT",
+    "build-win": "rimraf dist && tsc -p ."
   },
   "jest": {
     "preset": "ts-jest",
