@@ -8,8 +8,8 @@ import { GetTransactionSignationDto } from '@/types'
 export default (): Resource => ({
   async get(req: Request<{}, {}, {}, GetTransactionSignationDto>, res) {
     try {
-      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index, _tokenMint } =
-        req.query
+
+      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index, _tokenMint } = req.query
 
       if (!fromBridgeAddress)
         return res.status(400).send('fromBridgeAddress not specified')

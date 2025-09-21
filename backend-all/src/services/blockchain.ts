@@ -177,6 +177,7 @@ export async function signEvmToSolana(
   _tokenMint: string
 ) {
   const { tokenMint, connection, owner } = solanaWorkspace(toBridgeAddress, _tokenMint)
+
   // console.log(connection, 'connection')
 
   const fromChain = fromChainId.slice(4) as ChainId
@@ -221,6 +222,7 @@ export async function signSolanaToEvm(
   _tokenMint: string
 ) {
   const { owner, tokenMint, program, connection } = solanaWorkspace(fromBridgeAddress, _tokenMint)
+
   const tx = await getSolanaSendTx(
     owner,
     tokenMint,

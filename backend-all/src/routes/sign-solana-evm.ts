@@ -8,8 +8,8 @@ import { GetTransactionSignationDto } from '@/types'
 export default (): Resource => ({
   async get(req: Request<{}, {}, {}, GetTransactionSignationDto>, res) {
     try {
-      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index, _tokenMint } =
-        req.query
+
+      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index, _tokenMint } = req.query
 
       if (!fromBridgeAddress)
         return res.status(400).send('fromBridgeAddress not specified')
@@ -19,6 +19,7 @@ export default (): Resource => ({
       if (!fromUser) return res.status(400).send('from user not specified')
       if (!index) return res.status(400).send('index not specified')
       if (!_tokenMint) return res.status(400).send('token mint not specified')
+
       const signature = await signSolanaToEvm(
         req,
         fromChain,
