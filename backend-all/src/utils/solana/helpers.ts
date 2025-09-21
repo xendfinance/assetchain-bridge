@@ -46,7 +46,7 @@ const secretKey = bs58.decode(process.env.SOLANA_KEY!)
  * @returns workspace.provider The Solana provider.
  * @returns workspace.program The Solana program.
  */
-export const solanaWorkspace = (bridgeAssist: string) => {
+export const solanaWorkspace = (bridgeAssist: string, tokenMint: string) => {
   const owner = Keypair.fromSecretKey(secretKey)
 
   const network = clusterApiUrl(isMain ? 'mainnet-beta' : 'devnet')
@@ -55,7 +55,6 @@ export const solanaWorkspace = (bridgeAssist: string) => {
     preflightCommitment: 'confirmed',
   })
   const program = new Program<AssetchainBridgeSolana>(IDL, provider)
-  const tokenMint = (SOLANABRIDGE_TOKENS as any)[bridgeAssist]
   if (!tokenMint) throw new Error(`Token mint not initialized`)
 
   return {
@@ -194,10 +193,11 @@ const getEmptyAccount = (
 
 export async function isToSolanaTxFulfilled(
   toBridgeAddress: string,
+  _tokenMint: string,
   fromChainId: ChainId,
   nonce: BigNumber
 ): Promise<boolean> {
-  const { owner, tokenMint, program } = solanaWorkspace(toBridgeAddress)
+  const { owner, program,tokenMint } = solanaWorkspace(toBridgeAddress, _tokenMint)
 
   // const { bridgeAssist } = useContracts(undefined, fromChainId)
   // const CURRENT_CHAIN = await safeRead(bridgeAssist.CURRENT_CHAIN(), 'INVALID')
@@ -245,9 +245,10 @@ export async function isToSolanaTxFulfilled(
 export const signSolana = async (
   toBridgeAddress: string,
   tx: ExtractedTransaction,
+  _tokenMint: string,
   userTokenAccount: PublicKey
 ) => {
-  const { owner, tokenMint, program, connection } = solanaWorkspace(toBridgeAddress)
+  const { owner, program, tokenMint, connection } = solanaWorkspace(toBridgeAddress, _tokenMint)
   const user = new PublicKey(tx.toUser)
   console.log(user.toBase58(), 'toUser')
   const bridgeTokenAccount = getBridgeAccount(
