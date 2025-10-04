@@ -14,7 +14,7 @@ import { providers } from 'ethers'
 import CONFIRMATIONS from '../confirmations.json'
 import { Transaction } from '@/lib/database/entities/Transaction'
 import EventLogger from '@/lib/logger/index.logger'
-import { AddTransactionDto } from '@/types'
+// import { AddTransactionDto } from '@/types'
 
 export class BridgeService {
   async addBridge(
@@ -196,7 +196,7 @@ export class BridgeService {
     return await transactionRepo.findByUserAddress(userAddress)
   }
 
-  async addTransaction(dto: AddTransactionDto){
+  async addTransaction(dto: any){
     try {
       const {bridgeAddress, chainId, index, symbol, tokenAddress, userAddress, transactionHash} = dto
       const provider = await _getProvider(chainId as ChainId)
