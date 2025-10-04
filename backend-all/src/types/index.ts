@@ -83,3 +83,13 @@ type BridgeWithAddress = ReturnType<ReturnType<typeof useContracts>['bridgeAssis
 export type TransactionContract = Awaited<
 ReturnType<BridgeWithAddress['getUserTransactions']>
 >[number]
+
+export interface AddTransactionDto{
+  bridgeAddress: string
+  tokenAddress:string
+  symbol: string
+  chainId: string
+  index: string
+  userAddress: string
+  transactionHash: string
+}

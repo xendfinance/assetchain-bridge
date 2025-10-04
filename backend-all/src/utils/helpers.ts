@@ -105,6 +105,7 @@ const _rpc = universalRpc()
 export async function _getProvider(chainId: ChainId) {
   let rpc: string | null = ''
   const rpcListString = getChainRPCS(chainId)
+  console.log(rpcListString,'list', chainId)
   if (rpcListString) {
     const rpcList = rpcListString.split(',')
     rpc = await getActiveRpc(rpcList)
@@ -114,10 +115,10 @@ export async function _getProvider(chainId: ChainId) {
   } else {
     rpc = _rpc(getChainTag(chainId))
     console.log(rpc, chainId, 'kdkdk')
-    if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
+    if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error on ${chainId}. Please try again later`)
     rpc = await getActiveRpc([rpc])
     console.log(`Using RPC public RPC`)
   }
-  if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
+  if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error on ${chainId}. Please try again later`)
   return new providers.JsonRpcProvider(rpc)
 }
