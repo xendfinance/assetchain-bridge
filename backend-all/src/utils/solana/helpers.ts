@@ -51,13 +51,13 @@ export const solanaWorkspace = (bridgeAssist: string) => {
 
   const network = clusterApiUrl(isMain ? 'mainnet-beta' : 'devnet')
   const connection = new Connection(network, 'confirmed')
-  const provider = new AnchorProvider(connection, new NodeWallet(owner), {
+  const provider = new AnchorProvider(connection as any, new NodeWallet(owner as any), {
     preflightCommitment: 'confirmed',
   })
   const program = new Program<AssetchainBridgeSolana>(IDL, provider)
   const tokenMint = (SOLANABRIDGE_TOKENS as any)[bridgeAssist]
   if (!tokenMint) throw new Error(`Token mint not initialized`)
-
+    console.log('skskskskk')
   return {
     payer: owner,
     owner,

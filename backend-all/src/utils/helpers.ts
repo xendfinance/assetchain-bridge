@@ -12,7 +12,7 @@ import {
   polygon_mainnet_rpc,
   relayerIndex,
 } from './env-var'
-import { BigNumber, providers } from 'ethers'
+import { BigNumber, providers, utils } from 'ethers'
 import { universalRpc } from '@/gotbit-tools/node/rpc'
 import { getChainName, getChainTag } from '@/gotbit-tools/node'
 import { getConfirmationsRequired } from './solana/helpers'
@@ -127,4 +127,12 @@ export async function _getProvider(chainId: ChainId) {
 export async function hasPassedConfirmationEvm(provider: providers.JsonRpcProvider, fromChain: ChainId, block: BigNumber) {
   const blockNumber = await provider.getBlockNumber()
   return BigNumber.from(blockNumber).gt(block.add(getConfirmationsRequired(fromChain)))
+}
+
+export function isSolChain(chainId: string){
+  return chainId.includes('sol')
+}
+
+export function isEvmAddress(address: string){
+  return utils.isAddress(address)
 }

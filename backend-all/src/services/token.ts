@@ -1,12 +1,14 @@
 import { ChainId } from '@/gotbit-tools/node/types'
 import { tokenRepo } from '@/lib/database'
 import EventLogger from '@/lib/logger/index.logger'
-import { BRIDGEASSISTS } from '@/utils/constant'
-import { _getProvider } from '@/utils/helpers'
+import { BRIDGEASSISTS, tokenSymbols } from '@/utils/constant'
+import { _getProvider, isSolChain } from '@/utils/helpers'
 import { anyToken } from '@/utils/useContracts'
 import { providers, utils } from 'ethers'
 import { In } from 'typeorm'
 import { bridgeService } from '.'
+import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js'
+import { getMint } from '@solana/spl-token'
 
 export class TokenService {
   async addToken(
@@ -77,6 +79,33 @@ export class TokenService {
     Promise.all(
       chainIds.map(async (chainId) => {
         try {
+          const isSolanaChain = isSolChain(chainId)
+          if (isSolanaChain) {
+            const connection = new Connection(
+              chainId === 'sol.mainnet'
+                ? clusterApiUrl('mainnet-beta')
+                : clusterApiUrl('devnet')
+            )
+            const bridgeAssists: { bridgeAssist: string; token: string }[] = (
+              BRIDGEASSISTS as any
+            )[chainId]
+            for (let bridgeAssist of bridgeAssists) {
+              EventLogger.info(`Seeding token ${bridgeAssist.token} on ${chainId}`)
+              const token = await this.addSolanaToken(
+                bridgeAssist.token,
+                chainId as ChainId,
+                connection
+              )
+
+              const bridge = await bridgeService.addSolanaBridge(
+                bridgeAssist.bridgeAssist,
+                chainId as ChainId,
+                token
+              )
+              EventLogger.info(`Done Seeding token ${bridgeAssist.token} on ${chainId}`)
+            }
+            return
+          }
           const provider = await _getProvider(chainId as any)
           const bridgeAssists: { bridgeAssist: string; token: string }[] = (
             BRIDGEASSISTS as any
@@ -111,7 +140,12 @@ export class TokenService {
     }
   }
 
-  async getTokenBalanceByBlockTag(userAddress: string, blockTag: number, tokenAddress: string, chainId: ChainId){
+  async getTokenBalanceByBlockTag(
+    userAddress: string,
+    blockTag: number,
+    tokenAddress: string,
+    chainId: ChainId
+  ) {
     try {
       const provider = await _getProvider(chainId)
       const token = anyToken(tokenAddress, provider)
@@ -126,6 +160,26 @@ export class TokenService {
       }
     } catch (error) {
       console.error(error)
+      throw error
+    }
+  }
+
+  async addSolanaToken(tokenAddress: string, chainId: ChainId, connection: Connection) {
+    try {
+      const mintPublicKey = new PublicKey(tokenAddress)
+      const accountInfo = await getMint(connection, mintPublicKey)
+      const symbol = (tokenSymbols as any)[tokenAddress]
+      const newToken = await tokenRepo.create({
+        tokenAddress,
+        chainId,
+        symbol,
+        decimal: accountInfo.decimals,
+        name: symbol,
+      })
+      await tokenRepo.save(newToken)
+      return newToken
+    } catch (error) {
+      console.log('sjsjjjs', error)
       throw error
     }
   }

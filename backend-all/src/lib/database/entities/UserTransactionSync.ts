@@ -1,5 +1,6 @@
 import { Entity, Column } from "typeorm";
 import { BaseEntity } from "./BaseEntity";
+import { ChainType } from "@/types";
 
 @Entity("user_transaction_syncs")
 export class UserTransactionSync extends BaseEntity {
@@ -8,4 +9,7 @@ export class UserTransactionSync extends BaseEntity {
 
   @Column({ default: false })
   synced: boolean;
+
+  @Column({ default: ChainType.EVM })
+  chainType: ChainType;
 }

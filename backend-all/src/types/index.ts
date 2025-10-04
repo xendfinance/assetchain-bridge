@@ -106,3 +106,8 @@ export type ExtractedTransaction = {
   block: string
   confirmationsRequired: string
 }
+
+export enum ChainType {
+  SOLANA = 'solana',
+  EVM = 'evm',
+}
