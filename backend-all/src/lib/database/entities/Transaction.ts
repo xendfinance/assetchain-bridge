@@ -69,6 +69,9 @@ export class Transaction extends BaseEntity {
   @Column({ nullable: true })
   transactionHash: string;
 
+  @Column({ nullable: true })
+  claimTransactionHash: string;
+
   @Column({ type: "timestamp" })
   transactionDate: Date;
 

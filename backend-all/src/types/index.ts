@@ -1,4 +1,4 @@
-import {BigNumber, BigNumberish} from 'ethers'
+import { BigNumber, BigNumberish } from 'ethers'
 import { useContracts } from '@/gotbit-tools/node'
 export interface AuthResponse {
   access_token: string
@@ -81,7 +81,7 @@ export interface FulfillTxContract {
 type BridgeWithAddress = ReturnType<ReturnType<typeof useContracts>['bridgeAssist']>
 
 export type TransactionContract = Awaited<
-ReturnType<BridgeWithAddress['getUserTransactions']>
+  ReturnType<BridgeWithAddress['getUserTransactions']>
 >[number]
 
 export type ITransaction = {
@@ -110,4 +110,27 @@ export type ExtractedTransaction = {
 export enum ChainType {
   SOLANA = 'solana',
   EVM = 'evm',
+}
+
+export interface GetUserTransactionDto {
+  userAddress: string
+  chainIds: string
+  fulfilled: string
+  page: string
+  limit: string
+  forceSync: string
+}
+
+export interface AddTransactionDto {
+  bridgeId: string
+  index: string
+
+  userAddress: string
+  transactionHash?: string
+}
+
+export interface MarkTransactionAsClaimedDto {
+  transactionId: string
+  claimTransactionHash: string
+  toBridgeId: string
 }

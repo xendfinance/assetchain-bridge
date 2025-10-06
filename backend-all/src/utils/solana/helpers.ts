@@ -57,7 +57,6 @@ export const solanaWorkspace = (bridgeAssist: string) => {
   const program = new Program<AssetchainBridgeSolana>(IDL, provider)
   const tokenMint = (SOLANABRIDGE_TOKENS as any)[bridgeAssist]
   if (!tokenMint) throw new Error(`Token mint not initialized`)
-    console.log('skskskskk')
   return {
     payer: owner,
     owner,
@@ -340,8 +339,6 @@ export async function getSolanaSendTx(
   const sendTxAccount = await program.account.bridgeSendTx.fetch(sendTxKey)
 
   if (!sendTxAccount) throw new Error(`Transaction not found with nonce ${nonce}`)
-
-  console.log(sendTxAccount.toChain.byte, 'ssk')
 
   const tx: ITransaction = {
     fromUser: user.toString(),

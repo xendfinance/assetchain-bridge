@@ -15,12 +15,12 @@ export class AddChainTypeToUserTransactionSync1700000000008 implements Migration
             CREATE INDEX "IDX_user_transaction_syncs_chainType" ON "user_transaction_syncs" ("chainType")
         `);
 
-        // Create composite index for userAddress and chainType
+        // Create composite index for userAddress and chainType (non-unique)
         await queryRunner.query(`
-            CREATE UNIQUE INDEX "IDX_user_transaction_syncs_userAddress_chainType" ON "user_transaction_syncs" ("userAddress", "chainType")
+            CREATE INDEX "IDX_user_transaction_syncs_userAddress_chainType" ON "user_transaction_syncs" ("userAddress", "chainType")
         `);
 
-        // Drop the old unique index on userAddress only since we now want uniqueness per userAddress + chainType
+        // Drop the old unique index on userAddress only
         await queryRunner.query(`
             DROP INDEX "IDX_user_transaction_syncs_userAddress_unique"
         `);

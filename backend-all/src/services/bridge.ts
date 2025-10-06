@@ -25,7 +25,7 @@ import {
 } from '@/utils/solana/helpers'
 import { BN, Program } from '@coral-xyz/anchor'
 import { AssetchainBridgeSolana } from '@/utils/solana/types/assetchain_bridge_solana'
-import { ChainType, ITransaction, TransactionContract } from '@/types'
+import { AddTransactionDto, ChainType, ITransaction, MarkTransactionAsClaimedDto, TransactionContract } from '@/types'
 import { isProd } from '@/utils/env-var'
 // import { AddTransactionDto } from '@/types'
 
@@ -129,7 +129,12 @@ export class BridgeService {
     }
   }
 
-  async getTransactionFromOnChain(userAddress: string) {
+  async getTransactionFromOnChain(
+    userAddress: string,
+    options: any,
+    _chainIds?: string[],
+    _fulfilled?: boolean
+  ) {
     try {
       const chainIds = Object.keys(BRIDGEASSISTS)
       const _bridgeAssists = await bridgeInfoRepo.find({})
@@ -286,7 +291,12 @@ export class BridgeService {
       })
       await userTransactionSyncRepo.save(syncTransaction)
       EventLogger.info(`Inserted ${dbtransactions.length} transactions`)
-      return await transactionRepo.findByUserAddress(userAddress)
+      return await transactionRepo.findTransactionsByUserWithPagination(
+        userAddress,
+        options,
+        _chainIds,
+        _fulfilled
+      )
     } catch (error: any) {
       console.log(error)
       EventLogger.error(`Error inserting transactions: ${error.message}`)
@@ -294,7 +304,12 @@ export class BridgeService {
     }
   }
 
-  async getSolanaTransactionFromOnChain(userAddress: string) {
+  async getSolanaTransactionFromOnChain(
+    userAddress: string,
+    options: any,
+    _chainIds: string[],
+    _fulfilled?: boolean
+  ) {
     try {
       const chainId = isProd ? 'sol.mainnet' : 'sol.devnet'
       const chainIds = Object.keys(BRIDGEASSISTS)
@@ -362,7 +377,6 @@ export class BridgeService {
         })
         const transactions = await Promise.all(transactionPromises)
         for (let transaction of transactions) {
-          console.log(transaction, 'transaction')
           const existingTransaction = await transactionRepo.findOne({
             userAddress,
             index: +transaction.nonce.toString(),
@@ -396,13 +410,14 @@ export class BridgeService {
             nonce: +transaction.nonce.toString(),
             fulfillAmount: transaction.amount.toString(),
             fulfilled: false,
-            fulfillToUser: userAddress,
+            fulfillToUser: transaction.toUser,
             fulfillFromChain: chainId,
             fulfillNonce: +transaction.nonce.toString(),
             txBlock: transaction.block.toString(),
             confirmations: CONFIRMATIONS[bridgeAssist.chainId as ChainId],
             transactionDate: new Date(Number(transaction.timestamp) * 1000),
             symbol: bridgeAssist.token.symbol,
+            fulfillFromUser: userAddress,
           })
           EventLogger.info(
             `Created transaction: ${dbTransaction.index} on ${bridgeAssist.chainId}`
@@ -418,7 +433,12 @@ export class BridgeService {
         await userTransactionSyncRepo.save(syncTransaction)
         EventLogger.info(`Inserted ${dbtransactions.length} transactions`)
       }
-      return await transactionRepo.findByUserAddress(userAddress)
+      return await transactionRepo.findTransactionsByUserWithPagination(
+        userAddress,
+        options,
+        _chainIds,
+        _fulfilled
+      )
     } catch (error: any) {
       console.log(error)
       EventLogger.error(`Error inserting transactions: ${error.message}`)
@@ -426,36 +446,128 @@ export class BridgeService {
     }
   }
 
-  async getUserTransactions(userAddress: string) {
+  async getUserTransactions(
+    userAddress: string,
+    options: any,
+    _chainIds?: string,
+    _fulfilled?: string,
+    forceSync?: string
+  ) {
     const _isEvmAddress = isEvmAddress(userAddress)
+    const dbChainIds = _chainIds ? _chainIds.split(',') : []
+    const dbFulfilled = _fulfilled ? _fulfilled === 'true' : false
+    const dbForceSync = forceSync ? forceSync === 'true' : false
+    console.log(_chainIds, _fulfilled, forceSync)
+    console.log(dbChainIds, dbFulfilled, dbForceSync)
     const syncTransaction = await userTransactionSyncRepo.findOne({
       userAddress,
       synced: true,
       chainType: _isEvmAddress ? ChainType.EVM : ChainType.SOLANA,
     })
-    if (!syncTransaction) {
+    if (dbForceSync || !syncTransaction) {
       if (_isEvmAddress) {
-        return await this.getTransactionFromOnChain(userAddress)
+        return await this.getTransactionFromOnChain(
+          userAddress,
+          options,
+          dbChainIds,
+          dbFulfilled
+        )
       } else {
-        return await this.getSolanaTransactionFromOnChain(userAddress)
+        return await this.getSolanaTransactionFromOnChain(
+          userAddress,
+          options,
+          dbChainIds,
+          dbFulfilled
+        )
       }
     }
-    return await transactionRepo.findByUserAddress(userAddress)
+    return await transactionRepo.findTransactionsByUserWithPagination(
+      userAddress,
+      options,
+      dbChainIds,
+      dbFulfilled
+    )
   }
 
-  async addTransaction(dto: any) {
+  async addTransaction(dto: AddTransactionDto) {
     try {
       const {
-        bridgeAddress,
-        chainId,
         index,
-        symbol,
-        tokenAddress,
+
         userAddress,
         transactionHash,
+        bridgeId,
       } = dto
+      const bridgeInfo = await bridgeInfoRepo.findById(bridgeId)
+      if (!bridgeInfo) throw new Error(`Bridge not found`)
+      const chainId = bridgeInfo.chainId
+      if (isSolChain(chainId)) {
+        const { owner, tokenMint, program, connection } = solanaWorkspace(
+          bridgeInfo.bridgeAddress
+        )
+        const tx = await getSolanaSendTx(
+          owner,
+          tokenMint,
+          program,
+          new PublicKey(userAddress),
+          index,
+          chainId
+        )
+        if (tx.block.lte(0)) {
+          throw new Error(`Transaction not found`)
+        }
+        const dbTransaction = await transactionRepo.findOne({
+          userAddress,
+          index: +index,
+          chainId,
+          bridgeInfo: { id: bridgeId },
+        })
+        if (dbTransaction) {
+          return {
+            data: dbTransaction,
+            message: 'Transaction already exists',
+            success: true,
+          }
+        }
+        // const bridgeInfo = await bridgeInfoRepo.findOne({
+        //   bridgeAddress,
+        //   chainId,
+        // })
+        const newTransaction = transactionRepo.create({
+          userAddress,
+          index: +index,
+          chainId,
+          bridgeInfo,
+          amount: tx.amount.toString(),
+          timestamp: tx.timestamp.toString(),
+          fromUser: tx.fromUser,
+          toUser: tx.toUser,
+          fromChain: tx.fromChain,
+          toChain: tx.toChain.replace('evm.', ''),
+          nonce: +index,
+          fulfillAmount: tx.amount.toString(),
+          fulfilled: false,
+          fulfillToUser: tx.toUser,
+          fulfillFromChain: tx.fromChain.replace('evm.', ''),
+          fulfillNonce: +index,
+          txBlock: tx.block.toString(),
+          confirmations: CONFIRMATIONS[chainId as ChainId],
+          transactionDate: new Date(Number(tx.timestamp) * 1000),
+          symbol: bridgeInfo.token.symbol,
+          bridgeInfoId: bridgeInfo.id,
+          fulfillFromUser: tx.fromUser,
+          transactionHash,
+        })
+        await transactionRepo.save(newTransaction as any)
+
+        return {
+          data: newTransaction,
+          message: 'Transaction added successfully',
+          success: true,
+        }
+      }
       const provider = await _getProvider(chainId as ChainId)
-      const contract = anyBridgeAssist(bridgeAddress, provider)
+      const contract = anyBridgeAssist(bridgeInfo.bridgeAddress, provider)
       const transaction = await contract.transactions(userAddress, index)
       if (transaction.block.lte(0)) {
         throw new Error(`Transaction not found`)
@@ -465,9 +577,8 @@ export class BridgeService {
         index: +index,
         chainId,
         bridgeInfo: {
-          bridgeAddress,
+          id: bridgeId,
         },
-        symbol,
       })
       if (dbTransaction) {
         return {
@@ -475,13 +586,6 @@ export class BridgeService {
           message: 'Transaction already exists',
           success: true,
         }
-      }
-      const bridgeInfo = await bridgeInfoRepo.findOne({
-        bridgeAddress,
-        chainId,
-      })
-      if (!bridgeInfo) {
-        throw new Error(`Bridge not found`)
       }
       const newTransaction = transactionRepo.create({
         userAddress,
@@ -503,7 +607,7 @@ export class BridgeService {
         txBlock: transaction.block.toString(),
         confirmations: CONFIRMATIONS[chainId as ChainId],
         transactionDate: new Date(Number(transaction.timestamp) * 1000),
-        symbol,
+        symbol: bridgeInfo.token.symbol,
         bridgeInfoId: bridgeInfo.id,
         fulfillFromUser: transaction.fromUser,
         transactionHash,
@@ -520,6 +624,73 @@ export class BridgeService {
     }
   }
 
+  async markTransactionAsClaimed(dto: MarkTransactionAsClaimedDto) {
+    try {
+      const {
+        transactionId,
+        claimTransactionHash,
+        toBridgeId,
+      } = dto
+      const dbTransaction = await transactionRepo.findById(transactionId)
+      if (!dbTransaction) throw new Error(`Transaction not found`)
+      if (dbTransaction.fulfilled) {
+        return {
+          data: dbTransaction,
+          message: 'Transaction already fulfilled',
+          success: true,
+        }
+      }
+      const chainId = dbTransaction.toChain.replace('evm.', '')
+      const toBridgeInfo = await bridgeInfoRepo.findById(toBridgeId)
+      if (!toBridgeInfo) throw new Error(`Bridge not found`)
+      if (isSolChain(chainId)) {
+        const { owner, tokenMint, program, connection } = solanaWorkspace(
+          toBridgeInfo.bridgeAddress
+        )
+        const isFulfilled = await this.isToSolanaTxFulfilled(
+          toBridgeInfo.bridgeAddress,
+          toBridgeInfo.token.tokenAddress,
+          dbTransaction.fromChain.replace('evm.', '') as ChainId,
+          BigNumber.from(dbTransaction.nonce),
+          owner.publicKey,
+          program
+        )
+        if (isFulfilled) {
+          dbTransaction.fulfilled = true
+          dbTransaction.claimTransactionHash = claimTransactionHash
+          await transactionRepo.save(dbTransaction)
+          
+        }
+        return {
+          data: dbTransaction,
+          message: 'Transaction marked as claimed',
+          success: true,
+        }
+      }
+      const provider = await _getProvider(chainId as ChainId)
+      const contract = anyBridgeAssist(toBridgeInfo.bridgeAddress, provider)
+      const fulfilledAt = await contract.fulfilledAt(
+        dbTransaction.fromChain,
+        dbTransaction.fromUser,
+        dbTransaction.nonce
+      )
+      const isFulfilled = !fulfilledAt.eq(0)
+      if (isFulfilled) {
+        dbTransaction.fulfilled = true
+        dbTransaction.claimTransactionHash = claimTransactionHash
+        await transactionRepo.save(dbTransaction)
+      }
+
+      return {
+        data: dbTransaction,
+        message: 'Transaction marked as claimed',
+        success: true,
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
   async isToSolanaTxFulfilled(
     toBridgeAddress: string,
     token: string,
@@ -529,6 +700,7 @@ export class BridgeService {
     program: Program<AssetchainBridgeSolana>
   ): Promise<boolean> {
     const nonce = new BN(_nonce.toString())
+
     const tokenMint = new PublicKey(token)
     const programId = new PublicKey(toBridgeAddress)
 
@@ -610,5 +782,10 @@ export class BridgeService {
       transaction.nonce
     )
     return !fulfilledAt.eq(0)
+  }
+
+  async getAllBridges() {
+    const bridges = await bridgeInfoRepo.find({})
+    return bridges
   }
 }
