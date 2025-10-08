@@ -285,20 +285,35 @@ export class TransactionRepository {
     userAddress: string,
     options: { page: number; limit: number },
     chainIds?: string[],
-    fulfilled?: boolean
+    fulfilled?: boolean,
+    symbol?: string,
+    secondaryAddress?: string
   ) {
     let { page, limit } = options
     page = +page
     limit = +limit
     const skip = (page - 1) * limit
 
-    let whereCondition: any = { userAddress }
+    let addresses = [userAddress]
+
+    if (secondaryAddress){
+      addresses.push(secondaryAddress)
+    }
+
+    let whereCondition: any = { userAddress: In(addresses) }
     if (chainIds && chainIds.length > 0) {
       whereCondition.chainId = In(chainIds)
     }
-    if (fulfilled) {
+    if (fulfilled !== undefined) {
       whereCondition.fulfilled = fulfilled
     }
+    if (symbol) {
+      if (symbol === 'XRWA'){
+        symbol = 'RWA'
+      }
+      whereCondition.symbol = symbol
+    }
+    // console.log('whereCondition', whereCondition)
 
     // Get total count for pagination metadata
     const totalCount = await this.repository.count({
@@ -307,10 +322,12 @@ export class TransactionRepository {
 
     // Get paginated items
     const items = await this.repository.find({
-      where: whereCondition,
+      where: {
+        ...whereCondition,
+      },
       skip: skip,
       take: limit,
-      order: { createdAt: 'DESC' },
+      order: { transactionHash: 'DESC' },
     })
 
     // Calculate pagination metadata

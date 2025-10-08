@@ -136,3 +136,14 @@ export function isSolChain(chainId: string){
 export function isEvmAddress(address: string){
   return utils.isAddress(address)
 }
+
+export function useOldRwaBridge(timestamp: BigNumber): boolean {
+  // Create cutoff date (June 26, 2025 UTC)
+  const cutoffDate = new Date("2025-06-25T00:00:00Z");
+
+  // Compare the timestamps directly as numbers
+  const timestampMs = Number(timestamp.toString()) * 1000;
+  const cutoffMs = cutoffDate.getTime();
+
+  return timestampMs < cutoffMs;
+}

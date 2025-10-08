@@ -68,6 +68,8 @@ export interface GetTransactionSignationDto {
   fromChain?: string
   fromUser?: string
   index?: string
+  transactionId?: string
+  tokenMint?: string
 }
 
 export interface FulfillTxContract {

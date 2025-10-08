@@ -8,7 +8,7 @@ import { GetTransactionSignationDto } from '@/types'
 export default (): Resource => ({
   async get(req: Request<{}, {}, {}, GetTransactionSignationDto>, res) {
     try {
-      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index } =
+      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index, transactionId } =
         req.query
 
       if (!fromBridgeAddress)
@@ -18,12 +18,14 @@ export default (): Resource => ({
       if (!fromChain) return res.status(400).send('from chain not specified')
       if (!fromUser) return res.status(400).send('from user not specified')
       if (!index) return res.status(400).send('index not specified')
+      if (!transactionId) return res.status(400).send('transactionId not specified')
       const signature = await signTransaction(
         fromBridgeAddress,
         toBridgeAssistAddress,
         fromChain,
-        fromUser,
+        fromUser, 
         index,
+        transactionId,
         req
       )
 

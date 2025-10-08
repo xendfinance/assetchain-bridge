@@ -42,11 +42,14 @@ export class TokenService {
       const symbolPromise = token.symbol()
       const decimalsPromise = token.decimals()
       const namePromise = token.name()
-      const [symbol, decimals, name] = await Promise.all([
+      let [symbol, decimals, name] = await Promise.all([
         symbolPromise,
         decimalsPromise,
         namePromise,
       ])
+      if (symbol.toLowerCase() === 'xrwa'){
+        symbol = 'RWA'
+      }
       const newToken = await tokenRepo.create({
         tokenAddress,
         chainId,
@@ -179,7 +182,7 @@ export class TokenService {
       await tokenRepo.save(newToken)
       return newToken
     } catch (error) {
-      console.log('sjsjjjs', error)
+      console.log('Error adding solana token', error)
       throw error
     }
   }
