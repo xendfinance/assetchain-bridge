@@ -173,9 +173,11 @@ export async function signEvmToSolana(
   fromBridgeAddress: string,
   toBridgeAddress: string,
   fromUser: string,
-  index: string
+  index: string,
+  _tokenMint: string
 ) {
-  const { tokenMint, connection, owner } = solanaWorkspace(toBridgeAddress)
+  const { tokenMint, connection, owner } = solanaWorkspace(toBridgeAddress, _tokenMint)
+
   // console.log(connection, 'connection')
 
   const fromChain = fromChainId.slice(4) as ChainId
@@ -192,7 +194,7 @@ export async function signEvmToSolana(
   console.log(userTokenAccountKey.toBase58(), 'kdkdsk')
   const extractedTx = extractTransaction(tx)
 
-  if (await isToSolanaTxFulfilled(toBridgeAddress, fromChain, tx.nonce))
+  if (await isToSolanaTxFulfilled(toBridgeAddress, _tokenMint, fromChain, tx.nonce))
     throw Error('Already claimed')
 
 
@@ -203,6 +205,7 @@ export async function signEvmToSolana(
   const signature = await signSolana(
     toBridgeAddress,
     extractedTx,
+    _tokenMint,
     userTokenAccountKey
   )
 
@@ -215,9 +218,11 @@ export async function signSolanaToEvm(
   fromBridgeAddress: string,
   toBridgeAddress: string,
   userSolana: string,
-  nonce: string
+  nonce: string,
+  _tokenMint: string
 ) {
-  const { owner, tokenMint, program, connection } = solanaWorkspace(fromBridgeAddress)
+  const { owner, tokenMint, program, connection } = solanaWorkspace(fromBridgeAddress, _tokenMint)
+
   const tx = await getSolanaSendTx(
     owner,
     tokenMint,
