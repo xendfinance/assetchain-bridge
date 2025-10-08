@@ -91,7 +91,7 @@ export class BridgeService {
         return existingBridge
       }
 
-      const { owner, program } = solanaWorkspace(bridgeAddress)
+      const { owner, program } = solanaWorkspace(bridgeAddress, token.tokenAddress)
       const tokenMint = new PublicKey(token.tokenAddress)
 
       const [bridgeParamsPda] = PublicKey.findProgramAddressSync(
@@ -314,7 +314,7 @@ export class BridgeService {
 
       for (let bridgeAssist of solanaBridgeAssists) {
         EventLogger.info(`Processing transactions for ${bridgeAssist.bridgeAddress}`)
-        const { owner, program } = solanaWorkspace(bridgeAssist.bridgeAddress)
+        const { owner, program } = solanaWorkspace(bridgeAssist.bridgeAddress, bridgeAssist.token.tokenAddress)
         const tokenMint = new PublicKey(bridgeAssist.token.tokenAddress)
 
         const [sendNoncePda] = PublicKey.findProgramAddressSync(
@@ -508,7 +508,8 @@ export class BridgeService {
       const chainId = bridgeInfo.chainId
       if (isSolChain(chainId)) {
         const { owner, tokenMint, program, connection } = solanaWorkspace(
-          bridgeInfo.bridgeAddress
+          bridgeInfo.bridgeAddress,
+          bridgeInfo.token.tokenAddress
         )
         const tx = await getSolanaSendTx(
           owner,
@@ -644,7 +645,7 @@ export class BridgeService {
       if (!toBridgeInfo) throw new Error(`Bridge not found`)
       if (isSolChain(chainId)) {
         const { owner, tokenMint, program, connection } = solanaWorkspace(
-          toBridgeInfo.bridgeAddress
+          toBridgeInfo.bridgeAddress, toBridgeInfo.token.tokenAddress
         )
         const isFulfilled = await this.isToSolanaTxFulfilled(
           toBridgeInfo.bridgeAddress,
@@ -745,7 +746,7 @@ export class BridgeService {
       EventLogger.info(`To Bridge not found`)
       return false
     }
-    const { owner, program } = solanaWorkspace(toBridgeAssist.bridgeAddress)
+    const { owner, program } = solanaWorkspace(toBridgeAssist.bridgeAddress, bridge.token.tokenAddress)
     const isFulfilled = await this.isToSolanaTxFulfilled(
       toBridgeAssist.bridgeAddress,
       toBridgeAssist.token.tokenAddress,

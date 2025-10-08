@@ -186,8 +186,7 @@ export async function signEvmToSolana(
   _tokenMint: string,
   transactionId: string
 ) {
-  const { connection, owner } = solanaWorkspace(toBridgeAddress)
-  const tokenMint = new PublicKey(_tokenMint)
+  const { connection, owner, tokenMint } = solanaWorkspace(toBridgeAddress,_tokenMint)
   // console.log(connection, 'connection')
   const dbTransaction = await transactionRepo.findOne({ id: transactionId })
   if (!dbTransaction) throw Error('Transaction not found')
@@ -204,7 +203,7 @@ export async function signEvmToSolana(
   )
   const extractedTx = extractTransaction(tx)
 
-  if (await isToSolanaTxFulfilled(toBridgeAddress, fromChain, tx.nonce)) {
+  if (await isToSolanaTxFulfilled(toBridgeAddress, _tokenMint, fromChain, tx.nonce)) {
     await transactionRepo.update(transactionId, { fulfilled: true })
     throw Error('Already claimed')
   }
@@ -213,7 +212,7 @@ export async function signEvmToSolana(
 
   if (!blockConfirmed) throw Error('Not confirmed yet')
 
-  const signature = await signSolana(toBridgeAddress, extractedTx, userTokenAccountKey)
+  const signature = await signSolana(toBridgeAddress, extractedTx, _tokenMint, userTokenAccountKey)
 
   return signature.toString('base64')
 }
@@ -228,8 +227,7 @@ export async function signSolanaToEvm(
   _tokenMint: string,
   transactionId: string
 ) {
-  const { owner, program, connection } = solanaWorkspace(fromBridgeAddress)
-  const tokenMint = new PublicKey(_tokenMint)
+  const { owner, program, connection, tokenMint } = solanaWorkspace(fromBridgeAddress,_tokenMint)
   const dbTransaction = await transactionRepo.findOne({ id: transactionId })
   if (!dbTransaction) throw Error('Transaction not found')
   const tx = await getSolanaSendTx(
@@ -240,7 +238,6 @@ export async function signSolanaToEvm(
     nonce,
     fromChain
   )
-  console.log(tx, 'tx')
   const _provider = await _getProvider(tx.toChain.replace('evm.', '') as ChainId)
   const contract = anyBridgeAssist(toBridgeAddress, _provider)
 
@@ -270,7 +267,6 @@ export async function signSolanaToEvm(
     }
   }
   const fulfilTX = extractFulfillTransaction(tx)
-  console.log(fulfilTX, 'dldldl')
   const signer0 = await signHashedTransaction(fulfilTX, chainId, toBridgeAddress, 0)
   signatures.push(signer0)
   if (process.env.IS_PUBLIC_RELAYER === 'true' && relayers > 1) {
@@ -288,7 +284,7 @@ export async function signSolanaToEvm(
           signatures = signatures.concat(res.data.signature)
         }
       } catch (error: any) {
-        console.log(error, 'dkdkdkdk')
+        console.log(error, 'relayer error')
         throw new Error(`relayer ${i + 1} error: ${error.message}`)
       }
     }
@@ -303,7 +299,6 @@ async function checkToken(
   transaction: TransactionContract
 ) {
   const timeStamp = Number(transaction.timestamp.toString())
-  console.log(timeStamp, 'tx timesamp')
   if (timeStamp < targetTimeStamp(fromChain)) {
     console.log('Transaction before target timestamp')
     console.log('no need to check')
