@@ -746,7 +746,8 @@ export class BridgeService {
       EventLogger.info(`To Bridge not found`)
       return false
     }
-    const { owner, program } = solanaWorkspace(toBridgeAssist.bridgeAddress, bridge.token.tokenAddress)
+    const { owner, program } = solanaWorkspace(toBridgeAssist.bridgeAddress, toBridgeAssist.token.tokenAddress)
+    
     const isFulfilled = await this.isToSolanaTxFulfilled(
       toBridgeAssist.bridgeAddress,
       toBridgeAssist.token.tokenAddress,
