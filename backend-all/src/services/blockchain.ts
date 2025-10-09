@@ -82,8 +82,10 @@ export const signTransaction = async (
   let tx: TransactionContract
   let relayers = 1
   // if (!fromChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} Bad arguments`)
+  if (process.env.IS_PUBLIC_RELAYER === 'true') {
   const dbTransaction = await transactionRepo.findOne({ id: transactionId })
   if (!dbTransaction) throw Error('Transaction not found')
+  }
   const _fromChain = fromChain.replace('evm.', '') as ChainId
   const _provider = await _getProvider(_fromChain)
   const contract = anyBridgeAssist(fromBridgeAddress, _provider)
@@ -109,7 +111,9 @@ export const signTransaction = async (
     throw Error(`Relayer ${relayerIndex} bad contract params`)
   const { isFulfilled } = await fulfilledInfo(tx, toBridgeAddress)
   if (isFulfilled) {
-    await transactionRepo.update(transactionId, { fulfilled: true })
+    if (process.env.IS_PUBLIC_RELAYER === 'true') {
+      await transactionRepo.update(transactionId, { fulfilled: true })
+    }
     throw new Error('Token has already claimed')
   }
 
@@ -186,10 +190,12 @@ export async function signEvmToSolana(
   _tokenMint: string,
   transactionId: string
 ) {
-  const { connection, owner, tokenMint } = solanaWorkspace(toBridgeAddress,_tokenMint)
+  const { connection, owner, tokenMint } = solanaWorkspace(toBridgeAddress, _tokenMint)
   // console.log(connection, 'connection')
-  const dbTransaction = await transactionRepo.findOne({ id: transactionId })
-  if (!dbTransaction) throw Error('Transaction not found')
+  if (process.env.IS_PUBLIC_RELAYER === 'true') {
+    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
+    if (!dbTransaction) throw Error('Transaction not found')
+  }
   const fromChain = fromChainId.replace('evm.', '') as ChainId
   const _provider = await _getProvider(fromChain)
   const contract = anyBridgeAssist(fromBridgeAddress, _provider)
@@ -204,7 +210,9 @@ export async function signEvmToSolana(
   const extractedTx = extractTransaction(tx)
 
   if (await isToSolanaTxFulfilled(toBridgeAddress, _tokenMint, fromChain, tx.nonce)) {
-    await transactionRepo.update(transactionId, { fulfilled: true })
+    if (process.env.IS_PUBLIC_RELAYER === 'true') {
+      await transactionRepo.update(transactionId, { fulfilled: true })
+    }
     throw Error('Already claimed')
   }
 
@@ -212,7 +220,12 @@ export async function signEvmToSolana(
 
   if (!blockConfirmed) throw Error('Not confirmed yet')
 
-  const signature = await signSolana(toBridgeAddress, extractedTx, _tokenMint, userTokenAccountKey)
+  const signature = await signSolana(
+    toBridgeAddress,
+    extractedTx,
+    _tokenMint,
+    userTokenAccountKey
+  )
 
   return signature.toString('base64')
 }
@@ -227,9 +240,14 @@ export async function signSolanaToEvm(
   _tokenMint: string,
   transactionId: string
 ) {
-  const { owner, program, connection, tokenMint } = solanaWorkspace(fromBridgeAddress,_tokenMint)
-  const dbTransaction = await transactionRepo.findOne({ id: transactionId })
-  if (!dbTransaction) throw Error('Transaction not found')
+  const { owner, program, connection, tokenMint } = solanaWorkspace(
+    fromBridgeAddress,
+    _tokenMint
+  )
+  if (process.env.IS_PUBLIC_RELAYER === 'true') {
+    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
+    if (!dbTransaction) throw Error('Transaction not found')
+  }
   const tx = await getSolanaSendTx(
     owner,
     tokenMint,
@@ -248,7 +266,9 @@ export async function signSolanaToEvm(
   const isClaimed = fulfilledAt.toNumber() !== 0
 
   if (isClaimed) {
-    await transactionRepo.update(transactionId, { fulfilled: true })
+    if (process.env.IS_PUBLIC_RELAYER === 'true') {
+      await transactionRepo.update(transactionId, { fulfilled: true })
+    }
     throw Error('Already claimed')
   }
 
@@ -273,21 +293,12 @@ export async function signSolanaToEvm(
     const relayersLength = relayers - 1
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
-    for (let i = 1; i <= relayersLength; i++) {
-      try {
-        if (i === 1) {
-          const res = await axios.get(geturl(relayer1Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-        if (i === 2) {
-          const res = await axios.get(geturl(relayer2Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-      } catch (error: any) {
-        console.log(error, 'relayer error')
-        throw new Error(`relayer ${i + 1} error: ${error.message}`)
-      }
-    }
+    const promises = [
+      getSignaturesFromRelayer(relayer1Url, req.query),
+      getSignaturesFromRelayer(relayer2Url, req.query),
+    ]
+    const results = await Promise.all(promises)
+    signatures = signatures.concat(results[0], results[1])
   }
   return signatures
 }
