@@ -1,4 +1,3 @@
-
 import { Wallet, ethers, BigNumber, BigNumberish, providers, utils } from 'ethers'
 import { useContracts, getProvider, safeRead } from '@/gotbit-tools/node'
 import { config } from '@/gotbit.config'
@@ -29,6 +28,7 @@ import { _getProvider, hasPassedConfirmationEvm } from '@/utils/helpers'
 import { anyBridgeAssist, anyToken } from '@/utils/useContracts'
 import { relayerIndex } from '@/utils/env-var'
 import { BridgeAssist, Token } from '@/contracts/typechain'
+import { transactionRepo } from '@/lib/database'
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
@@ -76,12 +76,17 @@ export const signTransaction = async (
   fromChain: string,
   fromUser: string,
   index: string,
+  transactionId: string,
   req: any
 ) => {
   let tx: TransactionContract
   let relayers = 1
-  if (!fromChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} Bad arguments`)
-  const _fromChain = fromChain.slice(4) as ChainId
+  // if (!fromChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} Bad arguments`)
+  if (process.env.IS_PUBLIC_RELAYER === 'true') {
+  const dbTransaction = await transactionRepo.findOne({ id: transactionId })
+  if (!dbTransaction) throw Error('Transaction not found')
+  }
+  const _fromChain = fromChain.replace('evm.', '') as ChainId
   const _provider = await _getProvider(_fromChain)
   const contract = anyBridgeAssist(fromBridgeAddress, _provider)
   const transactionPromise = contract.transactions(fromUser, index)
@@ -102,10 +107,15 @@ export const signTransaction = async (
   if (currentBlock === 0 || tx.block.gt(currentBlock))
     throw Error(`Relayer ${relayerIndex} waiting for confirmations`)
 
-
-  if (!tx.toChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} bad contract params`)
-  const {isFulfilled} = await fulfilledInfo(tx, toBridgeAddress)
-  if (isFulfilled) throw new Error('Token has already claimed')
+  if (!tx.toChain.startsWith('evm.'))
+    throw Error(`Relayer ${relayerIndex} bad contract params`)
+  const { isFulfilled } = await fulfilledInfo(tx, toBridgeAddress)
+  if (isFulfilled) {
+    if (process.env.IS_PUBLIC_RELAYER === 'true') {
+      await transactionRepo.update(transactionId, { fulfilled: true })
+    }
+    throw new Error('Token has already claimed')
+  }
 
   // if (tx.toChain.startsWith('evm.')) {
   const chainId = tx.toChain.replace('evm.', '')
@@ -129,7 +139,10 @@ export const signTransaction = async (
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
 
-    const promises = [getSignaturesFromRelayer(relayer1Url, req.query), getSignaturesFromRelayer(relayer2Url, req.query)]
+    const promises = [
+      getSignaturesFromRelayer(relayer1Url, req.query),
+      getSignaturesFromRelayer(relayer2Url, req.query),
+    ]
     const results = await Promise.all(promises)
     signatures = signatures.concat(results[0], results[1])
   }
@@ -174,13 +187,16 @@ export async function signEvmToSolana(
   toBridgeAddress: string,
   fromUser: string,
   index: string,
-  _tokenMint: string
+  _tokenMint: string,
+  transactionId: string
 ) {
-  const { tokenMint, connection, owner } = solanaWorkspace(toBridgeAddress, _tokenMint)
-
+  const { connection, owner, tokenMint } = solanaWorkspace(toBridgeAddress, _tokenMint)
   // console.log(connection, 'connection')
-
-  const fromChain = fromChainId.slice(4) as ChainId
+  if (process.env.IS_PUBLIC_RELAYER === 'true') {
+    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
+    if (!dbTransaction) throw Error('Transaction not found')
+  }
+  const fromChain = fromChainId.replace('evm.', '') as ChainId
   const _provider = await _getProvider(fromChain)
   const contract = anyBridgeAssist(fromBridgeAddress, _provider)
   const tx = await contract.transactions(fromUser, index)
@@ -191,12 +207,14 @@ export async function signEvmToSolana(
     new PublicKey(userSolana),
     owner
   )
-  console.log(userTokenAccountKey.toBase58(), 'kdkdsk')
   const extractedTx = extractTransaction(tx)
 
-  if (await isToSolanaTxFulfilled(toBridgeAddress, _tokenMint, fromChain, tx.nonce))
+  if (await isToSolanaTxFulfilled(toBridgeAddress, _tokenMint, fromChain, tx.nonce)) {
+    if (process.env.IS_PUBLIC_RELAYER === 'true') {
+      await transactionRepo.update(transactionId, { fulfilled: true })
+    }
     throw Error('Already claimed')
-
+  }
 
   const blockConfirmed = hasPassedConfirmationEvm(_provider, fromChain, tx.block)
 
@@ -219,10 +237,17 @@ export async function signSolanaToEvm(
   toBridgeAddress: string,
   userSolana: string,
   nonce: string,
-  _tokenMint: string
+  _tokenMint: string,
+  transactionId: string
 ) {
-  const { owner, tokenMint, program, connection } = solanaWorkspace(fromBridgeAddress, _tokenMint)
-
+  const { owner, program, connection, tokenMint } = solanaWorkspace(
+    fromBridgeAddress,
+    _tokenMint
+  )
+  if (process.env.IS_PUBLIC_RELAYER === 'true') {
+    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
+    if (!dbTransaction) throw Error('Transaction not found')
+  }
   const tx = await getSolanaSendTx(
     owner,
     tokenMint,
@@ -231,7 +256,7 @@ export async function signSolanaToEvm(
     nonce,
     fromChain
   )
-  const _provider = await _getProvider(tx.toChain.slice(4) as ChainId)
+  const _provider = await _getProvider(tx.toChain.replace('evm.', '') as ChainId)
   const contract = anyBridgeAssist(toBridgeAddress, _provider)
 
   const fulfilledAt = await safeRead(
@@ -240,7 +265,12 @@ export async function signSolanaToEvm(
   )
   const isClaimed = fulfilledAt.toNumber() !== 0
 
-  if (isClaimed) throw Error('Already claimed')
+  if (isClaimed) {
+    if (process.env.IS_PUBLIC_RELAYER === 'true') {
+      await transactionRepo.update(transactionId, { fulfilled: true })
+    }
+    throw Error('Already claimed')
+  }
 
   if (!(await hasPassedConfirmationSolana(connection, tx)))
     throw Error('Not confirmed yet')
@@ -248,7 +278,6 @@ export async function signSolanaToEvm(
   const relayerLength = await contract.relayersLength()
   const relayers = relayerLength.toNumber()
   const chainId = tx.toChain.replace('evm.', '')
-  // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
   let signatures: string[] = []
   const allowedIps = process.env.ALLOWED_IPS?.split(',')
   const clientIp = getClientIp(req)
@@ -258,35 +287,29 @@ export async function signSolanaToEvm(
     }
   }
   const fulfilTX = extractFulfillTransaction(tx)
-  console.log(fulfilTX, 'ksksks')
   const signer0 = await signHashedTransaction(fulfilTX, chainId, toBridgeAddress, 0)
   signatures.push(signer0)
   if (process.env.IS_PUBLIC_RELAYER === 'true' && relayers > 1) {
     const relayersLength = relayers - 1
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
-    for (let i = 1; i <= relayersLength; i++) {
-      try {
-        if (i === 1) {
-          const res = await axios.get(geturl(relayer1Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-        if (i === 2) {
-          const res = await axios.get(geturl(relayer2Url, req.query))
-          signatures = signatures.concat(res.data.signature)
-        }
-      } catch (error: any) {
-        console.log(error, 'dkdkdkdk')
-        throw new Error(`relayer ${i + 1} error: ${error.message}`)
-      }
-    }
+    const promises = [
+      getSignaturesFromRelayer(relayer1Url, req.query),
+      getSignaturesFromRelayer(relayer2Url, req.query),
+    ]
+    const results = await Promise.all(promises)
+    signatures = signatures.concat(results[0], results[1])
   }
   return signatures
 }
 
-async function checkToken(user: string, bridgeAssist: BridgeAssist, fromChain: ChainId, transaction: TransactionContract) {
+async function checkToken(
+  user: string,
+  bridgeAssist: BridgeAssist,
+  fromChain: ChainId,
+  transaction: TransactionContract
+) {
   const timeStamp = Number(transaction.timestamp.toString())
-  console.log(timeStamp, 'tx timesamp')
   if (timeStamp < targetTimeStamp(fromChain)) {
     console.log('Transaction before target timestamp')
     console.log('no need to check')
@@ -352,7 +375,6 @@ async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
     confirmations: CONFIRMATIONS[tx.fromChain.replace('evm.', '') as ChainId] as number,
   }
 }
-
 
 export type ARB_CHAINID = '42161' | '421614'
 export const targetBlockNumber = (chainId: ChainId) =>

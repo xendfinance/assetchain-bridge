@@ -52,13 +52,12 @@ export const solanaWorkspace = (bridgeAssist: string, tokenMint: string) => {
 
   const network = clusterApiUrl(isMain ? 'mainnet-beta' : 'devnet')
   const connection = new Connection(network, 'confirmed')
-  const provider = new AnchorProvider(connection, new NodeWallet(owner), {
+  const provider = new AnchorProvider(connection as any, new NodeWallet(owner as any), {
     preflightCommitment: 'confirmed',
   })
   const program = new Program<AssetchainBridgeSolana>(IDL, provider)
 
   if (!tokenMint) throw new Error(`Token mint not initialized`)
-
   return {
     payer: owner,
     owner,
@@ -345,8 +344,6 @@ export async function getSolanaSendTx(
   const sendTxAccount = await program.account.bridgeSendTx.fetch(sendTxKey)
 
   if (!sendTxAccount) throw new Error(`Transaction not found with nonce ${nonce}`)
-
-  console.log(sendTxAccount.toChain.byte, 'ssk')
 
   const tx: ITransaction = {
     fromUser: user.toString(),
