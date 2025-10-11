@@ -50,6 +50,7 @@ export class TokenService {
       if (symbol.toLowerCase() === 'xrwa'){
         symbol = 'RWA'
       }
+      if (symbol === "USD₮0" || symbol === "USDT0") symbol = "USDT";
       const newToken = await tokenRepo.create({
         tokenAddress,
         chainId,
