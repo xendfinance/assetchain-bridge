@@ -1,5 +1,6 @@
 import { BigNumber, BigNumberish } from 'ethers'
 import { useContracts } from '@/gotbit-tools/node'
+import { ChainId } from '@/gotbit-tools/node/types'
 export interface AuthResponse {
   access_token: string
   token_type: string
@@ -135,4 +136,24 @@ export interface MarkTransactionAsClaimedDto {
   transactionId: string
   claimTransactionHash: string
   toBridgeId: string
+}
+
+export interface GetTokenBalances {
+  tokens: {
+    tokenAddress: string
+    chainId: ChainId
+    bridgeAssist: string
+    checkAmountCanBridge: boolean
+    targetBlockTag: number,
+    symbol:string
+  }[]
+  evmAddress: string
+  solanaAddress: string
+}
+
+export interface GetTokenAllowance {
+  evmAddress: string
+  spenderAddress: string
+  tokenAddress: string
+  chainId: ChainId
 }

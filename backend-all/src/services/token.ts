@@ -8,7 +8,13 @@ import { providers, utils } from 'ethers'
 import { In } from 'typeorm'
 import { bridgeService } from '.'
 import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js'
-import { getMint } from '@solana/spl-token'
+import {
+  getAccount,
+  getAssociatedTokenAddress,
+  getMint,
+  TokenAccountNotFoundError,
+} from '@solana/spl-token'
+import { getSolanaConnection } from '@/utils/solana/helpers'
 
 export class TokenService {
   async addToken(
@@ -47,10 +53,10 @@ export class TokenService {
         decimalsPromise,
         namePromise,
       ])
-      if (symbol.toLowerCase() === 'xrwa'){
+      if (symbol.toLowerCase() === 'xrwa') {
         symbol = 'RWA'
       }
-      if (symbol === "USD₮0" || symbol === "USDT0") symbol = "USDT";
+      if (symbol === 'USD₮0' || symbol === 'USDT0') symbol = 'USDT'
       const newToken = await tokenRepo.create({
         tokenAddress,
         chainId,
@@ -168,6 +174,128 @@ export class TokenService {
     }
   }
 
+  async getTokenBalance(
+    evmAddress: string,
+    solanaAddess: string,
+    _tokens: {
+      chainId: ChainId
+      tokenAddress: string
+      bridgeAssist: string
+      checkAmountCanBridge: boolean
+      targetBlockTag: number,
+      symbol: string
+    }[]
+  ) {
+    const providers = new Map<ChainId, providers.JsonRpcProvider>()
+    await Promise.all(
+      _tokens.map(async (token) => {
+        if (isSolChain(token.chainId)) {
+          return
+        } else {
+          providers.set(token.chainId, await _getProvider(token.chainId))
+        }
+      })
+    )
+    const tokenBalances: any = {}
+    await Promise.all(
+      _tokens.map(async (token) => {
+        if (isSolChain(token.chainId)) {
+          if (!solanaAddess) return
+          const connection = getSolanaConnection(token.chainId)
+          const tokenBalancePromise = this.getSolanaTokenBalance(
+            solanaAddess,
+            token.tokenAddress,
+            connection
+          )
+          const bridgeBalancePromise = this.getSolanaTokenBalance(
+            token.bridgeAssist,
+            token.tokenAddress,
+            connection
+          )
+          const [tokenBalance, bridgeBalance] = await Promise.all([
+            tokenBalancePromise,
+            bridgeBalancePromise,
+          ])
+          if (!tokenBalances[token.chainId]) {
+            tokenBalances[token.chainId] = []
+          }
+          const realUserTokenBalance = tokenBalance ? tokenBalance.amount.toString() : '0'
+          const realTBridgeBalance = bridgeBalance ? bridgeBalance.amount.toString() : '0'
+          tokenBalances[token.chainId].push({
+            tokenAddress: token.tokenAddress,
+            userBalance: realUserTokenBalance,
+            bridgeBalance: realTBridgeBalance,
+            amountCanBridge: realUserTokenBalance,
+            symbol: token.symbol
+          })
+          return
+        } else {
+          if (!evmAddress) return
+          if (!tokenBalances[token.chainId]) {
+            tokenBalances[token.chainId] = []
+          }
+          if (token.tokenAddress === '0x0000000000000000000000000000000000000001') {
+            const provider = providers.get(token.chainId)!
+            const userBalancePromise = provider.getBalance(evmAddress)
+            const bridgeBalancePromise = provider.getBalance(token.bridgeAssist)
+
+            const [userBalance, bridgeBalance] = await Promise.all([
+              userBalancePromise,
+              bridgeBalancePromise,
+            ])
+
+            tokenBalances[token.chainId].push({
+              tokenAddress: token.tokenAddress,
+              userBalance: userBalance.toString(),
+              bridgeBalance: bridgeBalance.toString(),
+              amountCanBridge: userBalance.toString(),
+              symbol: token.symbol
+            })
+            return
+          }
+          const _token = anyToken(token.tokenAddress, providers.get(token.chainId)!)
+          const userBalancePromise = _token.balanceOf(evmAddress)
+          const bridgeBalancePromise = _token.balanceOf(token.bridgeAssist)
+          const [userBalance, bridgeBalance] = await Promise.all([
+            userBalancePromise,
+            bridgeBalancePromise,
+          ])
+          let amountCanBridge = userBalance
+          if (token.checkAmountCanBridge) {
+            amountCanBridge = await _token.balanceOf(evmAddress, {
+              blockTag: token.targetBlockTag,
+            })
+          }
+          tokenBalances[token.chainId].push({
+            tokenAddress: token.tokenAddress,
+            userBalance: userBalance.toString(),
+            bridgeBalance: bridgeBalance.toString(),
+            amountCanBridge: amountCanBridge.toString(),
+            symbol: token.symbol
+          })
+        }
+      })
+    )
+    return tokenBalances
+  }
+
+  async getTokenAllowance(
+    evmAddress: string,
+    spenderAddress: string,
+    token: { chainId: ChainId; tokenAddress: string }
+  ) {
+    const provider = await _getProvider(token.chainId)
+    const _token = anyToken(token.tokenAddress, provider)
+    const allowance = await _token.allowance(evmAddress, spenderAddress)
+    return {
+      tokenAddress: token.tokenAddress,
+      allowance: allowance.toString(),
+      chainId: token.chainId,
+      evmAddress,
+      spenderAddress,
+    }
+  }
+
   async addSolanaToken(tokenAddress: string, chainId: ChainId, connection: Connection) {
     try {
       const mintPublicKey = new PublicKey(tokenAddress)
@@ -185,6 +313,31 @@ export class TokenService {
     } catch (error) {
       console.log('Error adding solana token', error)
       throw error
+    }
+  }
+
+  async getSolanaTokenBalance(
+    ownerAddress: string,
+    mintAddress: string,
+    connection: Connection
+  ) {
+    const ownerPublicKey = new PublicKey(ownerAddress)
+    const mintPublicKey = new PublicKey(mintAddress)
+
+    // Find the associated token account (ATA)
+    const ata = await getAssociatedTokenAddress(mintPublicKey, ownerPublicKey)
+
+    try {
+      const accountInfo = await getAccount(connection, ata)
+      // console.log(accountInfo, "accountInfo");
+
+      return accountInfo
+      //   console.log("Balance:", Number(accountInfo.amount) / Math.pow(10, accountInfo.decimals));
+    } catch (err: any) {
+      if (err instanceof TokenAccountNotFoundError) {
+        return null
+      }
+      throw err
     }
   }
 }

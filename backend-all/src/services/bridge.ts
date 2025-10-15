@@ -15,7 +15,7 @@ import { BigNumber, providers } from 'ethers'
 import CONFIRMATIONS from '../confirmations.json'
 import { Transaction } from '@/lib/database/entities/Transaction'
 import EventLogger from '@/lib/logger/index.logger'
-import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js'
+import {  PublicKey } from '@solana/web3.js'
 import {
   CHAIN_TO_BUFFER,
   getSolanaSendTx,
@@ -507,7 +507,7 @@ export class BridgeService {
       if (!bridgeInfo) throw new Error(`Bridge not found`)
       const chainId = bridgeInfo.chainId
       if (isSolChain(chainId)) {
-        const { owner, tokenMint, program, connection } = solanaWorkspace(
+        const { owner, tokenMint, program } = solanaWorkspace(
           bridgeInfo.bridgeAddress,
           bridgeInfo.token.tokenAddress
         )
@@ -534,10 +534,7 @@ export class BridgeService {
             success: true,
           }
         }
-        // const bridgeInfo = await bridgeInfoRepo.findOne({
-        //   bridgeAddress,
-        //   chainId,
-        // })
+        const confirmations = CONFIRMATIONS[chainId as ChainId]
         const newTransaction = transactionRepo.create({
           userAddress,
           index: +index,
@@ -556,7 +553,7 @@ export class BridgeService {
           fulfillFromChain: tx.fromChain.replace('evm.', ''),
           fulfillNonce: +tx.nonce.toString(),
           txBlock: tx.block.toString(),
-          confirmations: CONFIRMATIONS[chainId as ChainId],
+          confirmations,
           transactionDate: new Date(Number(tx.timestamp) * 1000),
           symbol: bridgeInfo.token.symbol,
           bridgeInfoId: bridgeInfo.id,

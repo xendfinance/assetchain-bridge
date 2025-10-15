@@ -513,3 +513,7 @@ export async function hasPassedConfirmationSolana(
   const block = await connection.getSlot()
   return BigNumber.from(block).gt(tx.block.add(getConfirmationsRequired(tx.fromChain)))
 }
+
+export function getSolanaConnection(chainId: string) {
+  return chainId === 'sol.mainnet' ? new Connection(clusterApiUrl('mainnet-beta'), 'confirmed') : new Connection(clusterApiUrl('devnet'), 'confirmed')
+}
