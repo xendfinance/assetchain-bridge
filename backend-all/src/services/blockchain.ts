@@ -17,6 +17,7 @@ import {
   getAssociatedTokenAddress,
   getConfirmationsRequired,
   getOrCreateAssociatedTokenAccount,
+  getSolanaConnection,
   getSolanaSendTx,
   hasPassedConfirmationSolana,
   isToSolanaTxFulfilled,
@@ -24,7 +25,7 @@ import {
   solanaWorkspace,
 } from '@/utils/solana/helpers'
 import { Connection, PublicKey, Transaction } from '@solana/web3.js'
-import { _getProvider, hasPassedConfirmationEvm } from '@/utils/helpers'
+import { _getProvider, hasPassedConfirmationEvm, isSolChain } from '@/utils/helpers'
 import { anyBridgeAssist, anyToken } from '@/utils/useContracts'
 import { relayerIndex } from '@/utils/env-var'
 import { BridgeAssist, Token } from '@/contracts/typechain'
@@ -374,6 +375,23 @@ async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
     txBlock: tx.block as BigNumber,
     confirmations: CONFIRMATIONS[tx.fromChain.replace('evm.', '') as ChainId] as number,
   }
+}
+
+// get block number by chainId, param is list of chainIds should be in promise.all
+export const getBlockNumber = async (chainIds: ChainId[]) => {
+  const blockNumbers : any= {}
+  await Promise.all(chainIds.map(async (chainId) => {
+    if (isSolChain(chainId)) {
+      const connection = getSolanaConnection(chainId)
+      const blockNumber = await connection.getSlot()
+      blockNumbers[chainId] = +blockNumber.toString()
+      return
+    }
+    const provider = await _getProvider(chainId)
+    const blockNumber = await provider.getBlockNumber()
+    blockNumbers[chainId] = +blockNumber.toString()
+  }))
+  return blockNumbers
 }
 
 export type ARB_CHAINID = '42161' | '421614'
