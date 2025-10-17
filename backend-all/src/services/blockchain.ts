@@ -84,24 +84,21 @@ export const signTransaction = async (
   let relayers = 1
   // if (!fromChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} Bad arguments`)
   if (process.env.IS_PUBLIC_RELAYER === 'true') {
-  const dbTransaction = await transactionRepo.findOne({ id: transactionId })
-  if (!dbTransaction) throw Error('Transaction not found')
+    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
+    if (!dbTransaction) throw Error('Transaction not found')
   }
   const _fromChain = fromChain.replace('evm.', '') as ChainId
   const _provider = await _getProvider(_fromChain)
   const contract = anyBridgeAssist(fromBridgeAddress, _provider)
   const transactionPromise = contract.transactions(fromUser, index)
-  const relayerLengthPromise = contract.relayersLength()
-  const res = await Promise.all([transactionPromise, relayerLengthPromise])
-  tx = res[0]
+  // const relayerLengthPromise = contract.relayersLength()
+  tx = await transactionPromise
   if (!tx || tx.block.toNumber() === 0) throw Error('Transaction not found')
   if (
     _fromChain === '42161' ||
     (_fromChain === '421614' && process.env.IS_PUBLIC_RELAYER === 'true')
   )
     await checkToken(fromUser, contract, _fromChain, tx)
-
-  relayers = +res[1].toNumber()
 
   // const provider = getProvider(fromChain.slice(4) as ChainId)
   const currentBlock = await safeRead(_provider.getBlockNumber(), 0)
@@ -110,7 +107,11 @@ export const signTransaction = async (
 
   if (!tx.toChain.startsWith('evm.'))
     throw Error(`Relayer ${relayerIndex} bad contract params`)
-  const { isFulfilled } = await fulfilledInfo(tx, toBridgeAddress)
+
+  const chainId = tx.toChain.replace('evm.', '')
+  const toProvider = await _getProvider(chainId as ChainId)
+  const toBridgeAddressContract = anyBridgeAssist(toBridgeAddress, toProvider)
+  const { isFulfilled } = await fulfilledInfo(toBridgeAddressContract, tx)
   if (isFulfilled) {
     if (process.env.IS_PUBLIC_RELAYER === 'true') {
       await transactionRepo.update(transactionId, { fulfilled: true })
@@ -118,9 +119,9 @@ export const signTransaction = async (
     throw new Error('Token has already claimed')
   }
 
-  // if (tx.toChain.startsWith('evm.')) {
-  const chainId = tx.toChain.replace('evm.', '')
-  // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
+  const relayersLength = await toBridgeAddressContract.relayersLength()
+  relayers = relayersLength.toNumber()
+
   let signatures: string[] = []
   const allowedIps = process.env.ALLOWED_IPS?.split(',')
   const clientIp = getClientIp(req)
@@ -342,9 +343,10 @@ async function checkWNTRestriction(
       if (+transaction.timestamp.toString() < timeStamp) return
       const toChain = transaction.toChain.replace('evm.', '')
       const toBridgeAddress = (chainBridgeAssit as any)[toChain]
-      console.log(toBridgeAddress, 'toBridgeAddress')
       if (!toBridgeAddress) throw new Error(`Failed to get to bridge Assist address`)
-      const { isFulfilled } = await fulfilledInfo(transaction, toBridgeAddress)
+      const toProvider = await _getProvider(toChain as ChainId)
+      const toBridgeAddressContract = anyBridgeAssist(toBridgeAddress, toProvider)
+      const { isFulfilled } = await fulfilledInfo(toBridgeAddressContract, transaction)
       if (!isFulfilled) return
       const amount = +utils.formatUnits(transaction.amount, 18)
       totalBridged += amount
@@ -364,11 +366,18 @@ async function checkWNTRestriction(
   }
 }
 
-async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
-  const toChain = tx.toChain.replace('evm.', '') as ChainId
-  const provider = await _getProvider(toChain)
-  const bridgeAssist = anyBridgeAssist(bridgeAddress, provider)
-  const fulfilledAt = await bridgeAssist.fulfilledAt(tx.fromChain, tx.fromUser, tx.nonce)
+async function fulfilledInfo(
+  toBridgeAddressContract: BridgeAssist,
+  tx: TransactionContract
+) {
+  // const toChain = tx.toChain.replace('evm.', '') as ChainId
+  // const provider = await _getProvider(toChain)
+  // const bridgeAssist = anyBridgeAssist(bridgeAddress, provider)
+  const fulfilledAt = await toBridgeAddressContract.fulfilledAt(
+    tx.fromChain,
+    tx.fromUser,
+    tx.nonce
+  )
 
   return {
     isFulfilled: Number(fulfilledAt) > 0,
@@ -379,18 +388,20 @@ async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
 
 // get block number by chainId, param is list of chainIds should be in promise.all
 export const getBlockNumber = async (chainIds: ChainId[]) => {
-  const blockNumbers : any= {}
-  await Promise.all(chainIds.map(async (chainId) => {
-    if (isSolChain(chainId)) {
-      const connection = getSolanaConnection(chainId)
-      const blockNumber = await connection.getSlot()
+  const blockNumbers: any = {}
+  await Promise.all(
+    chainIds.map(async (chainId) => {
+      if (isSolChain(chainId)) {
+        const connection = getSolanaConnection(chainId)
+        const blockNumber = await connection.getSlot()
+        blockNumbers[chainId] = +blockNumber.toString()
+        return
+      }
+      const provider = await _getProvider(chainId)
+      const blockNumber = await provider.getBlockNumber()
       blockNumbers[chainId] = +blockNumber.toString()
-      return
-    }
-    const provider = await _getProvider(chainId)
-    const blockNumber = await provider.getBlockNumber()
-    blockNumbers[chainId] = +blockNumber.toString()
-  }))
+    })
+  )
   return blockNumbers
 }
 
