@@ -14,7 +14,7 @@ import {
   getMint,
   TokenAccountNotFoundError,
 } from '@solana/spl-token'
-import { getSolanaConnection } from '@/utils/solana/helpers'
+import { getSolanaConnection, SOL_CHAIN_BUFFER, SOLANA_PROGRAM_VERSION, solanaWorkspace } from '@/utils/solana/helpers'
 
 export class TokenService {
   async addToken(
@@ -197,6 +197,7 @@ export class TokenService {
       })
     )
     const tokenBalances: any = {}
+    
     await Promise.all(
       _tokens.map(async (token) => {
         if (isSolChain(token.chainId)) {
@@ -207,7 +208,8 @@ export class TokenService {
             token.tokenAddress,
             connection
           )
-          const bridgeBalancePromise = this.getSolanaTokenBalance(
+          
+          const bridgeBalancePromise = this.getBridgeTokenBalance(
             token.bridgeAssist,
             token.tokenAddress,
             connection
@@ -338,6 +340,42 @@ export class TokenService {
         return null
       }
       throw err
+    }
+  }
+
+  async getBridgeTokenBalance(
+    bridgeAddress: string,
+    mintAddress: string,
+    connection: Connection
+  ) {
+    const tokenMint = new PublicKey(mintAddress);
+    const {owner} = solanaWorkspace(bridgeAddress, mintAddress)
+    const programId = new PublicKey(bridgeAddress)
+  
+    const [bridgeTokenPda] = PublicKey.findProgramAddressSync(
+      [
+        SOLANA_PROGRAM_VERSION().toBuffer('be', 8),
+        Buffer.from("wallet"),
+        owner.publicKey.toBuffer(),
+        tokenMint.toBuffer(),
+        SOL_CHAIN_BUFFER(),
+      ],
+      programId
+    );
+  
+    // Find the associated token account (ATA)
+  
+    try {
+      const accountInfo = await getAccount(connection, bridgeTokenPda);
+      // console.log(accountInfo, "accountInfo");
+  
+      return accountInfo
+      //   console.log("Balance:", Number(accountInfo.amount) / Math.pow(10, accountInfo.decimals));
+    } catch (err: any) {
+      if (err instanceof TokenAccountNotFoundError) {
+        return null
+      }
+      throw err;
     }
   }
 }
