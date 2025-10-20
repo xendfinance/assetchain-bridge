@@ -1,15 +1,22 @@
 import { query, type Request } from 'express'
 import type { Resource } from 'express-automatic-routes'
 
-import { signTransaction } from '@/services/blockchain'
+import { signEvmToSolana, signTransaction } from '@/services/blockchain'
 import { GetTransactionSignationDto } from '@/types'
 // import axios from 'axios'
 
 export default (): Resource => ({
   async get(req: Request<{}, {}, {}, GetTransactionSignationDto>, res) {
     try {
-      const { fromBridgeAddress, toBridgeAssistAddress, fromChain, fromUser, index, transactionId } =
-        req.query
+      const {
+        fromBridgeAddress,
+        toBridgeAssistAddress,
+        fromChain,
+        fromUser,
+        index,
+        transactionId,
+        tokenMint,
+      } = req.query
 
       if (!fromBridgeAddress)
         return res.status(400).send('fromBridgeAddress not specified')
@@ -19,18 +26,20 @@ export default (): Resource => ({
       if (!fromUser) return res.status(400).send('from user not specified')
       if (!index) return res.status(400).send('index not specified')
       if (!transactionId) return res.status(400).send('transactionId not specified')
-      const signature = await signTransaction(
+      if (!tokenMint) return res.status(400).send('tokenMint not specified')
+      const signature = await signEvmToSolana(
+        fromChain,
         fromBridgeAddress,
         toBridgeAssistAddress,
-        fromChain,
-        fromUser, 
+        fromUser,
         index,
-        transactionId,
-        req
+        tokenMint,
+        transactionId
       )
 
-      res.status(200).json({signature})
+      res.status(200).json({ signature })
     } catch (error: any) {
+      console.log(error, 'error')
       res.status(400).json({ error: error.message })
     }
   },
