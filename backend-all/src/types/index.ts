@@ -1,5 +1,6 @@
-import {BigNumberish} from 'ethers'
+import { BigNumber, BigNumberish } from 'ethers'
 import { useContracts } from '@/gotbit-tools/node'
+import { ChainId } from '@/gotbit-tools/node/types'
 export interface AuthResponse {
   access_token: string
   token_type: string
@@ -68,6 +69,8 @@ export interface GetTransactionSignationDto {
   fromChain?: string
   fromUser?: string
   index?: string
+  transactionId?: string
+  tokenMint?: string
 }
 
 export interface FulfillTxContract {
@@ -81,5 +84,76 @@ export interface FulfillTxContract {
 type BridgeWithAddress = ReturnType<ReturnType<typeof useContracts>['bridgeAssist']>
 
 export type TransactionContract = Awaited<
-ReturnType<BridgeWithAddress['getUserTransactions']>
+  ReturnType<BridgeWithAddress['getUserTransactions']>
 >[number]
+
+export type ITransaction = {
+  fromUser: string
+  toUser: string
+  amount: BigNumber
+  timestamp: BigNumber
+  fromChain: string
+  toChain: string
+  nonce: BigNumber
+  block: BigNumber
+}
+
+export type ExtractedTransaction = {
+  fromUser: string
+  toUser: string
+  amount: string
+  timestamp: string
+  fromChain: string
+  toChain: string
+  nonce: string
+  block: string
+  confirmationsRequired: string
+}
+
+export enum ChainType {
+  SOLANA = 'solana',
+  EVM = 'evm',
+}
+
+export interface GetUserTransactionDto {
+  userAddress: string
+  chainIds: string
+  fulfilled: string
+  page: string
+  limit: string
+  forceSync: string
+}
+
+export interface AddTransactionDto {
+  bridgeId: string
+  index: string
+
+  userAddress: string
+  transactionHash?: string
+}
+
+export interface MarkTransactionAsClaimedDto {
+  transactionId: string
+  claimTransactionHash: string
+  toBridgeId: string
+}
+
+export interface GetTokenBalances {
+  tokens: {
+    tokenAddress: string
+    chainId: ChainId
+    bridgeAssist: string
+    checkAmountCanBridge: boolean
+    targetBlockTag: number,
+    symbol:string
+  }[]
+  evmAddress: string
+  solanaAddress: string
+}
+
+export interface GetTokenAllowance {
+  evmAddress: string
+  spenderAddress: string
+  tokenAddress: string
+  chainId: ChainId
+}
