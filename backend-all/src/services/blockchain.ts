@@ -3,7 +3,7 @@ import { useContracts, getProvider, safeRead } from '@/gotbit-tools/node'
 import { config } from '@/gotbit.config'
 import { ChainId } from '@/gotbit-tools/node/types'
 import CONFIRMATIONS from '../confirmations.json'
-import { FulfillTxContract, ITransaction, TransactionContract } from '@/types'
+import { FulfillTxContract, TransactionContract } from '@/types'
 import {
   BRIDGEASSISTS,
   chainBridgeAssit,
@@ -12,24 +12,10 @@ import {
   eip712Transaction,
 } from '@/utils/constant'
 import axios from 'axios'
-import {
-  extractTransaction,
-  getAssociatedTokenAddress,
-  getConfirmationsRequired,
-  getOrCreateAssociatedTokenAccount,
-  getSolanaConnection,
-  getSolanaSendTx,
-  hasPassedConfirmationSolana,
-  isToSolanaTxFulfilled,
-  signSolana,
-  solanaWorkspace,
-} from '@/utils/solana/helpers'
-import { Connection, PublicKey, Transaction } from '@solana/web3.js'
-import { _getProvider, hasPassedConfirmationEvm, isSolChain } from '@/utils/helpers'
+import { _getProvider } from '@/utils/helpers'
 import { anyBridgeAssist, anyToken } from '@/utils/useContracts'
 import { relayerIndex } from '@/utils/env-var'
 import { BridgeAssist, Token } from '@/contracts/typechain'
-import { transactionRepo } from '@/lib/database'
 
 export const getWalletEVM = () => new Wallet(process.env.PRIVATE_KEY!)
 
@@ -61,7 +47,7 @@ async function signHashedTransaction(
   return sign
 }
 
-const extractFulfillTransaction = (tx: TransactionContract | ITransaction) => {
+const extractFulfillTransaction = (tx: TransactionContract) => {
   return {
     amount: tx.amount.toString(),
     fromChain: tx.fromChain.toString(),
@@ -77,22 +63,18 @@ export const signTransaction = async (
   fromChain: string,
   fromUser: string,
   index: string,
-  transactionId: string,
   req: any
 ) => {
   let tx: TransactionContract
   let relayers = 1
-  // if (!fromChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} Bad arguments`)
-  if (process.env.IS_PUBLIC_RELAYER === 'true') {
-    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
-    if (!dbTransaction) throw Error('Transaction not found')
-  }
-  const _fromChain = fromChain.replace('evm.', '') as ChainId
+  if (!fromChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} Bad arguments`)
+  const _fromChain = fromChain.slice(4) as ChainId
   const _provider = await _getProvider(_fromChain)
   const contract = anyBridgeAssist(fromBridgeAddress, _provider)
   const transactionPromise = contract.transactions(fromUser, index)
-  // const relayerLengthPromise = contract.relayersLength()
-  tx = await transactionPromise
+  const relayerLengthPromise = contract.relayersLength()
+  const res = await Promise.all([transactionPromise, relayerLengthPromise])
+  tx = res[0]
   if (!tx || tx.block.toNumber() === 0) throw Error('Transaction not found')
   if (
     _fromChain === '42161' ||
@@ -100,28 +82,20 @@ export const signTransaction = async (
   )
     await checkToken(fromUser, contract, _fromChain, tx)
 
+  relayers = +res[1].toNumber()
+
   // const provider = getProvider(fromChain.slice(4) as ChainId)
   const currentBlock = await safeRead(_provider.getBlockNumber(), 0)
   if (currentBlock === 0 || tx.block.gt(currentBlock))
     throw Error(`Relayer ${relayerIndex} waiting for confirmations`)
 
-  if (!tx.toChain.startsWith('evm.'))
-    throw Error(`Relayer ${relayerIndex} bad contract params`)
+  if (!tx.toChain.startsWith('evm.')) throw Error(`Relayer ${relayerIndex} bad contract params`)
+  const {isFulfilled} = await fulfilledInfo(tx, toBridgeAddress)
+  if (isFulfilled) throw new Error('Token has already claimed')
 
+  // if (tx.toChain.startsWith('evm.')) {
   const chainId = tx.toChain.replace('evm.', '')
-  const toProvider = await _getProvider(chainId as ChainId)
-  const toBridgeAddressContract = anyBridgeAssist(toBridgeAddress, toProvider)
-  const { isFulfilled } = await fulfilledInfo(toBridgeAddressContract, tx)
-  if (isFulfilled) {
-    if (process.env.IS_PUBLIC_RELAYER === 'true') {
-      await transactionRepo.update(transactionId, { fulfilled: true })
-    }
-    throw new Error('Token has already claimed')
-  }
-
-  const relayersLength = await toBridgeAddressContract.relayersLength()
-  relayers = relayersLength.toNumber()
-
+  // const { bridgeAssist } = useContracts(undefined, chainId as ChainId)
   let signatures: string[] = []
   const allowedIps = process.env.ALLOWED_IPS?.split(',')
   const clientIp = getClientIp(req)
@@ -141,10 +115,7 @@ export const signTransaction = async (
     const relayer1Url = process.env.RELAYER1_URL
     const relayer2Url = process.env.RELAYER2_URL
 
-    const promises = [
-      getSignaturesFromRelayer(relayer1Url, req.query),
-      getSignaturesFromRelayer(relayer2Url, req.query),
-    ]
+    const promises = [getSignaturesFromRelayer(relayer1Url, req.query), getSignaturesFromRelayer(relayer2Url, req.query)]
     const results = await Promise.all(promises)
     signatures = signatures.concat(results[0], results[1])
   }
@@ -183,135 +154,9 @@ function getClientIp(req: any) {
   return req.connection.remoteAddress
 }
 
-export async function signEvmToSolana(
-  fromChainId: string,
-  fromBridgeAddress: string,
-  toBridgeAddress: string,
-  fromUser: string,
-  index: string,
-  _tokenMint: string,
-  transactionId: string
-) {
-  const { connection, owner, tokenMint } = solanaWorkspace(toBridgeAddress, _tokenMint)
-  // console.log(connection, 'connection')
-  if (process.env.IS_PUBLIC_RELAYER === 'true') {
-    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
-    if (!dbTransaction) throw Error('Transaction not found')
-  }
-  const fromChain = fromChainId.replace('evm.', '') as ChainId
-  const _provider = await _getProvider(fromChain)
-  const contract = anyBridgeAssist(fromBridgeAddress, _provider)
-  const tx = await contract.transactions(fromUser, index)
-  const userSolana = tx.toUser
-  const userTokenAccountKey = await getOrCreateAssociatedTokenAccount(
-    connection,
-    tokenMint,
-    new PublicKey(userSolana),
-    owner
-  )
-  const extractedTx = extractTransaction(tx)
-
-  if (await isToSolanaTxFulfilled(toBridgeAddress, _tokenMint, fromChain, tx.nonce)) {
-    if (process.env.IS_PUBLIC_RELAYER === 'true') {
-      await transactionRepo.update(transactionId, { fulfilled: true })
-    }
-    throw Error('Already claimed')
-  }
-
-  const blockConfirmed = hasPassedConfirmationEvm(_provider, fromChain, tx.block)
-
-  if (!blockConfirmed) throw Error('Not confirmed yet')
-
-  const signature = await signSolana(
-    toBridgeAddress,
-    extractedTx,
-    _tokenMint,
-    userTokenAccountKey
-  )
-
-  return signature.toString('base64')
-}
-
-export async function signSolanaToEvm(
-  req: any,
-  fromChain: string,
-  fromBridgeAddress: string,
-  toBridgeAddress: string,
-  userSolana: string,
-  nonce: string,
-  _tokenMint: string,
-  transactionId: string
-) {
-  const { owner, program, connection, tokenMint } = solanaWorkspace(
-    fromBridgeAddress,
-    _tokenMint
-  )
-  if (process.env.IS_PUBLIC_RELAYER === 'true') {
-    const dbTransaction = await transactionRepo.findOne({ id: transactionId })
-    if (!dbTransaction) throw Error('Transaction not found')
-  }
-  const tx = await getSolanaSendTx(
-    owner,
-    tokenMint,
-    program,
-    new PublicKey(userSolana),
-    nonce,
-    fromChain
-  )
-  const _provider = await _getProvider(tx.toChain.replace('evm.', '') as ChainId)
-  const contract = anyBridgeAssist(toBridgeAddress, _provider)
-
-  const fulfilledAt = await safeRead(
-    contract.fulfilledAt(tx.fromChain, tx.fromUser, tx.nonce),
-    ethers.constants.Zero
-  )
-  const isClaimed = fulfilledAt.toNumber() !== 0
-
-  if (isClaimed) {
-    if (process.env.IS_PUBLIC_RELAYER === 'true') {
-      await transactionRepo.update(transactionId, { fulfilled: true })
-    }
-    throw Error('Already claimed')
-  }
-
-  if (!(await hasPassedConfirmationSolana(connection, tx)))
-    throw Error('Not confirmed yet')
-
-  const relayerLength = await contract.relayersLength()
-  const relayers = relayerLength.toNumber()
-  const chainId = tx.toChain.replace('evm.', '')
-  let signatures: string[] = []
-  const allowedIps = process.env.ALLOWED_IPS?.split(',')
-  const clientIp = getClientIp(req)
-  if (process.env.IS_PUBLIC_RELAYER === 'false') {
-    if (!allowedIps?.includes(clientIp)) {
-      throw new Error(`Relayer ${relayerIndex} IP not allowed to connect to the relayer`)
-    }
-  }
-  const fulfilTX = extractFulfillTransaction(tx)
-  const signer0 = await signHashedTransaction(fulfilTX, chainId, toBridgeAddress, 0)
-  signatures.push(signer0)
-  if (process.env.IS_PUBLIC_RELAYER === 'true' && relayers > 1) {
-    const relayersLength = relayers - 1
-    const relayer1Url = process.env.RELAYER1_URL
-    const relayer2Url = process.env.RELAYER2_URL
-    const promises = [
-      getSignaturesFromRelayer(relayer1Url, req.query),
-      getSignaturesFromRelayer(relayer2Url, req.query),
-    ]
-    const results = await Promise.all(promises)
-    signatures = signatures.concat(results[0], results[1])
-  }
-  return signatures
-}
-
-async function checkToken(
-  user: string,
-  bridgeAssist: BridgeAssist,
-  fromChain: ChainId,
-  transaction: TransactionContract
-) {
+async function checkToken(user: string, bridgeAssist: BridgeAssist, fromChain: ChainId, transaction: TransactionContract) {
   const timeStamp = Number(transaction.timestamp.toString())
+  console.log(timeStamp, 'tx timesamp')
   if (timeStamp < targetTimeStamp(fromChain)) {
     console.log('Transaction before target timestamp')
     console.log('no need to check')
@@ -343,10 +188,9 @@ async function checkWNTRestriction(
       if (+transaction.timestamp.toString() < timeStamp) return
       const toChain = transaction.toChain.replace('evm.', '')
       const toBridgeAddress = (chainBridgeAssit as any)[toChain]
+      console.log(toBridgeAddress, 'toBridgeAddress')
       if (!toBridgeAddress) throw new Error(`Failed to get to bridge Assist address`)
-      const toProvider = await _getProvider(toChain as ChainId)
-      const toBridgeAddressContract = anyBridgeAssist(toBridgeAddress, toProvider)
-      const { isFulfilled } = await fulfilledInfo(toBridgeAddressContract, transaction)
+      const { isFulfilled } = await fulfilledInfo(transaction, toBridgeAddress)
       if (!isFulfilled) return
       const amount = +utils.formatUnits(transaction.amount, 18)
       totalBridged += amount
@@ -366,18 +210,11 @@ async function checkWNTRestriction(
   }
 }
 
-async function fulfilledInfo(
-  toBridgeAddressContract: BridgeAssist,
-  tx: TransactionContract
-) {
-  // const toChain = tx.toChain.replace('evm.', '') as ChainId
-  // const provider = await _getProvider(toChain)
-  // const bridgeAssist = anyBridgeAssist(bridgeAddress, provider)
-  const fulfilledAt = await toBridgeAddressContract.fulfilledAt(
-    tx.fromChain,
-    tx.fromUser,
-    tx.nonce
-  )
+async function fulfilledInfo(tx: TransactionContract, bridgeAddress: string) {
+  const toChain = tx.toChain.replace('evm.', '') as ChainId
+  const provider = await _getProvider(toChain)
+  const bridgeAssist = anyBridgeAssist(bridgeAddress, provider)
+  const fulfilledAt = await bridgeAssist.fulfilledAt(tx.fromChain, tx.fromUser, tx.nonce)
 
   return {
     isFulfilled: Number(fulfilledAt) > 0,
@@ -386,24 +223,6 @@ async function fulfilledInfo(
   }
 }
 
-// get block number by chainId, param is list of chainIds should be in promise.all
-export const getBlockNumber = async (chainIds: ChainId[]) => {
-  const blockNumbers: any = {}
-  await Promise.all(
-    chainIds.map(async (chainId) => {
-      if (isSolChain(chainId)) {
-        const connection = getSolanaConnection(chainId)
-        const blockNumber = await connection.getSlot()
-        blockNumbers[chainId] = +blockNumber.toString()
-        return
-      }
-      const provider = await _getProvider(chainId)
-      const blockNumber = await provider.getBlockNumber()
-      blockNumbers[chainId] = +blockNumber.toString()
-    })
-  )
-  return blockNumbers
-}
 
 export type ARB_CHAINID = '42161' | '421614'
 export const targetBlockNumber = (chainId: ChainId) =>

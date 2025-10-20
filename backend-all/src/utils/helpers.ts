@@ -12,10 +12,9 @@ import {
   polygon_mainnet_rpc,
   relayerIndex,
 } from './env-var'
-import { BigNumber, providers, utils } from 'ethers'
+import { providers } from 'ethers'
 import { universalRpc } from '@/gotbit-tools/node/rpc'
 import { getChainName, getChainTag } from '@/gotbit-tools/node'
-import { getConfirmationsRequired } from './solana/helpers'
 
 export async function getActiveRpc(rpcList: string[], timeoutMs: number = 5000) {
   /**
@@ -106,7 +105,6 @@ const _rpc = universalRpc()
 export async function _getProvider(chainId: ChainId) {
   let rpc: string | null = ''
   const rpcListString = getChainRPCS(chainId)
-  console.log(rpcListString,'list', chainId)
   if (rpcListString) {
     const rpcList = rpcListString.split(',')
     rpc = await getActiveRpc(rpcList)
@@ -116,34 +114,10 @@ export async function _getProvider(chainId: ChainId) {
   } else {
     rpc = _rpc(getChainTag(chainId))
     console.log(rpc, chainId, 'kdkdk')
-    if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error on ${chainId}. Please try again later`)
+    if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
     rpc = await getActiveRpc([rpc])
     console.log(`Using RPC public RPC`)
   }
-  if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error on ${chainId}. Please try again later`)
+  if (!rpc) throw new Error(`Relayer ${relayerIndex} Rpc error. Please try again later`)
   return new providers.JsonRpcProvider(rpc)
-}
-
-export async function hasPassedConfirmationEvm(provider: providers.JsonRpcProvider, fromChain: ChainId, block: BigNumber) {
-  const blockNumber = await provider.getBlockNumber()
-  return BigNumber.from(blockNumber).gt(block.add(getConfirmationsRequired(fromChain)))
-}
-
-export function isSolChain(chainId: string){
-  return chainId.includes('sol')
-}
-
-export function isEvmAddress(address: string){
-  return utils.isAddress(address)
-}
-
-export function useOldRwaBridge(timestamp: BigNumber): boolean {
-  // Create cutoff date (June 26, 2025 UTC)
-  const cutoffDate = new Date("2025-06-25T00:00:00Z");
-
-  // Compare the timestamps directly as numbers
-  const timestampMs = Number(timestamp.toString()) * 1000;
-  const cutoffMs = cutoffDate.getTime();
-
-  return timestampMs < cutoffMs;
 }
