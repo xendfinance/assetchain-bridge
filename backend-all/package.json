@@ -17,13 +17,6 @@
     "contracts": "yarn contracts:sync && yarn contracts:typings",
     "contracts:sync": "SCRIPT=./src/gotbit-tools/scripts/shell/import-contracts.sh yarn script",
     "contracts:typings": "node ./src/gotbit-tools/scripts/typings.js",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "yarn typeorm migration:generate -d src/lib/database/data-source.ts",
-    "migration:run": "yarn typeorm migration:run -d src/lib/database/data-source.ts",
-    "migration:revert": "yarn typeorm migration:revert -d src/lib/database/data-source.ts",
-    "migration:show": "yarn typeorm migration:show -d src/lib/database/data-source.ts",
-    "schema:sync": "yarn typeorm schema:sync -d src/lib/database/data-source.ts",
-    "schema:drop": "yarn typeorm schema:drop -d src/lib/database/data-source.ts",
     "\n# UTILS SCRIPTS:": "",
     "script": "chmod +x $SCRIPT && $SCRIPT",
     "dev-win": "yarn build-win && concurrently \"tsc -w\" \"cross-env DEBUG=true node-dev --respawn dist/app.js\"",
@@ -51,12 +44,8 @@
   "author": "kotsmile",
   "license": "MIT",
   "dependencies": {
-    "@coral-xyz/anchor": "^0.31.1",
-    "@solana/spl-token": "^0.4.13",
-    "@solana/web3.js": "^1.98.4",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
-    "bs58": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.6",
@@ -66,11 +55,7 @@
     "helmet": "^5.0.2",
     "module-alias": "^2.2.2",
     "moment": "^2.29.3",
-    "morgan": "^1.10.0",
-    "pg": "^8.8.0",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.12",
-    "winston": "^3.17.0"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.3",
@@ -80,7 +65,6 @@
     "@types/mocha": "^9.1.1",
     "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.31",
-    "@types/pg": "^8.6.6",
     "@types/supertest": "^2.0.12",
     "c8": "^7.11.3",
     "chai": "^4.3.6",
@@ -90,6 +74,6 @@
     "node-dev": "^7.4.3",
     "supertest": "^6.2.4",
     "ts-jest": "^29.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^4.6.4"
   }
 }

@@ -1,4 +1,3 @@
-import { arbitrum_mainnet_rpc, arbitrum_sepolia_rpc, base_mainnet_rpc, base_spolia_rpc, binance_mainnet_rpc, binance_testnet_rpc, ethereum_mainnet_rpc, ethereum_sepolia_rpc, polygon_amoy_rpc, polygon_mainnet_rpc } from '@/utils/env-var'
 import { ChainTag, RemoteChainTag, RpcFunction } from './utils/misc'
 import { extraRpcs } from './utils/node'
 
@@ -32,7 +31,7 @@ export const ankrRpc = (): RpcFunction => {
     if (chainTag === 'avax_testnet')
       return 'https://avalanche-fuji-c-chain.publicnode.com'
 
-    return `https://rpc.ankr.com${ankrPath[chainTag]}`
+    return 'https://rpc.ankr.com' + ankrPath[chainTag] ?? ''
   }
 }
 
@@ -47,11 +46,9 @@ export const extraRpc = (indexes?: Partial<Record<ChainTag, number>>) => {
     }
 
     const rpcList = (extraRpcs as any)[chainTag] ?? []
-    
-    for (const goodRpc of goodRpcProvider) {
 
+    for (const goodRpc of goodRpcProvider) {
       const rpc = goodRpc(chainTag)
-      console.log(rpc)
       if (rpc) rpcList.push(rpc)
     }
 
@@ -64,26 +61,26 @@ export const universalRpc = (): RpcFunction => {
   return (chainTag: ChainTag) => {
     const a: Record<ChainTag, string> = {
       avax_mainnet: ankr(chainTag),
-      bsc_mainnet: binance_mainnet_rpc,
-      arbitrum_mainnet: arbitrum_mainnet_rpc,
-      eth_mainnet: ethereum_mainnet_rpc,
+      bsc_mainnet: ankr(chainTag),
+      arbitrum_mainnet: extraRpcs.arbitrum_mainnet[0],
+      eth_mainnet: ankr(chainTag),
       ftm_mainnet: ankr(chainTag),
-      polygon_mainnet: polygon_mainnet_rpc,
+      polygon_mainnet: ankr(chainTag),
       celo_mainnet: ankr(chainTag),
-      base_mainnet: base_mainnet_rpc,
+      base_mainnet: ankr(chainTag),
       bitlayer_mainnet: extraRpcs.bitlayer_mainnet[0],
       xend_mainnet: extraRpcs.xend_mainnet[0],
 
       avax_testnet: 'https://avalanche-fuji-c-chain.publicnode.com',
-      polygon_testnet: polygon_amoy_rpc,
+      polygon_testnet: 'https://rpc-mumbai.maticvigil.com',
       ftm_testnet: ankr(chainTag),
       rinkeby: ankr(chainTag),
       ropsten: ankr(chainTag),
       goerli: ankr(chainTag),
 
-      arbitrum_testnet: arbitrum_sepolia_rpc,
+      arbitrum_testnet: extraRpcs.arbitrum_testnet[0],
       // bsc_testnet: extraRpcs.bsc_testnet[0],
-      bsc_testnet: binance_testnet_rpc,
+      bsc_testnet: 'https://bsc-testnet.publicnode.com',
 
       localhost: extraRpcs.localhost[0],
 
@@ -99,11 +96,11 @@ export const universalRpc = (): RpcFunction => {
       okex_testnet: extraRpcs.okex_testnet[0],
       cmp_testnet: extraRpcs.cmp_testnet[0],
       pulse_testnet: 'https://rpc.v4.testnet.pulsechain.com',
-      arbitrum_sepolia: arbitrum_sepolia_rpc,
+      arbitrum_sepolia: extraRpcs.arbitrum_sepolia[0],
       xend_testnet: extraRpcs.xend_testnet[0],
-      base_sepolia: base_spolia_rpc,
-      eth_sepolia: ethereum_sepolia_rpc,
-      polygon_amoy: polygon_amoy_rpc,
+      base_sepolia: extraRpcs.base_sepolia[0],
+      eth_sepolia: extraRpcs.eth_sepolia[0],
+      polygon_amoy: extraRpcs.polygon_amoy[0],
       bitlayer_testnet: extraRpcs.bitlayer_testnet[0],
     } as any
     return a[chainTag]
