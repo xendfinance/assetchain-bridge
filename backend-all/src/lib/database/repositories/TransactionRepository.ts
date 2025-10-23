@@ -327,7 +327,7 @@ export class TransactionRepository {
       },
       skip: skip,
       take: limit,
-      order: { transactionHash: 'DESC' },
+      order: { transactionDate: 'DESC' },
     })
 
     // Calculate pagination metadata
