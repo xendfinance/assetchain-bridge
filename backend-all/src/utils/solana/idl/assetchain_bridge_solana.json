@@ -1,0 +1,1275 @@
+{
+  "address": "5Ff1K9UAT3RWqdZ24qcF3w3UNTvXWkfaqirQgWzgdsYb",
+  "metadata": {
+    "name": "assetchain_bridge_solana",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "fulfill",
+      "discriminator": [
+        143,
+        2,
+        52,
+        206,
+        174,
+        164,
+        247,
+        72
+      ],
+      "accounts": [
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "empty_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  117,
+                  108,
+                  102,
+                  105,
+                  108,
+                  108,
+                  101,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_nonce"
+              },
+              {
+                "kind": "arg",
+                "path": "_from_chain.byte"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "bridge_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_account",
+          "writable": true
+        },
+        {
+          "name": "bridge_params",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  114,
+                  97,
+                  109,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "from_chain_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              },
+              {
+                "kind": "arg",
+                "path": "_from_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "_nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "version",
+          "type": "u64"
+        },
+        {
+          "name": "current_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        },
+        {
+          "name": "_from_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "bridge_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "fee_account",
+          "writable": true
+        },
+        {
+          "name": "bridge_params",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  114,
+                  97,
+                  109,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "fee_send",
+          "type": "u16"
+        },
+        {
+          "name": "fee_fulfill",
+          "type": "u16"
+        },
+        {
+          "name": "limit_send",
+          "type": "u64"
+        },
+        {
+          "name": "paused",
+          "type": "bool"
+        },
+        {
+          "name": "_version",
+          "type": "u64"
+        },
+        {
+          "name": "_current_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "send",
+      "discriminator": [
+        102,
+        251,
+        20,
+        187,
+        65,
+        75,
+        12,
+        69
+      ],
+      "accounts": [
+        {
+          "name": "send_nonce",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  95,
+                  110,
+                  111,
+                  110,
+                  99,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "_owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "send_tx",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  95,
+                  116,
+                  120
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "_owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "send_nonce.nonce",
+                "account": "UserNonce"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        },
+        {
+          "name": "bridge_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "_owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_account",
+          "writable": true
+        },
+        {
+          "name": "bridge_params",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  114,
+                  97,
+                  109,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "_owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "to_chain_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "_owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              },
+              {
+                "kind": "arg",
+                "path": "to_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "_owner",
+          "type": "pubkey"
+        },
+        {
+          "name": "_token_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "to",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        },
+        {
+          "name": "_version",
+          "type": "u64"
+        },
+        {
+          "name": "to_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        },
+        {
+          "name": "_current_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_chain_data",
+      "discriminator": [
+        214,
+        54,
+        247,
+        40,
+        78,
+        208,
+        151,
+        153
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "chain_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              },
+              {
+                "kind": "arg",
+                "path": "_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "_token_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "enabled",
+          "type": "bool"
+        },
+        {
+          "name": "exchange_rate_from",
+          "type": "u64"
+        },
+        {
+          "name": "_version",
+          "type": "u64"
+        },
+        {
+          "name": "_current_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        },
+        {
+          "name": "_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_params",
+      "discriminator": [
+        27,
+        234,
+        178,
+        52,
+        147,
+        2,
+        187,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bridge_params",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  114,
+                  97,
+                  109,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "_token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "_token_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "fee_send",
+          "type": "u16"
+        },
+        {
+          "name": "fee_fulfill",
+          "type": "u16"
+        },
+        {
+          "name": "limit_send",
+          "type": "u64"
+        },
+        {
+          "name": "paused",
+          "type": "bool"
+        },
+        {
+          "name": "_version",
+          "type": "u64"
+        },
+        {
+          "name": "_current_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "withdraw_token_account",
+          "writable": true
+        },
+        {
+          "name": "bridge_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "_version"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  97,
+                  108,
+                  108,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "token_mint"
+              },
+              {
+                "kind": "arg",
+                "path": "_current_chain.byte"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "version",
+          "type": "u64"
+        },
+        {
+          "name": "current_chain",
+          "type": {
+            "defined": {
+              "name": "Bytes32"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BridgeParams",
+      "discriminator": [
+        249,
+        32,
+        241,
+        181,
+        92,
+        58,
+        96,
+        253
+      ]
+    },
+    {
+      "name": "BridgeSendTx",
+      "discriminator": [
+        29,
+        194,
+        22,
+        87,
+        127,
+        246,
+        127,
+        151
+      ]
+    },
+    {
+      "name": "ChainData",
+      "discriminator": [
+        70,
+        133,
+        31,
+        188,
+        8,
+        245,
+        216,
+        203
+      ]
+    },
+    {
+      "name": "EmptyAccount",
+      "discriminator": [
+        174,
+        156,
+        186,
+        113,
+        230,
+        158,
+        33,
+        215
+      ]
+    },
+    {
+      "name": "UserNonce",
+      "discriminator": [
+        235,
+        133,
+        1,
+        243,
+        18,
+        135,
+        88,
+        224
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "SendFeeTooHigh"
+    },
+    {
+      "code": 6001,
+      "name": "FulfillFeeTooHigh"
+    },
+    {
+      "code": 6002,
+      "name": "ExchangeRateZero"
+    },
+    {
+      "code": 6003,
+      "name": "BridgePaused"
+    },
+    {
+      "code": 6004,
+      "name": "ChainDisabled"
+    },
+    {
+      "code": 6005,
+      "name": "AmountTooLow"
+    },
+    {
+      "code": 6006,
+      "name": "WithdrawZero"
+    },
+    {
+      "code": 6007,
+      "name": "SendLimitExceeded"
+    },
+    {
+      "code": 6008,
+      "name": "AmountUneven"
+    }
+  ],
+  "types": [
+    {
+      "name": "BridgeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee_send",
+            "type": "u16"
+          },
+          {
+            "name": "fee_fulfill",
+            "type": "u16"
+          },
+          {
+            "name": "limit_send",
+            "type": "u64"
+          },
+          {
+            "name": "fee_recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BridgeSendTx",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "initiator",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "to",
+            "type": {
+              "defined": {
+                "name": "Bytes32"
+              }
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "to_chain",
+            "type": {
+              "defined": {
+                "name": "Bytes32"
+              }
+            }
+          },
+          {
+            "name": "block",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Bytes32",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "byte",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChainData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "name": "exchange_rate_from",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EmptyAccount",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "UserNonce",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nonce",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
